@@ -8,6 +8,10 @@
 *.vcxproj.user
 *.vcxproj.filters
 *.sln
+x64
+stage_fighter.dir
+Debug
+Release
 
 lib/
 
