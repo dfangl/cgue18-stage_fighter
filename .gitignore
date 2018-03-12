@@ -1,0 +1,19 @@
+#
+# Gitignore for Stage Fighter
+#
+
+# Visual Studio Files:
+.vs/
+*.vcxproj
+*.vcxproj.user
+*.vcxproj.filters
+*.sln
+
+lib/
+
+# CMake Stuff:
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+
+
