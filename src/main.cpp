@@ -1,116 +1,137 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-#include <stdlib.h>
-#include <stdio.h>
 #include <iostream>
 #include <chrono>
+#include <memory>
 
 #include <btBulletDynamicsCommon.h>
 
-static void error_callback(int error, const char* description)
+
+#include "Window.h"
+#include "BulletUniverse.h"
+#include "object3d/Triangle.h"
+
+/* STATIC SHADER */
+const char *vertexShaderSource = "#version 330 core\n"
+        "layout (location = 0) in vec3 aPos;\n"
+        "void main()\n"
+        "{\n"
+        "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+        "}\0";
+const char *fragmentShaderSource = "#version 330 core\n"
+        "out vec4 FragColor;\n"
+        "void main()\n"
+        "{\n"
+        "   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
+        "}\n\0";
+
+
+int main(int argc, char *argv[])
 {
-	fprintf(stderr, "Error: %s\n", description);
-}
-static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
-{
-	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-		glfwSetWindowShouldClose(window, GLFW_TRUE);
-}
-int main(void)
-{
-	GLFWwindow* window;
-	GLuint vertex_buffer, vertex_shader, fragment_shader, program;
-	GLint mvp_location, vpos_location, vcol_location;
-	glfwSetErrorCallback(error_callback);
-	if (!glfwInit())
-		exit(EXIT_FAILURE);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
-	window = glfwCreateWindow(640, 480, "Simple example", NULL, NULL);
-	if (!window)
-	{
-		glfwTerminate();
-		exit(EXIT_FAILURE);
-	}
-	glfwSetKeyCallback(window, key_callback);
-	glfwMakeContextCurrent(window);
-	gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
-	glfwSwapInterval(1);
+	auto *window = new Window(800, 600, "Stage Fighter");
+	BulletUniverse *world = new BulletUniverse(btVector3(0,-10,0));
 
-	btBroadphaseInterface* broadphase = new btDbvtBroadphase();
-
-	btDefaultCollisionConfiguration* collisionConfiguration = new btDefaultCollisionConfiguration();
-	btCollisionDispatcher* dispatcher = new btCollisionDispatcher(collisionConfiguration);
-
-	btSequentialImpulseConstraintSolver* solver = new btSequentialImpulseConstraintSolver;
-
-	btDiscreteDynamicsWorld* dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration);
-
-	dynamicsWorld->setGravity(btVector3(0, -10, 0));
-
+	window->registerKeyProcessor([window]{
+		if(window->getKey(GLFW_KEY_ESCAPE) == GLFW_PRESS)
+			window->close();
+	});
 
 	btCollisionShape* groundShape = new btStaticPlaneShape(btVector3(0, 1, 0), 1);
-
 	btCollisionShape* fallShape = new btSphereShape(1);
-
-
 	btDefaultMotionState* groundMotionState = new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, -1, 0)));
 	btRigidBody::btRigidBodyConstructionInfo
 		groundRigidBodyCI(0, groundMotionState, groundShape, btVector3(0, 0, 0));
 	btRigidBody* groundRigidBody = new btRigidBody(groundRigidBodyCI);
-	dynamicsWorld->addRigidBody(groundRigidBody);
+	world->addRigidBody(groundRigidBody);
 
 
-	btDefaultMotionState* fallMotionState =
-		new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, 50, 0)));
+	btDefaultMotionState* fallMotionState = new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, 50, 0)));
 	btScalar mass = 1;
 	btVector3 fallInertia(0, 0, 0);
 	fallShape->calculateLocalInertia(mass, fallInertia);
 	btRigidBody::btRigidBodyConstructionInfo fallRigidBodyCI(mass, fallMotionState, fallShape, fallInertia);
 	btRigidBody* fallRigidBody = new btRigidBody(fallRigidBodyCI);
-	dynamicsWorld->addRigidBody(fallRigidBody);
+	world->addRigidBody(fallRigidBody);
 
-	auto lastTick = std::chrono::steady_clock::now();
+    // build and compile our shader program
+    // ------------------------------------
+    // vertex shader
+    GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
+    glCompileShader(vertexShader);
+    // check for shader compile errors
+    int success;
+    char infoLog[512];
+    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
+    if (!success)
+    {
+        glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
+        std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
+    }
+    // fragment shader
+    GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
+    glCompileShader(fragmentShader);
+    // check for shader compile errors
+    glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
+    if (!success)
+    {
+        glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
+        std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
+    }
+    // link shaders
+    GLuint shaderProgram = glCreateProgram();
+    glAttachShader(shaderProgram, vertexShader);
+    glAttachShader(shaderProgram, fragmentShader);
+    glLinkProgram(shaderProgram);
+    // check for linking errors
+    glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
+    if (!success) {
+        glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
+        std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
+    }
+    glDeleteShader(vertexShader);
+    glDeleteShader(fragmentShader);
 
-	while (!glfwWindowShouldClose(window))
+    auto triangle = std::make_shared<Triangle>(glm::vec4(0,0,0,0));
+    window->addObject3D(triangle);
+
+    auto lastTick = std::chrono::steady_clock::now();
+	while (window->isOpen())
 	{
 		auto curTick = std::chrono::steady_clock::now();
-		auto delta = std::chrono::duration_cast<std::chrono::duration<double>>(curTick - lastTick);
+		auto delta = std::chrono::duration_cast<std::chrono::milliseconds>(curTick - lastTick);
 		lastTick = curTick;
 
-		dynamicsWorld->stepSimulation(delta.count(), 10);
+		window->render([delta, shaderProgram, world, fallRigidBody]{
+            btTransform trans;
 
-		btTransform trans;
-		fallRigidBody->getMotionState()->getWorldTransform(trans);
+            world->simulate(delta);
 
-		std::cout << "sphere height: " << trans.getOrigin().getY() << std::endl;
-		
-		glfwSwapBuffers(window);
-		glfwPollEvents();
+			fallRigidBody->getMotionState()->getWorldTransform(trans);
+			std::cout << "sphere height: " << trans.getOrigin().getY() << std::endl;
+
+            glUseProgram(shaderProgram);
+			std::cout << glGetError() << std::endl;
+		});
 	}
 
-	dynamicsWorld->removeRigidBody(fallRigidBody);
+	world->removeRigidBody(fallRigidBody);
 	delete fallRigidBody->getMotionState();
 	delete fallRigidBody;
 
-	dynamicsWorld->removeRigidBody(groundRigidBody);
+	world->removeRigidBody(groundRigidBody);
 	delete groundRigidBody->getMotionState();
 	delete groundRigidBody;
 
 
 	delete fallShape;
-
 	delete groundShape;
 
+	delete world;
+	delete window;
 
-	delete dynamicsWorld;
-	delete solver;
-	delete collisionConfiguration;
-	delete dispatcher;
-	delete broadphase;
-
-	glfwDestroyWindow(window);
 	glfwTerminate();
 	exit(EXIT_SUCCESS);
 }

@@ -121,8 +121,14 @@ endif()
 
 ## GLAD ##
 set(GLAD_INCLUDE_DIR "${EXTERN}/glad/include")
-add_library("glad" "${EXTERN}/glad/src/glad.c")
+add_library("glad" "${EXTERN}/glad/src/glad.c" src/object3d/Triangle.cpp src/object3d/Triangle.h)
 target_include_directories("glad" PRIVATE "${GLAD_INCLUDE_DIR}")
+
+## GLM ##
+find_package(glm REQUIRED)
+include_directories(${GLM_INCLUDE_DIRS})
+link_directories(${GLM_LIBRARY_DIRS})
+add_definitions(${GLM_DEFINITIONS})
 	
 #
 # Link & Include Stuff into the binary
@@ -137,7 +143,7 @@ include_directories(
 add_executable(
 		"${BINARY}"
 		src/main.cpp
-	)
+		src/Window.cpp src/Window.h src/helper/Callback.h src/BulletUniverse.cpp src/BulletUniverse.h src/Object3D.cpp src/Object3D.h)
 
 set_target_properties("${BINARY}" PROPERTIES LINKER_LANGUAGE CXX)	
 	
