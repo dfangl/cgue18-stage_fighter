@@ -4,3 +4,6 @@
 [submodule "extern/bullet3"]
 	path = extern/bullet3
 	url = https://github.com/bulletphysics/bullet3
+[submodule "extern/kaguya"]
+	path = extern/kaguya
+	url = https://github.com/satoren/kaguya

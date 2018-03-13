@@ -129,7 +129,34 @@ find_package(glm REQUIRED)
 include_directories(${GLM_INCLUDE_DIRS})
 link_directories(${GLM_LIBRARY_DIRS})
 add_definitions(${GLM_DEFINITIONS})
-	
+
+## Kaguya ##
+if (UNIX)
+	find_package(PkgConfig REQUIRED)
+	pkg_search_module(lua REQUIRED lua53)
+
+	if(LUA_FOUND)
+		message(STATUS "Lua was found by pkg-config: '${LUA_INCLUDE_DIRS}'")
+		if(LUA_INCLUDE_DIRS STREQUAL "")
+			message(STATUS "Assume that lua.h is in /usr/include")
+			set(LUA_INCLUDE_DIRS "/usr/include")
+		endif()
+	endif()
+endif()
+
+if(NOT LUA_FOUND)
+	set(LOCAL_LUA_DIRECTORY "${EXTERN}/lua")
+endif()
+
+set(KAGUYA_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+set(KAGUYA_BUILD_BENCHMARK OFF CACHE BOOL "" FORCE)
+set(KAGUYA_BUILD_EXAMPLE_GLFW_BIND OFF CACHE BOOL "" FORCE)
+set(KAGUYA_SINGLE_HEADER_VERSION OFF CACHE BOOL "" FORCE)
+
+add_subdirectory("${EXTERN}/kaguya")
+
+set(KAGUYA_INCLUDE_DIRS "${EXTERN}/kaguya/include")
+
 #
 # Link & Include Stuff into the binary
 #
@@ -137,6 +164,7 @@ add_definitions(${GLM_DEFINITIONS})
 include_directories(
 		${GLFW_INCLUDE_DIRS}
 		${BULLET_INCLUDE_DIRS}
+		${KAGUYA_INCLUDE_DIRS}
         PRIVATE ${GLAD_INCLUDE_DIR}
 	)
 
@@ -151,6 +179,7 @@ target_link_libraries(
 		"${BINARY}"
 		${GLFW_STATIC_LIBRARIES}
 		${BULLET_LIBRARIES}
+		${LUA_LIBRARIES}
 		glad
 	)
 

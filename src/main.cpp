@@ -12,6 +12,8 @@
 #include "BulletUniverse.h"
 #include "object3d/Triangle.h"
 
+#include <kaguya/kaguya.hpp>
+
 /* STATIC SHADER */
 const char *vertexShaderSource = "#version 330 core\n"
         "layout (location = 0) in vec3 aPos;\n"
@@ -27,9 +29,13 @@ const char *fragmentShaderSource = "#version 330 core\n"
         "}\n\0";
 
 
-int main(int argc, char *argv[])
-{
-	auto *window = new Window(800, 600, "Stage Fighter");
+int main(int argc, char *argv[]) {
+	kaguya::State config;
+    config.dofile("../config.lua");
+
+	auto *window = new Window(config["config"]["height"], config["config"]["width"], "Stage Fighter");
+    window->setVSync(config["config"]["vsync"]);
+
 	BulletUniverse *world = new BulletUniverse(btVector3(0,-10,0));
 
 	window->registerKeyProcessor([window]{
