@@ -8,18 +8,21 @@
 #include <glm/glm.hpp>
 #include "Object3D.h"
 #include "../Shader.h"
+#include "../Texture.h"
 #include <memory>
 
 class Triangle: public Object3D {
 
 private:
     static const float vertices[];
+    std::shared_ptr<Texture> texture;
 
 public:
-    explicit Triangle(const glm::vec3 &pos);
+    explicit Triangle(const glm::vec3 &pos, const std::shared_ptr<Texture> &texture);
     ~Triangle();
 
-    void draw() override;
+    void render() override;
+    void draw() override {}
 
 };
 

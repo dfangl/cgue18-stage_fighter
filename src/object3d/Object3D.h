@@ -17,7 +17,7 @@ protected:
 public:
     explicit Object3D(const std::shared_ptr<Shader> &shader);
 
-    void render();
+    virtual void render();
     virtual void draw() = 0;
 
 };

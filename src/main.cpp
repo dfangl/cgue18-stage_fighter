@@ -56,7 +56,7 @@ int main(int argc, char *argv[]) {
 	world->addRigidBody(fallRigidBody);
 	//=============================
 
-    auto triangle = std::make_shared<Triangle>(glm::vec4(0,0,0,0));
+    auto triangle = std::make_shared<Triangle>(glm::vec4(0,0,0,0), std::make_shared<Texture>("../resources/texture/wall.jpg"));
     window->addObject3D(triangle);
 
     auto lastTick = std::chrono::high_resolution_clock::now();
@@ -76,8 +76,8 @@ int main(int argc, char *argv[]) {
             std::cout << "tick time: " << delta.count() << std::endl;
 
             auto error = glGetError();
-            if(error) {
-                console->error("OpenGL Error Code: {:d}", error);
+            if(error != GL_NO_ERROR) {
+                console->error("OpenGL Error Code: {}", error);
             }
 		});
 	}

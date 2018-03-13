@@ -164,6 +164,9 @@ find_package(Threads REQUIRED)
 add_subdirectory("${EXTERN}/spdlog")
 include_directories("${EXTERN}/spdlog/include")
 
+## stb single headers ##
+include_directories("${EXTERN}/stb")
+
 #
 # Link & Include Stuff into the binary
 #
@@ -178,7 +181,7 @@ include_directories(
 add_executable(
 		"${BINARY}"
 		src/main.cpp
-		src/Window.cpp src/Window.h src/helper/Callback.h src/BulletUniverse.cpp src/BulletUniverse.h src/object3d/Object3D.cpp src/object3d/Object3D.h src/Shader.cpp src/Shader.h src/manager/ShaderManager.cpp src/manager/ShaderManager.h)
+		src/Window.cpp src/Window.h src/helper/Callback.h src/BulletUniverse.cpp src/BulletUniverse.h src/object3d/Object3D.cpp src/object3d/Object3D.h src/Shader.cpp src/Shader.h src/manager/ShaderManager.cpp src/manager/ShaderManager.h src/Texture.cpp src/Texture.h)
 
 set_target_properties("${BINARY}" PROPERTIES LINKER_LANGUAGE CXX)	
 	
