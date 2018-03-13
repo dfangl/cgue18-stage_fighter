@@ -19,34 +19,30 @@ Shader::Shader(const std::string vertexCode, const std::string fragmentCode) {
     vertex = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vertex, 1, &vShaderCode, nullptr);
     glCompileShader(vertex);
-    //TODO: Check for errors
     glGetShaderiv(vertex, GL_COMPILE_STATUS, &success);
-    if (!success)
-    {
-        glGetShaderInfoLog(vertex, 512, NULL, infoLog);
-        std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
+    if (!success) {
+        glGetShaderInfoLog(vertex, 512, nullptr, infoLog);
+        console->error("Vertex Shader compilation failed:\n{}", infoLog);
     }
 
     fragment = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(fragment, 1, &fShaderCode, nullptr);
     glCompileShader(fragment);
-    //TODO: Check for errors
     glGetShaderiv(fragment, GL_COMPILE_STATUS, &success);
-    if (!success)
-    {
-        glGetShaderInfoLog(fragment, 512, NULL, infoLog);
-        std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
+    if (!success) {
+        glGetShaderInfoLog(fragment, 512, nullptr, infoLog);
+        console->error("Fragment Shader compilation failed:\n{}", infoLog);
     }
 
     this->shaderID = glCreateProgram();
     glAttachShader(this->shaderID, vertex);
     glAttachShader(this->shaderID, fragment);
     glLinkProgram(this->shaderID);
-    // check for linking errors
+
     glGetProgramiv(this->shaderID, GL_LINK_STATUS, &success);
     if (!success) {
-        glGetProgramInfoLog(this->shaderID, 512, NULL, infoLog);
-        std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
+        glGetProgramInfoLog(this->shaderID, 512, nullptr, infoLog);
+        console->error("Shader linking failed:\n{}", infoLog);
     }
 
     glDeleteShader(vertex);
@@ -98,6 +94,8 @@ void Shader::setUniform(const GLint location, const glm::mat4 &mat) const {
 }
 
 std::shared_ptr<Shader> Shader::fromFile(const std::string vertex, const std::string fragment) {
+    auto console = spdlog::get("console");
+
     std::string vertexCode;
     std::string fragmentCode;
     std::ifstream vShaderFile;
@@ -120,6 +118,10 @@ std::shared_ptr<Shader> Shader::fromFile(const std::string vertex, const std::st
         vertexCode = vShaderStream.str();
         fragmentCode = fShaderStream.str();
     } catch (std::ifstream::failure& e) {
+        console->error("Unable to load shader files: {}, {}", vertex, fragment);
+        console->error("Error: {}", e.what());
+        console->flush();
+
         throw e;
     }
 

@@ -9,8 +9,9 @@
 #include <glm/glm.hpp>
 #include <string>
 #include <memory>
+#include "helper/Logger.h"
 
-class Shader {
+class Shader : public Logger {
 
 private:
     GLuint shaderID;

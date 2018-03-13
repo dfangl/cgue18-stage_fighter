@@ -14,11 +14,17 @@
 #include "manager/ShaderManager.h"
 
 #include <kaguya/kaguya.hpp>
+#include <spdlog/spdlog.h>
 
 int main(int argc, char *argv[]) {
+    spdlog::set_async_mode(8192);
+    auto console = spdlog::stdout_color_mt("console");
+    console->info("Loading ../config.lua");
+
 	kaguya::State config;
     config.dofile("../config.lua");
 
+    console->info("Shader root is ../resources/shader");
     ShaderManager::build("../resources/shader/");
 
 	auto *window = new Window(config["config"]["height"], config["config"]["width"], "Stage Fighter");
@@ -31,6 +37,7 @@ int main(int argc, char *argv[]) {
 			window->close();
 	});
 
+	//TODO: Move Bullet stuff to anoter location:
 	btCollisionShape* groundShape = new btStaticPlaneShape(btVector3(0, 1, 0), 1);
 	btCollisionShape* fallShape = new btSphereShape(1);
 	btDefaultMotionState* groundMotionState = new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, -1, 0)));
@@ -47,6 +54,7 @@ int main(int argc, char *argv[]) {
 	btRigidBody::btRigidBodyConstructionInfo fallRigidBodyCI(mass, fallMotionState, fallShape, fallInertia);
 	btRigidBody* fallRigidBody = new btRigidBody(fallRigidBodyCI);
 	world->addRigidBody(fallRigidBody);
+	//=============================
 
     auto triangle = std::make_shared<Triangle>(glm::vec4(0,0,0,0));
     window->addObject3D(triangle);
@@ -58,7 +66,7 @@ int main(int argc, char *argv[]) {
 		std::chrono::duration<double, std::milli> delta =  curTick - lastTick;
 		lastTick = curTick;
 
-		window->render([delta, world, fallRigidBody]{
+		window->render([delta, console, world, fallRigidBody]{
             btTransform trans;
 
             world->simulate(delta);
@@ -68,8 +76,9 @@ int main(int argc, char *argv[]) {
             std::cout << "tick time: " << delta.count() << std::endl;
 
             auto error = glGetError();
-            if(error)
-			    std::cout << "OpenGL Error: " << error << std::endl;
+            if(error) {
+                console->error("OpenGL Error Code: {:d}", error);
+            }
 		});
 	}
 

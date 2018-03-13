@@ -157,6 +157,13 @@ add_subdirectory("${EXTERN}/kaguya")
 
 set(KAGUYA_INCLUDE_DIRS "${EXTERN}/kaguya/include")
 
+## Logger ##
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+find_package(Threads REQUIRED)
+
+add_subdirectory("${EXTERN}/spdlog")
+include_directories("${EXTERN}/spdlog/include")
+
 #
 # Link & Include Stuff into the binary
 #
@@ -181,6 +188,7 @@ target_link_libraries(
 		${BULLET_LIBRARIES}
 		${LUA_LIBRARIES}
 		glad
+        Threads::Threads
 	)
 
 if(NOT BULLET_FOUND)	

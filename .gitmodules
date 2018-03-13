@@ -7,3 +7,6 @@
 [submodule "extern/kaguya"]
 	path = extern/kaguya
 	url = https://github.com/satoren/kaguya
+[submodule "extern/spdlog"]
+	path = extern/spdlog
+	url = https://github.com/gabime/spdlog.git
