@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.9)
 
-project("Stage Figther")
+project("Stage Fighter")
 
 set(VERSION_MAJOR 0)
 set(VERSION_MINOR 1)
@@ -11,6 +11,8 @@ set(LIB_DIR "${CMAKE_SOURCE_DIR}/lib")
 set(EXTERN "${CMAKE_SOURCE_DIR}/extern")
 
 set(CMAKE_CXX_STANDARD 11)
+
+include(${CMAKE_ROOT}/Modules/ExternalProject.cmake)
 
 #
 # Comiler Stuff:
@@ -69,7 +71,6 @@ if(BULLET_FOUND)
 		include_directories("/usr/include/bullet")
 	endif()
 else()
-	include(${CMAKE_ROOT}/Modules/ExternalProject.cmake)
 	message(STATUS "Using Bullet in ${EXTERN}/bullet3")
 	  
 	 list(APPEND BulletCmakeArgs
@@ -116,22 +117,52 @@ else()
 	endif()
 
 	set(BULLET_INCLUDE_DIRS "${EXTERN}/bullet3/include")
-	
+	link_directories("${EXTERN}/bullet3/lib")
 endif()
 
 ## GLAD ##
 set(GLAD_INCLUDE_DIR "${EXTERN}/glad/include")
-add_library("glad" "${EXTERN}/glad/src/glad.c" src/object3d/Triangle.cpp src/object3d/Triangle.h)
+add_library("glad" "${EXTERN}/glad/src/glad.c")
 target_include_directories("glad" PRIVATE "${GLAD_INCLUDE_DIR}")
 
 ## GLM ##
-find_package(glm REQUIRED)
+if(UNIX)
+	# fails on win32 if extern/glm is present? 
+	find_package(glm)
+endif()
+
+if (GLM_FOUND)
+	add_definitions(${GLM_DEFINITIONS})
+else()
+	message(STATUS "Using glm from ${EXTERN}/glm")
+	
+	list(APPEND GLMCmakeArgs
+		-DCMAKE_INSTALL_PREFIX=${EXTERN}/glm
+		-DGLM_TEST_ENABLE_SIMD_AVX=ON
+        -DINSTALL_LIBS=ON 
+		-DGLM_INSTALL_ENABLE=ON
+		-DINCLUDE_INSTALL_DIR=include/
+		-DUSE_MSVC_RUNTIME_LIBRARY_DLL=OFF
+        -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -G ${CMAKE_GENERATOR}
+      )
+	  
+	  ExternalProject_Add(GLM 
+		PREFIX "${EXTERN}/glm"
+		BUILD_IN_SOURCE 1
+		SOURCE_DIR "${EXTERN}/glm"
+		CMAKE_ARGS "${GLMCmakeArgs}"
+		LOG_BUILD 1
+	)
+	
+	set(GLM_INCLUDE_DIRS "${EXTERN}/glm/include")
+	set(GLM_LIBRARY_DIRS "")
+endif()
+
 include_directories(${GLM_INCLUDE_DIRS})
 link_directories(${GLM_LIBRARY_DIRS})
-add_definitions(${GLM_DEFINITIONS})
 
 ## Kaguya ##
-if (UNIX)
+if(UNIX)
 	find_package(PkgConfig REQUIRED)
 	pkg_search_module(lua REQUIRED lua5.3)
 
@@ -145,7 +176,17 @@ if (UNIX)
 endif()
 
 if(NOT LUA_FOUND)
+	message(STATUS "Using lua in ${EXTERN}/lua")
+	
+	file(GLOB LUA_SOURCES "${EXTERN}/lua/*.c")
+	
 	set(LOCAL_LUA_DIRECTORY "${EXTERN}/lua")
+	set(LUA_INCLUDE_DIRS "${LOCAL_LUA_DIRECTORY}")
+	
+	add_library(lualib ${LUA_SOURCES})
+	set(LUA_LIBRARIES lualib)
+	
+	include_directories(${LOCAL_LUA_DIRECTORY})
 endif()
 
 set(KAGUYA_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
@@ -180,7 +221,7 @@ include_directories(
 
 add_executable(
 		"${BINARY}"
-		src/main.cpp
+		src/main.cpp src/object3d/Triangle.cpp src/object3d/Triangle.h
 		src/Window.cpp src/Window.h src/helper/Callback.h src/BulletUniverse.cpp src/BulletUniverse.h src/object3d/Object3D.cpp src/object3d/Object3D.h src/Shader.cpp src/Shader.h src/manager/ShaderManager.cpp src/manager/ShaderManager.h src/Texture.cpp src/Texture.h src/manager/TextureManager.cpp src/manager/TextureManager.h)
 
 set_target_properties("${BINARY}" PROPERTIES LINKER_LANGUAGE CXX)	
@@ -196,4 +237,7 @@ target_link_libraries(
 
 if(NOT BULLET_FOUND)	
 	add_dependencies(${BINARY} Bullet)	
+endif()
+if(NOT GLM_FOUND)
+	add_dependencies(${BINARY} Bullet)
 endif()

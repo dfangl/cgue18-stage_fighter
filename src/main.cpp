@@ -17,15 +17,26 @@
 #include <kaguya/kaguya.hpp>
 #include <spdlog/spdlog.h>
 
+#include <windows.h>
+
+std::string ExePath() {
+	char buffer[MAX_PATH];
+	GetModuleFileName(NULL, buffer, MAX_PATH);
+	std::string::size_type pos = std::string(buffer).find_last_of("\\/");
+	return std::string(buffer).substr(0, pos);
+}
+
 int main(int argc, char *argv[]) {
     spdlog::set_async_mode(8192);
     auto console = spdlog::stdout_color_mt("console");
     console->info("Loading ../config.lua");
+	console->info("{}", ExePath() + "\\" + "config.lua");
+	console->flush();
 
 	kaguya::State config;
     config.dofile("../config.lua");
 
-    console->info("Shader root is ../resources/shader");
+	console->info("Shader root is ../resources/shader");
     ShaderManager::build("../resources/shader/");
     TextureManager::build("../resources/texture/");
 

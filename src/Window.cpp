@@ -11,6 +11,11 @@ typedef void (*framebuffer_size_callback)(GLFWwindow*,int,int);
 typedef void (*mouse_callback)(GLFWwindow*,double,double);
 typedef void (*scroll_callback)(GLFWwindow*,double,double);
 
+#include <iostream>
+static void glfw_error_callack_func(int code, const char * reason) {
+	std::cout << "[Error: GLFW] " << code << " with " << reason << std::endl;
+}
+
 Window::Window(int width, int height, const std::string &windowName, bool fullscreen) {
     this->height = height;
     this->width = width;
@@ -20,9 +25,11 @@ Window::Window(int width, int height, const std::string &windowName, bool fullsc
         throw std::runtime_error("Unable to init GLFW!");
     }
 
+	glfwSetErrorCallback(glfw_error_callack_func);
+
     // Set OpenGL Context to 4.5 core
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     GLFWmonitor *monitor = nullptr;
