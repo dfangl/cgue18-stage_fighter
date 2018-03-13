@@ -21,7 +21,8 @@ Texture::Texture(const std::string &path) {
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
         glGenerateMipmap(GL_TEXTURE_2D);
     } else {
-        console->error("Failed to load texture: {}" + path);
+        console->error("Failed to load texture: {}", path);
+        console->flush();
         throw std::runtime_error("Failed to load texture!");
     }
 
