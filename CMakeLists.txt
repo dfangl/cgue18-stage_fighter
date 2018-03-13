@@ -133,7 +133,7 @@ add_definitions(${GLM_DEFINITIONS})
 ## Kaguya ##
 if (UNIX)
 	find_package(PkgConfig REQUIRED)
-	pkg_search_module(lua REQUIRED lua53)
+	pkg_search_module(lua REQUIRED lua5.3)
 
 	if(LUA_FOUND)
 		message(STATUS "Lua was found by pkg-config: '${LUA_INCLUDE_DIRS}'")
