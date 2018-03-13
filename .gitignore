@@ -21,3 +21,8 @@ CMakeCache.txt
 cmake_install.cmake
 
 
+# Clion:
+.idea
+cmake-build-debug
+
+
