@@ -120,7 +120,7 @@ void Window::render(std::function<void()> func) {
     func();
 
     for(auto &obj : this->objects) {
-        obj->draw();
+        obj->render();
     }
 
     glfwSwapBuffers(this->glfwWindow);

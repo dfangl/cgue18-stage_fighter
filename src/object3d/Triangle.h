@@ -16,7 +16,7 @@ private:
     static const float vertices[];
 
 public:
-    Triangle(const glm::vec3 &pos,const std::shared_ptr<Shader> &shader);
+    explicit Triangle(const glm::vec3 &pos);
     ~Triangle();
 
     void draw() override;

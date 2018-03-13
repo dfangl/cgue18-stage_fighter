@@ -3,6 +3,7 @@
 //
 
 #include "Triangle.h"
+#include "../manager/ShaderManager.h"
 
 const float Triangle::vertices[] = {
         -0.5f, -0.5f, 0.0f,
@@ -10,9 +11,7 @@ const float Triangle::vertices[] = {
         0.0f,  0.5f, 0.0f
 };
 
-Triangle::Triangle(const glm::vec3 &pos,const std::shared_ptr<Shader> &shader) {
-    this->shader = shader;
-
+Triangle::Triangle(const glm::vec3 &pos): Object3D(ShaderManager::load("triangle")) {
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
 
@@ -28,8 +27,6 @@ Triangle::Triangle(const glm::vec3 &pos,const std::shared_ptr<Shader> &shader) {
 }
 
 void Triangle::draw() {
-    this->shader->use();
-
     glBindVertexArray(VAO);
     glDrawArrays(GL_TRIANGLES, 0, 3);
     glBindVertexArray(0);

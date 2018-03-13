@@ -11,28 +11,15 @@
 #include "Window.h"
 #include "BulletUniverse.h"
 #include "object3d/Triangle.h"
-#include "Shader.h"
+#include "manager/ShaderManager.h"
 
 #include <kaguya/kaguya.hpp>
-
-/* STATIC SHADER */
-const char *vertexShaderSource = "#version 330 core\n"
-        "layout (location = 0) in vec3 aPos;\n"
-        "void main()\n"
-        "{\n"
-        "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-        "}\0";
-const char *fragmentShaderSource = "#version 330 core\n"
-        "out vec4 FragColor;\n"
-        "void main()\n"
-        "{\n"
-        "   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
-        "}\n\0";
-
 
 int main(int argc, char *argv[]) {
 	kaguya::State config;
     config.dofile("../config.lua");
+
+    ShaderManager::build("../resources/shader/");
 
 	auto *window = new Window(config["config"]["height"], config["config"]["width"], "Stage Fighter");
     window->setVSync(config["config"]["vsync"]);
@@ -61,9 +48,7 @@ int main(int argc, char *argv[]) {
 	btRigidBody* fallRigidBody = new btRigidBody(fallRigidBodyCI);
 	world->addRigidBody(fallRigidBody);
 
-    auto shader = std::make_shared<Shader>(vertexShaderSource, fragmentShaderSource);
-
-    auto triangle = std::make_shared<Triangle>(glm::vec4(0,0,0,0), shader);
+    auto triangle = std::make_shared<Triangle>(glm::vec4(0,0,0,0));
     window->addObject3D(triangle);
 
     auto lastTick = std::chrono::high_resolution_clock::now();
@@ -102,6 +87,8 @@ int main(int argc, char *argv[]) {
 
 	delete world;
 	delete window;
+
+    ShaderManager::destroy();
 
 	glfwTerminate();
 	exit(EXIT_SUCCESS);
