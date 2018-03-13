@@ -12,7 +12,7 @@
 #include <functional>
 #include <memory>
 
-#include "Object3D.h"
+#include "object3d/Object3D.h"
 
 
 class Window {

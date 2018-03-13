@@ -6,11 +6,13 @@
 #define STAGE_FIGTHER_OBJECT3D_H
 
 #include <glad/glad.h>
+#include "../Shader.h"
 
 class Object3D {
 
 protected:
     GLuint VBO, VAO, EBO;
+    std::shared_ptr<Shader> shader;
 
 public:
     virtual void draw() = 0;

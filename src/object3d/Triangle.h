@@ -6,7 +6,9 @@
 #define STAGE_FIGTHER_TRIANGLE_H
 
 #include <glm/glm.hpp>
-#include "../Object3D.h"
+#include "Object3D.h"
+#include "../Shader.h"
+#include <memory>
 
 class Triangle: public Object3D {
 
@@ -14,7 +16,7 @@ private:
     static const float vertices[];
 
 public:
-    explicit Triangle(const glm::vec3 &pos);
+    Triangle(const glm::vec3 &pos,const std::shared_ptr<Shader> &shader);
     ~Triangle();
 
     void draw() override;

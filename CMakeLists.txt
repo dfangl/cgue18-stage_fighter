@@ -171,7 +171,7 @@ include_directories(
 add_executable(
 		"${BINARY}"
 		src/main.cpp
-		src/Window.cpp src/Window.h src/helper/Callback.h src/BulletUniverse.cpp src/BulletUniverse.h src/Object3D.cpp src/Object3D.h)
+		src/Window.cpp src/Window.h src/helper/Callback.h src/BulletUniverse.cpp src/BulletUniverse.h src/object3d/Object3D.cpp src/object3d/Object3D.h src/Shader.cpp src/Shader.h)
 
 set_target_properties("${BINARY}" PROPERTIES LINKER_LANGUAGE CXX)	
 	

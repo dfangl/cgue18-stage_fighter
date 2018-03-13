@@ -11,6 +11,7 @@
 #include "Window.h"
 #include "BulletUniverse.h"
 #include "object3d/Triangle.h"
+#include "Shader.h"
 
 #include <kaguya/kaguya.hpp>
 
@@ -60,47 +61,9 @@ int main(int argc, char *argv[]) {
 	btRigidBody* fallRigidBody = new btRigidBody(fallRigidBodyCI);
 	world->addRigidBody(fallRigidBody);
 
-    // build and compile our shader program
-    // ------------------------------------
-    // vertex shader
-    GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
-    glCompileShader(vertexShader);
-    // check for shader compile errors
-    int success;
-    char infoLog[512];
-    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-    if (!success)
-    {
-        glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-        std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
-    }
-    // fragment shader
-    GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
-    glCompileShader(fragmentShader);
-    // check for shader compile errors
-    glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
-    if (!success)
-    {
-        glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
-        std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
-    }
-    // link shaders
-    GLuint shaderProgram = glCreateProgram();
-    glAttachShader(shaderProgram, vertexShader);
-    glAttachShader(shaderProgram, fragmentShader);
-    glLinkProgram(shaderProgram);
-    // check for linking errors
-    glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
-    if (!success) {
-        glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
-        std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
-    }
-    glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);
+    auto shader = std::make_shared<Shader>(vertexShaderSource, fragmentShaderSource);
 
-    auto triangle = std::make_shared<Triangle>(glm::vec4(0,0,0,0));
+    auto triangle = std::make_shared<Triangle>(glm::vec4(0,0,0,0), shader);
     window->addObject3D(triangle);
 
     auto lastTick = std::chrono::high_resolution_clock::now();
@@ -110,7 +73,7 @@ int main(int argc, char *argv[]) {
 		std::chrono::duration<double, std::milli> delta =  curTick - lastTick;
 		lastTick = curTick;
 
-		window->render([delta, shaderProgram, world, fallRigidBody]{
+		window->render([delta, world, fallRigidBody]{
             btTransform trans;
 
             world->simulate(delta);
@@ -119,7 +82,6 @@ int main(int argc, char *argv[]) {
 			std::cout << "sphere height: " << trans.getOrigin().getY() << std::endl;
             std::cout << "tick time: " << delta.count() << std::endl;
 
-            glUseProgram(shaderProgram);
             auto error = glGetError();
             if(error)
 			    std::cout << "OpenGL Error: " << error << std::endl;
