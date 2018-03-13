@@ -16,3 +16,4 @@ Import as new Project
 * LUA 5.3
 * glad (generated from webservice)
 * Kaguya
+* spdlog
