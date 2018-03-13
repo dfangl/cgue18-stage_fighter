@@ -19,13 +19,13 @@ private:
     btDiscreteDynamicsWorld* dynamicsWorld;
 
 public:
-    BulletUniverse(const btVector3 &gravity);
+    explicit BulletUniverse(const btVector3 &gravity);
     ~BulletUniverse();
 
     void addRigidBody(btRigidBody*body);
     void removeRigidBody(btRigidBody*body);
 
-    void simulate(std::chrono::milliseconds tick);
+    void simulate(std::chrono::duration<double, std::milli> tick);
 
 };
 

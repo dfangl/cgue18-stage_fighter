@@ -26,8 +26,8 @@ void BulletUniverse::addRigidBody(btRigidBody *body) {
     this->dynamicsWorld->addRigidBody(body);
 }
 
-void BulletUniverse::simulate(std::chrono::milliseconds tick) {
-    dynamicsWorld->stepSimulation(tick.count() / 1000.0f, 10);
+void BulletUniverse::simulate(std::chrono::duration<double, std::milli> tick) {
+    dynamicsWorld->stepSimulation(static_cast<btScalar>(tick.count() / 1000.f), 10);
 }
 
 void BulletUniverse::removeRigidBody(btRigidBody *body) {

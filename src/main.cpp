@@ -103,11 +103,11 @@ int main(int argc, char *argv[]) {
     auto triangle = std::make_shared<Triangle>(glm::vec4(0,0,0,0));
     window->addObject3D(triangle);
 
-    auto lastTick = std::chrono::steady_clock::now();
+    auto lastTick = std::chrono::high_resolution_clock::now();
 	while (window->isOpen())
 	{
-		auto curTick = std::chrono::steady_clock::now();
-		auto delta = std::chrono::duration_cast<std::chrono::milliseconds>(curTick - lastTick);
+		auto curTick = std::chrono::high_resolution_clock::now();
+		std::chrono::duration<double, std::milli> delta =  curTick - lastTick;
 		lastTick = curTick;
 
 		window->render([delta, shaderProgram, world, fallRigidBody]{
@@ -117,9 +117,12 @@ int main(int argc, char *argv[]) {
 
 			fallRigidBody->getMotionState()->getWorldTransform(trans);
 			std::cout << "sphere height: " << trans.getOrigin().getY() << std::endl;
+            std::cout << "tick time: " << delta.count() << std::endl;
 
             glUseProgram(shaderProgram);
-			std::cout << glGetError() << std::endl;
+            auto error = glGetError();
+            if(error)
+			    std::cout << "OpenGL Error: " << error << std::endl;
 		});
 	}
 
