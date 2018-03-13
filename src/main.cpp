@@ -12,6 +12,7 @@
 #include "BulletUniverse.h"
 #include "object3d/Triangle.h"
 #include "manager/ShaderManager.h"
+#include "manager/TextureManager.h"
 
 #include <kaguya/kaguya.hpp>
 #include <spdlog/spdlog.h>
@@ -26,6 +27,7 @@ int main(int argc, char *argv[]) {
 
     console->info("Shader root is ../resources/shader");
     ShaderManager::build("../resources/shader/");
+    TextureManager::build("../resources/texture/");
 
 	auto *window = new Window(config["config"]["height"], config["config"]["width"], "Stage Fighter");
     window->setVSync(config["config"]["vsync"]);
@@ -56,7 +58,7 @@ int main(int argc, char *argv[]) {
 	world->addRigidBody(fallRigidBody);
 	//=============================
 
-    auto triangle = std::make_shared<Triangle>(glm::vec4(0,0,0,0), std::make_shared<Texture>("../resources/texture/wall.jpg"));
+    auto triangle = std::make_shared<Triangle>(glm::vec4(0,0,0,0), TextureManager::load("wall.jpg"));
     window->addObject3D(triangle);
 
     auto lastTick = std::chrono::high_resolution_clock::now();
@@ -98,6 +100,7 @@ int main(int argc, char *argv[]) {
 	delete window;
 
     ShaderManager::destroy();
+    TextureManager::destroy();
 
 	glfwTerminate();
 	exit(EXIT_SUCCESS);
