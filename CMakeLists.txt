@@ -63,8 +63,12 @@ if(NOT GLFW_FOUND)
 endif()
 
 ## BULLET ###
-find_package(Bullet)
-if(NOT BULLET_FOUND)
+find_package(Bullet CONFIGS "BulletConfig.cmake")
+if(BULLET_FOUND)
+	if(UNIX)
+		include_directories("/usr/include/bullet")
+	endif()
+else()
 	include(${CMAKE_ROOT}/Modules/ExternalProject.cmake)
 	message(STATUS "Using Bullet in ${EXTERN}/bullet3")
 	  
@@ -117,32 +121,31 @@ endif()
 
 ## GLAD ##
 set(GLAD_INCLUDE_DIR "${EXTERN}/glad/include")
-file(GLOB GLAD_SOURCES "${EXTERN}/glad/src")
+add_library("glad" "${EXTERN}/glad/src/glad.c")
+target_include_directories("glad" PRIVATE "${GLAD_INCLUDE_DIR}")
 	
 #
 # Link & Include Stuff into the binary
 #
 
-file(GLOB_RECURSE SOURCE_DIR "${CMAKE_SOURCE_DIR}/src")
-
 include_directories(
-	${GLFW_INCLUDE_DIRS}
-	${BULLET_INCLUDE_DIRS} 
-	${GLAD_INCLUDE_DIR}
+		${GLFW_INCLUDE_DIRS}
+		${BULLET_INCLUDE_DIRS}
+        PRIVATE ${GLAD_INCLUDE_DIR}
 	)
 
 add_executable(
-	"${BINARY}"
-	${SOURCE_DIR}
-	${GLAD_SOURCES}
+		"${BINARY}"
+		src/main.cpp
 	)
 
 set_target_properties("${BINARY}" PROPERTIES LINKER_LANGUAGE CXX)	
 	
 target_link_libraries(
-	"${BINARY}" 
-	${GLFW_STATIC_LIBRARIES}
-	${BULLET_LIBRARIES}
+		"${BINARY}"
+		${GLFW_STATIC_LIBRARIES}
+		${BULLET_LIBRARIES}
+		glad
 	)
 
 if(NOT BULLET_FOUND)	
