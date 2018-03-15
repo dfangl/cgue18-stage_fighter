@@ -71,6 +71,7 @@ int main(int argc, char *argv[]) {
 		lastTick = curTick;
 
 		world->simulate(delta);
+        triangle->rotate(static_cast<float>(glfwGetTime()), glm::vec3(0.0f, 0.0f, 1.0f));
 
 		fallRigidBody->getMotionState()->getWorldTransform(trans);
 		std::cout << "sphere height: " << trans.getOrigin().getY() << std::endl;

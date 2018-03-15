@@ -6,6 +6,9 @@
 #include "Triangle.h"
 #include "../manager/ShaderManager.h"
 
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+
 const float Triangle::vertices[] = {
         // positions:           // texture cords:
         -0.5f, -0.5f, 0.0f,      0.0f, 0.0f,
@@ -40,6 +43,7 @@ Triangle::Triangle(const glm::vec3 &pos, const std::shared_ptr<Texture> &texture
 
 void Triangle::render() {
     this->shader->use();
+    this->shader->setUniform("transform", this->transform);
     this->texture->bind(GL_TEXTURE0);
 
     glBindVertexArray(VAO);
