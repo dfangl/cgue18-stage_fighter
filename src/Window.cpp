@@ -9,23 +9,27 @@
 
 typedef void (*framebuffer_size_callback)(GLFWwindow*,int,int);
 typedef void (*mouse_callback)(GLFWwindow*,double,double);
-typedef void (*scroll_callback)(GLFWwindow*,double,double);
+typedef void (*error_callback)(int,const char *);
+typedef void (*key_callback)(GLFWwindow*,int,int,int,int);
 
-#include <iostream>
-static void glfw_error_callack_func(int code, const char * reason) {
-	std::cout << "[Error: GLFW] " << code << " with " << reason << std::endl;
-}
-
-Window::Window(int width, int height, const std::string &windowName, bool fullscreen) {
+Window::Window(int width, int height, const std::string &windowName, bool fullscreen) : Logger("Window") {
     this->height = height;
     this->width = width;
 
+    logger->info("Creating Window: {} ({}x{})", windowName, width, height);
+
     // Init GLFW Library:
     if(!glfwInit()) {
+        logger->error("Failed to initialize GLFW!");
         throw std::runtime_error("Unable to init GLFW!");
     }
 
-	glfwSetErrorCallback(glfw_error_callack_func);
+    { // Register Error Callback of GLFW
+        Callback<void(int,const char *)>::func = std::bind(&Window::glfwErrorCallabck, this, std::placeholders::_1, std::placeholders::_2);
+        auto errorCallbackFunc = static_cast<error_callback>(Callback<void(int,const char *)>::callback);
+
+        glfwSetErrorCallback(errorCallbackFunc);
+    }
 
     // Set OpenGL Context to 4.5 core
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -39,6 +43,7 @@ Window::Window(int width, int height, const std::string &windowName, bool fullsc
     this->glfwWindow = glfwCreateWindow(width, height, windowName.c_str(), monitor, nullptr);
     if (this->glfwWindow == nullptr) {
         glfwTerminate();
+        logger->error("Failed to create GLFW Window!");
         throw std::runtime_error("Failed to create GLFW Window!");
     }
 
@@ -61,14 +66,13 @@ Window::Window(int width, int height, const std::string &windowName, bool fullsc
     }
 
     {
-        //Callback<void(GLFWwindow*,double,double)>::func =
-        //        std::bind(&Window::glfwScrollCallbakc, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
-        //auto scrollCallbackFunc = static_cast<scroll_callback>(Callback<void(GLFWwindow*,double,double)>::callback);
+        Callback<void(GLFWwindow*,int,int,int,int)>::func =
+                std::bind(&Window::glfwKeyCallback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3
+                        , std::placeholders::_4, std::placeholders::_5);
+        auto keyCallbackFunc = static_cast<key_callback >(Callback<void(GLFWwindow*,int,int,int,int)>::callback);
 
-        //glfwSetScrollCallback(this->glfwWindow, scrollCallbackFunc);
+        glfwSetKeyCallback(this->glfwWindow, keyCallbackFunc);
     }
-
-    //glfwSetInputMode(this->glfwWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     //Load GLAD Stuff:
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
@@ -111,26 +115,23 @@ void Window::registerMouseCallback(std::function<void(double, double)> callback)
     this->mouseCallbacks.push_back(callback);
 }
 
-void Window::registerKeyProcessor(std::function<void()> callback) {
+void Window::registerKeyCallback(std::function<void(int, int, int, int)> callback) {
     this->keyInputCallbacks.push_back(callback);
 }
 
-void Window::render(std::function<void()> func) {
+void Window::render() {
+    // Clear Window before drawing
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    glfwPollEvents();
-    for(auto &callback : this->keyInputCallbacks) {
-        callback();
-    }
-
-    func();
-
+    // Render all Objects to the Window
     for(auto &obj : this->objects) {
         obj->render();
     }
 
+    // Swap Buffers and listen to events (as GLFW suggests)
     glfwSwapBuffers(this->glfwWindow);
+    glfwPollEvents();
 }
 
 void Window::addObject3D(const std::shared_ptr<Object3D> &object3D) {
@@ -148,4 +149,22 @@ void Window::removeObject(const std::shared_ptr<Object3D> &object3D) {
             ),
             this->objects.end()
     );
+}
+
+void Window::glfwErrorCallabck(int code, const char *text) {
+    logger->error("{}: {}", code, text);
+}
+
+void Window::glfwKeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods) {
+    for(auto &callback : this->keyInputCallbacks) {
+        callback(key, scancode, action, mods);
+    }
+}
+
+void Window::hideCursor() {
+    glfwSetInputMode(this->glfwWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+}
+
+void Window::showCurosor() {
+    glfwSetInputMode(this->glfwWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 }

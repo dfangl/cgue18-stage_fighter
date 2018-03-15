@@ -128,7 +128,11 @@ target_include_directories("glad" PRIVATE "${GLAD_INCLUDE_DIR}")
 ## GLM ##
 if(UNIX)
 	# fails on win32 if extern/glm is present? 
-	find_package(glm)
+	find_package(glm REQUIRED)
+	include_directories(${GLM_INCLUDE_DIRS})
+	link_directories(${GLM_LIBRARY_DIRS})
+	add_definitions(${GLM_DEFINITIONS})
+	set(GLM_FOUND ON)
 endif()
 
 if (GLM_FOUND)

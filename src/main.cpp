@@ -17,21 +17,10 @@
 #include <kaguya/kaguya.hpp>
 #include <spdlog/spdlog.h>
 
-#include <windows.h>
-
-std::string ExePath() {
-	char buffer[MAX_PATH];
-	GetModuleFileName(NULL, buffer, MAX_PATH);
-	std::string::size_type pos = std::string(buffer).find_last_of("\\/");
-	return std::string(buffer).substr(0, pos);
-}
-
 int main(int argc, char *argv[]) {
     spdlog::set_async_mode(8192);
     auto console = spdlog::stdout_color_mt("console");
     console->info("Loading ../config.lua");
-	console->info("{}", ExePath() + "\\" + "config.lua");
-	console->flush();
 
 	kaguya::State config;
     config.dofile("../config.lua");
@@ -40,13 +29,13 @@ int main(int argc, char *argv[]) {
     ShaderManager::build("../resources/shader/");
     TextureManager::build("../resources/texture/");
 
-	auto *window = new Window(config["config"]["height"], config["config"]["width"], "Stage Fighter");
+	auto *window = new Window(config["config"]["width"], config["config"]["height"], "Stage Fighter");
     window->setVSync(config["config"]["vsync"]);
 
 	BulletUniverse *world = new BulletUniverse(btVector3(0,-10,0));
 
-	window->registerKeyProcessor([window]{
-		if(window->getKey(GLFW_KEY_ESCAPE) == GLFW_PRESS)
+	window->registerKeyCallback([window](int key, int scancode, int action, int mods){
+		if(key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 			window->close();
 	});
 
@@ -73,26 +62,27 @@ int main(int argc, char *argv[]) {
     window->addObject3D(triangle);
 
     auto lastTick = std::chrono::high_resolution_clock::now();
+    btTransform trans;
+
 	while (window->isOpen())
 	{
 		auto curTick = std::chrono::high_resolution_clock::now();
 		std::chrono::duration<double, std::milli> delta =  curTick - lastTick;
 		lastTick = curTick;
 
-		window->render([delta, console, world, fallRigidBody]{
-            btTransform trans;
+		world->simulate(delta);
 
-            world->simulate(delta);
+		fallRigidBody->getMotionState()->getWorldTransform(trans);
+		std::cout << "sphere height: " << trans.getOrigin().getY() << std::endl;
+		std::cout << "tick time: " << delta.count() << std::endl;
 
-			fallRigidBody->getMotionState()->getWorldTransform(trans);
-			std::cout << "sphere height: " << trans.getOrigin().getY() << std::endl;
-            std::cout << "tick time: " << delta.count() << std::endl;
+		window->render();
 
-            auto error = glGetError();
-            if(error != GL_NO_ERROR) {
-                console->error("OpenGL Error Code: {}", error);
-            }
-		});
+		auto error = glGetError();
+		if(error != GL_NO_ERROR) {
+			console->error("OpenGL Error Code: {}", error);
+		}
+
 	}
 
 	world->removeRigidBody(fallRigidBody);

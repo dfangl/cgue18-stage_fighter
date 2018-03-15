@@ -6,7 +6,7 @@
 #include "stb_image.h"
 #include "Texture.h"
 
-Texture::Texture(const std::string &path) {
+Texture::Texture(const std::string &path) : Logger("Texture") {
     glGenTextures(1, &this->textureID);
     glBindTexture(GL_TEXTURE_2D, this->textureID);
 
@@ -21,8 +21,7 @@ Texture::Texture(const std::string &path) {
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
         glGenerateMipmap(GL_TEXTURE_2D);
     } else {
-        console->error("Failed to load texture: {}", path);
-        console->flush();
+        logger->error("Failed to load texture: {}", path);
         throw std::runtime_error("Failed to load texture!");
     }
 

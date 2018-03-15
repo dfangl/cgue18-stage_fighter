@@ -1,5 +1,5 @@
 config = {
-    height=800,
-    width=600,
+    height=600,
+    width=800,
     vsync=true
 }

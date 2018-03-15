@@ -12,7 +12,16 @@ namespace spd = spdlog;
 class Logger {
 
 protected:
-    std::shared_ptr<spdlog::logger> console = spd::get("console");
+    std::shared_ptr<spdlog::logger> logger;
+
+    Logger(const std::string &name = std::string("console")) {
+        this->logger = spd::get(name);
+        if (logger == nullptr) {
+            this->logger = spdlog::stdout_color_mt(name);
+        }
+
+        this->logger->flush_on(spd::level::err);
+    }
 
 };
 

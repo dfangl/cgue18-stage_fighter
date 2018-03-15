@@ -8,7 +8,7 @@
 #include <sstream>
 #include <iostream>
 
-Shader::Shader(const std::string vertexCode, const std::string fragmentCode) {
+Shader::Shader(const std::string vertexCode, const std::string fragmentCode) : Logger("Shader"){
     GLuint vertex, fragment;
     const char *vShaderCode = vertexCode.c_str();
     const char *fShaderCode = fragmentCode.c_str();
@@ -22,7 +22,7 @@ Shader::Shader(const std::string vertexCode, const std::string fragmentCode) {
     glGetShaderiv(vertex, GL_COMPILE_STATUS, &success);
     if (!success) {
         glGetShaderInfoLog(vertex, 512, nullptr, infoLog);
-        console->error("Vertex Shader compilation failed:\n{}", infoLog);
+        logger->error("Vertex Shader compilation failed:\n{}", infoLog);
     }
 
     fragment = glCreateShader(GL_FRAGMENT_SHADER);
@@ -31,7 +31,7 @@ Shader::Shader(const std::string vertexCode, const std::string fragmentCode) {
     glGetShaderiv(fragment, GL_COMPILE_STATUS, &success);
     if (!success) {
         glGetShaderInfoLog(fragment, 512, nullptr, infoLog);
-        console->error("Fragment Shader compilation failed:\n{}", infoLog);
+        logger->error("Fragment Shader compilation failed:\n{}", infoLog);
     }
 
     this->shaderID = glCreateProgram();
@@ -42,7 +42,7 @@ Shader::Shader(const std::string vertexCode, const std::string fragmentCode) {
     glGetProgramiv(this->shaderID, GL_LINK_STATUS, &success);
     if (!success) {
         glGetProgramInfoLog(this->shaderID, 512, nullptr, infoLog);
-        console->error("Shader linking failed:\n{}", infoLog);
+        logger->error("Shader linking failed:\n{}", infoLog);
     }
 
     glDeleteShader(vertex);

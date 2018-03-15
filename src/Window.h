@@ -15,19 +15,21 @@
 #include "object3d/Object3D.h"
 
 
-class Window {
+class Window : public Logger {
 
 private:
     GLFWwindow* glfwWindow;
     int width, height;
 
     std::vector<std::function<void(double, double)>> mouseCallbacks;
-    std::vector<std::function<void()>> keyInputCallbacks;
+    std::vector<std::function<void(int, int, int, int)>> keyInputCallbacks;
     std::vector<std::shared_ptr<Object3D>> objects;
 
 protected:
     void glfwWindowSizeChanged(GLFWwindow* window,int width, int height);
     void glfwMouseCallabck(GLFWwindow* window, double xpos, double ypos);
+    void glfwErrorCallabck(int code, const char *text);
+    void glfwKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
     //void glfwScrollCallbakc(GLFWwindow* window, double xoffset, double yoffset);
 
 public:
@@ -46,16 +48,19 @@ public:
     inline int getHeight() { return this->height; }
     inline int getWidth() { return this->width; }
 
-    void render(std::function<void()> func);
+    void render();
 
     void addObject3D(const std::shared_ptr<Object3D> &object3D);
     void removeObject(const std::shared_ptr<Object3D> &object3D);
 
     void registerMouseCallback(std::function<void(double,double)> callback);
-    void registerKeyProcessor(std::function<void()> callback);
+    void registerKeyCallback(std::function<void(int, int, int, int)> callback);
 
     bool isOpen();
     void close();
+
+    void hideCursor();
+    void showCurosor();
 
 
     inline int getKey(int keycode) { return glfwGetKey(this->glfwWindow, keycode); }
