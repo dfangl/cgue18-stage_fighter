@@ -30,7 +30,7 @@ int main(int argc, char *argv[]) {
     ShaderManager::build("../resources/shader/");
     TextureManager::build("../resources/texture/");
 
-    Camera camera(glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f), -90.0f, 0.0f, 45.0f, config["config"]["width"], config["config"]["height"], 0.000001f, 10000000.0f);
+    Camera camera(glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f), -90.0f, 0.0f, 45.0f, config["config"]["width"], config["config"]["height"], 0.01f, 100.0f);
 	auto *window = new Window(camera, config["config"]["width"], config["config"]["height"], "Stage Fighter");
     window->setVSync(config["config"]["vsync"]);
 
