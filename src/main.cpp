@@ -13,6 +13,7 @@
 #include "object3d/Triangle.h"
 #include "manager/ShaderManager.h"
 #include "manager/TextureManager.h"
+#include "object3d/Cube.h"
 
 #include <kaguya/kaguya.hpp>
 #include <spdlog/spdlog.h>
@@ -29,7 +30,8 @@ int main(int argc, char *argv[]) {
     ShaderManager::build("../resources/shader/");
     TextureManager::build("../resources/texture/");
 
-	auto *window = new Window(config["config"]["width"], config["config"]["height"], "Stage Fighter");
+    Camera camera(glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f), -90.0f, 0.0f, 45.0f, config["config"]["width"], config["config"]["height"], 0.000001f, 10000000.0f);
+	auto *window = new Window(camera, config["config"]["width"], config["config"]["height"], "Stage Fighter");
     window->setVSync(config["config"]["vsync"]);
 
 	BulletUniverse *world = new BulletUniverse(btVector3(0,-10,0));
@@ -58,11 +60,14 @@ int main(int argc, char *argv[]) {
 	world->addRigidBody(fallRigidBody);
 	//=============================
 
-    auto triangle = std::make_shared<Triangle>(glm::vec4(0,0,0,0), TextureManager::load("wall.jpg"));
+    auto triangle = std::make_shared<Cube>(glm::vec4(0,0,-5,1), TextureManager::load("wall.jpg"));
     window->addObject3D(triangle);
 
     auto lastTick = std::chrono::high_resolution_clock::now();
     btTransform trans;
+
+    window->processCameraModifications(true);
+    window->hideCursor();
 
 	while (window->isOpen())
 	{
@@ -71,13 +76,13 @@ int main(int argc, char *argv[]) {
 		lastTick = curTick;
 
 		world->simulate(delta);
-        triangle->rotate(static_cast<float>(glfwGetTime()), glm::vec3(0.0f, 0.0f, 1.0f));
+        //triangle->rotate(static_cast<float>(glfwGetTime() * delta.count()), glm::vec3(0.0f, 0.0f, 1.0f));
 
 		fallRigidBody->getMotionState()->getWorldTransform(trans);
 		std::cout << "sphere height: " << trans.getOrigin().getY() << std::endl;
 		std::cout << "tick time: " << delta.count() << std::endl;
 
-		window->render();
+		window->render(delta);
 
 		auto error = glGetError();
 		if(error != GL_NO_ERROR) {
@@ -85,6 +90,8 @@ int main(int argc, char *argv[]) {
 		}
 
 	}
+
+    window->showCurosor();
 
 	world->removeRigidBody(fallRigidBody);
 	delete fallRigidBody->getMotionState();

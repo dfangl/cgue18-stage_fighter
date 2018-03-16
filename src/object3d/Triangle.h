@@ -21,8 +21,7 @@ public:
     explicit Triangle(const glm::vec3 &pos, const std::shared_ptr<Texture> &texture);
     ~Triangle();
 
-    void render() override;
-    void draw() override {}
+    void draw() override;
 
 };
 

@@ -41,9 +41,7 @@ Triangle::Triangle(const glm::vec3 &pos, const std::shared_ptr<Texture> &texture
     shader->setUniform("ourTexture", 0);
 }
 
-void Triangle::render() {
-    this->shader->use();
-    this->shader->setUniform("transform", this->transform);
+void Triangle::draw() {
     this->texture->bind(GL_TEXTURE0);
 
     glBindVertexArray(VAO);

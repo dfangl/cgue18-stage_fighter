@@ -12,9 +12,10 @@ typedef void (*mouse_callback)(GLFWwindow*,double,double);
 typedef void (*error_callback)(int,const char *);
 typedef void (*key_callback)(GLFWwindow*,int,int,int,int);
 
-Window::Window(int width, int height, const std::string &windowName, bool fullscreen) : Logger("Window") {
+Window::Window(const Camera &camera, int width, int height, const std::string &windowName, bool fullscreen) : Logger("Window") {
     this->height = height;
     this->width = width;
+    this->camera = camera;
 
     logger->info("Creating Window: {} ({}x{})", windowName, width, height);
 
@@ -95,6 +96,7 @@ void Window::glfwWindowSizeChanged(GLFWwindow* window,int width, int height) {
 
     // Resize OpenGL Viewport to new Window Size
     glViewport(0, 0, width, height);
+    this->camera.screenSizeChanged(width, height);
 }
 
 void Window::glfwMouseCallabck(GLFWwindow* window, double xpos, double ypos) {
@@ -119,14 +121,33 @@ void Window::registerKeyCallback(std::function<void(int, int, int, int)> callbac
     this->keyInputCallbacks.push_back(callback);
 }
 
-void Window::render() {
+void Window::render(std::chrono::duration<double, std::milli> delta) {
     // Clear Window before drawing
-    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClearColor(0.63f, 0.79f, 0.94f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    // Process Camera
+    // TODO: User should be able to modify input keys:
+    if(this->cameraState) {
+        if(glfwGetKey(this->glfwWindow, GLFW_KEY_W) == GLFW_PRESS) this->camera.processKeyInput(delta, Camera::FORWARD);
+        if(glfwGetKey(this->glfwWindow, GLFW_KEY_A) == GLFW_PRESS) this->camera.processKeyInput(delta, Camera::LEFT);
+        if(glfwGetKey(this->glfwWindow, GLFW_KEY_S) == GLFW_PRESS) this->camera.processKeyInput(delta, Camera::RIGHT);
+        if(glfwGetKey(this->glfwWindow, GLFW_KEY_D) == GLFW_PRESS) this->camera.processKeyInput(delta, Camera::BACKWARD);
+
+        double xPos, yPos;
+        glfwGetCursorPos(this->glfwWindow, &xPos, &yPos);
+
+        this->camera.processMouseInput(delta, xPos-oldXCursorPosition, yPos-oldYCursorPosition);
+        oldXCursorPosition = xPos;
+        oldYCursorPosition = yPos;
+    }
+
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);
 
     // Render all Objects to the Window
     for(auto &obj : this->objects) {
-        obj->render();
+        obj->render(this->camera);
     }
 
     // Swap Buffers and listen to events (as GLFW suggests)

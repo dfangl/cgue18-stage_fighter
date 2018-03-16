@@ -13,7 +13,7 @@
 #include <memory>
 
 #include "object3d/Object3D.h"
-
+#include "Camera.h"
 
 class Window : public Logger {
 
@@ -24,6 +24,12 @@ private:
     std::vector<std::function<void(double, double)>> mouseCallbacks;
     std::vector<std::function<void(int, int, int, int)>> keyInputCallbacks;
     std::vector<std::shared_ptr<Object3D>> objects;
+
+    Camera camera;
+
+    double oldXCursorPosition = 0.0;
+    double oldYCursorPosition = 0.0;
+    bool cameraState = false;
 
 protected:
     void glfwWindowSizeChanged(GLFWwindow* window,int width, int height);
@@ -40,7 +46,7 @@ public:
     * @param windowName the name of the window
     * @param fullscreen true if fullscreen mode is desired
     */
-    Window(int width, int height, const std::string &windowName, bool fullscreen = false);
+    Window(const Camera &camera, int width, int height, const std::string &windowName, bool fullscreen = false);
     ~Window();
 
     void setVSync(bool enabled);
@@ -48,7 +54,7 @@ public:
     inline int getHeight() { return this->height; }
     inline int getWidth() { return this->width; }
 
-    void render();
+    void render(std::chrono::duration<double, std::milli> delta);
 
     void addObject3D(const std::shared_ptr<Object3D> &object3D);
     void removeObject(const std::shared_ptr<Object3D> &object3D);
@@ -62,6 +68,7 @@ public:
     void hideCursor();
     void showCurosor();
 
+    void processCameraModifications(bool locked) { this->cameraState = locked; }
 
     inline int getKey(int keycode) { return glfwGetKey(this->glfwWindow, keycode); }
 };

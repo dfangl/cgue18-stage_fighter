@@ -8,6 +8,7 @@
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 #include "../Shader.h"
+#include "../Camera.h"
 
 class Object3D {
 
@@ -15,12 +16,12 @@ protected:
     GLuint VBO, VAO, EBO;
     std::shared_ptr<Shader> shader;
 
-    glm::mat4 transform;
+    glm::mat4 model;
 
 public:
     explicit Object3D(const std::shared_ptr<Shader> &shader);
 
-    virtual void render();
+    virtual void render(const Camera &camera);
     virtual void draw() = 0;
 
     virtual void rotate(float angle, const glm::vec3 &vec);
