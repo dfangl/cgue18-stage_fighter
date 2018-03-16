@@ -72,7 +72,9 @@ if(BULLET_FOUND)
 	endif()
 else()
 	message(STATUS "Using Bullet in ${EXTERN}/bullet3")
-	  
+
+
+
 	 list(APPEND BulletCmakeArgs
 		-DCMAKE_INSTALL_PREFIX=${EXTERN}/bullet3
         -DBUILD_BULLET2_DEMOS=OFF 
@@ -87,7 +89,7 @@ else()
         -DBULLET2_USE_OPEN_MP_MULTITHREADING=ON 
         -DINSTALL_LIBS=ON 
 		-DUSE_MSVC_RUNTIME_LIBRARY_DLL=OFF
-        -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -G ${CMAKE_GENERATOR}
+        -DCMAKE_BUILD_TYPE=RELEASE -G ${CMAKE_GENERATOR}
       )
 	  
 	  ExternalProject_Add(Bullet 
@@ -98,16 +100,17 @@ else()
 		LOG_BUILD 1
 	)
 
+    # LinearMath;Bullet3Common;BulletInverseDynamics;BulletCollision;BulletDynamics;BulletSoftBody
 	set (BULLET_LIBS_RAW
-		LinearMath
-		Bullet3Common
-		BulletInverseDynamics
-		BulletCollision
-		BulletDynamics
-		BulletSoftBody
+            BulletSoftBody
+            BulletDynamics
+            BulletCollision
+            BulletInverseDynamics
+            Bullet3Common
+            LinearMath
 	)
 	
-	if(MSVC)
+	if(WIN32)
 		set (BULLET_LIBRARIES "")
 		foreach(x ${BULLET_LIBS_RAW})
 			list (APPEND BULLET_LIBRARIES debug ${x}_Debug optimized ${x})
