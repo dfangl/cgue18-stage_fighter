@@ -2,6 +2,11 @@
 
 ## Building
 
+1. Clone repository with `--recursive` if no external dependencies are installed on the
+system or use `git submodule --init <name>` to initialize und update the dependency
+2. Run cmake an generate all the Makefiles for your environment
+3. Build with the Makefiles 
+
 ### With visual studio 2017 console:
 ```
 cmake -G "Visual Studio 15 2017 Win64" .
