@@ -9,6 +9,7 @@
 #include <glm/glm.hpp>
 #include <string>
 #include <memory>
+#include <map>
 #include "helper/Logger.h"
 
 class Shader : public Logger {

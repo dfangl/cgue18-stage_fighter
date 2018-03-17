@@ -17,6 +17,7 @@ private:
     static const float vertices[];
     std::shared_ptr<Texture> texture;
 
+
 public:
     explicit Triangle(const glm::vec3 &pos, const std::shared_ptr<Texture> &texture);
     ~Triangle();

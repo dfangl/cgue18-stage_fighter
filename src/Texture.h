@@ -19,6 +19,7 @@ public:
     ~Texture();
 
     void bind(GLenum texUnit);
+
 };
 
 

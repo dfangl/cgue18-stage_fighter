@@ -36,12 +36,12 @@ Triangle::Triangle(const glm::vec3 &pos, const std::shared_ptr<Texture> &texture
     glEnableVertexAttribArray(1);
 
     glBindVertexArray(0);
+    this->texture->bind(GL_TEXTURE0);
 }
 
 void Triangle::draw() {
     // Bind texture to texture unit 0
     this->shader->setUniform("ourTexture", 0);
-    this->texture->bind(GL_TEXTURE0);
 
     glBindVertexArray(VAO);
     glDrawArrays(GL_TRIANGLES, 0, 3);

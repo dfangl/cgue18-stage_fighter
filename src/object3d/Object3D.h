@@ -26,6 +26,7 @@ public:
 
     virtual void rotate(float angle, const glm::vec3 &vec);
     virtual void translate(const glm::vec3 &vec);
+    virtual void setOrigin(const glm::vec3 &vec);
 
 };
 

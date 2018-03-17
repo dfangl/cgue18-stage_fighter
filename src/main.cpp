@@ -14,6 +14,7 @@
 #include "manager/ShaderManager.h"
 #include "manager/TextureManager.h"
 #include "object3d/Cube.h"
+#include "entity/CubeEntity.h"
 
 #include <kaguya/kaguya.hpp>
 #include <spdlog/spdlog.h>
@@ -30,11 +31,11 @@ int main(int argc, char *argv[]) {
     ShaderManager::build("../resources/shader/");
     TextureManager::build("../resources/texture/");
 
-    Camera camera(glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f), -90.0f, 0.0f, 45.0f, config["config"]["width"], config["config"]["height"], 0.01f, 100.0f);
+    Camera camera(glm::vec3(0.0f, 1.0f, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f), -90.0f, 0.0f, 45.0f, config["config"]["width"], config["config"]["height"], 0.01f, 100.0f);
 	auto *window = new Window(camera, config["config"]["width"], config["config"]["height"], "Stage Fighter");
     window->setVSync(config["config"]["vsync"]);
 
-	BulletUniverse *world = new BulletUniverse(btVector3(0,-10,0));
+	auto world = std::make_shared<BulletUniverse>(btVector3(0,-10,0));
 
 	window->registerKeyCallback([window](int key, int scancode, int action, int mods){
 		if(key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
@@ -49,46 +50,54 @@ int main(int argc, char *argv[]) {
 		groundRigidBodyCI(0, groundMotionState, groundShape, btVector3(0, 0, 0));
 	btRigidBody* groundRigidBody = new btRigidBody(groundRigidBodyCI);
 	world->addRigidBody(groundRigidBody);
-
-
-	btDefaultMotionState* fallMotionState = new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, 50, 0)));
-	btScalar mass = 1;
-	btVector3 fallInertia(0, 0, 0);
-	fallShape->calculateLocalInertia(mass, fallInertia);
-	btRigidBody::btRigidBodyConstructionInfo fallRigidBodyCI(mass, fallMotionState, fallShape, fallInertia);
-	btRigidBody* fallRigidBody = new btRigidBody(fallRigidBodyCI);
-	world->addRigidBody(fallRigidBody);
 	//=============================
 
-    auto triangle = std::make_shared<Cube>(glm::vec4(0,0,-5,1), TextureManager::load("wall.jpg"));
+    auto cube = std::make_shared<CubeEntity>(glm::vec4(0,10,0,1), TextureManager::load("wall.jpg"), world);
+    auto triangle = std::make_shared<Triangle>(glm::vec4(0,1,0,1), TextureManager::load("wall.jpg"));
+    triangle->rotate(90.0f, glm::vec3(1,0,0));
+
+    window->addObject3D(cube);
     window->addObject3D(triangle);
 
     auto lastTick = std::chrono::high_resolution_clock::now();
-    btTransform trans;
 
     window->processCameraModifications(true);
     window->hideCursor();
+
+    double frameSampleCount = 0.0;
+
+    window->registerKeyCallback([cube](int key, int scancode, int action, int mods){
+        if(key == GLFW_KEY_R && action == GLFW_RELEASE)
+            cube->setEntityPosition(glm::vec3(0,10,0));
+    });
+
 
 	while (window->isOpen())
 	{
 		auto curTick = std::chrono::high_resolution_clock::now();
 		std::chrono::duration<double, std::milli> delta =  curTick - lastTick;
 
-        // Skip frame, too fast ...
-        //if (delta.count() < 0.001)
-        //    continue;
-
 		lastTick = curTick;
 
 		world->simulate(delta);
-        triangle->rotate(static_cast<float>(glfwGetTime() * delta.count()), glm::vec3(0.0f, 0.0f, 1.0f));
+		//cube->setOrigin(glm::vec3(0.0f, trans.getOrigin().getY(), 0.0f));
+        //triangle->rotate(static_cast<float>(glfwGetTime() * delta.count()), glm::vec3(0.0f, 0.0f, 1.0f));
 
-		fallRigidBody->getMotionState()->getWorldTransform(trans);
-		//std::cout << "sphere height: " << trans.getOrigin().getY() << std::endl;
-		std::cout << "tick time: " << delta.count() << std::endl;
+        // transfer bullet world to opengl
+        cube->think(delta);
 
-		window->render(delta);
+        //btTransform trans = cube->getTransformation();
+		//if(trans.getOrigin().getY() > 1)
+        //    console->info("sphere height: {}", trans.getOrigin().getY());
 
+        if ((frameSampleCount+=delta.count()) > 1000.0) {
+            console->info("tick time: {}", delta.count());
+            frameSampleCount = 0;
+        }
+
+        window->render(delta);
+
+        //TODO: should only be present if debug build
 		auto error = glGetError();
 		if(error != GL_NO_ERROR) {
 			console->error("OpenGL Error Code: {}", error);
@@ -98,19 +107,11 @@ int main(int argc, char *argv[]) {
 
     window->showCurosor();
 
-	world->removeRigidBody(fallRigidBody);
-	delete fallRigidBody->getMotionState();
-	delete fallRigidBody;
-
 	world->removeRigidBody(groundRigidBody);
 	delete groundRigidBody->getMotionState();
 	delete groundRigidBody;
 
-
-	delete fallShape;
 	delete groundShape;
-
-	delete world;
 	delete window;
 
     ShaderManager::destroy();

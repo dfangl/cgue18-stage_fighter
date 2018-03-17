@@ -17,7 +17,7 @@ private:
 
 public:
     Cube(const glm::vec3 &pos, const std::shared_ptr<Texture> &texture);
-    ~Cube();
+    virtual ~Cube();
 
     void draw() override;
 };
