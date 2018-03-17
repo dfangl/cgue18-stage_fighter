@@ -22,7 +22,8 @@ void CubeEntity::think(std::chrono::duration<double, std::milli> delta) {
     auto origin = bT.getOrigin();
     Cube::setOrigin(glm::vec3(origin.x(), origin.y(), origin.z()));
 
-    //TODO transform rotation from bullet to opengl
+    auto rotation = bT.getRotation();
+    Cube::rotate(rotation.getAngle(), glm::vec3(rotation.getAxis().x(), rotation.getAxis().y(), rotation.getAxis().z()));
 }
 
 void CubeEntity::setEntityPosition(const glm::vec3 &vec) {

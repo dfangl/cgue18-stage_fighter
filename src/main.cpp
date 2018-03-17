@@ -80,15 +80,13 @@ int main(int argc, char *argv[]) {
 		lastTick = curTick;
 
 		world->simulate(delta);
-		//cube->setOrigin(glm::vec3(0.0f, trans.getOrigin().getY(), 0.0f));
-        //triangle->rotate(static_cast<float>(glfwGetTime() * delta.count()), glm::vec3(0.0f, 0.0f, 1.0f));
 
         // transfer bullet world to opengl
         cube->think(delta);
 
-        //btTransform trans = cube->getTransformation();
-		//if(trans.getOrigin().getY() > 1)
-        //    console->info("sphere height: {}", trans.getOrigin().getY());
+        btTransform trans = cube->getTransformation();
+		if(trans.getOrigin().getY() > 1)
+            console->info("sphere height: {}", trans.getOrigin().getY());
 
         if ((frameSampleCount+=delta.count()) > 1000.0) {
             console->info("tick time: {}", delta.count());
