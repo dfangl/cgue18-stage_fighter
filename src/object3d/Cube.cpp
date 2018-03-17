@@ -5,6 +5,9 @@
 #include "Cube.h"
 #include "../manager/ShaderManager.h"
 
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+
 const float Cube::vertices[] = {
         -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
         0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
@@ -69,12 +72,11 @@ Cube::Cube(const glm::vec3 &pos, const std::shared_ptr<Texture> &texture): Objec
     glEnableVertexAttribArray(1);
 
     glBindVertexArray(0);
-
-    // Bind texture to texture unit 0
-    shader->setUniform("ourTexture", 0);
 }
 
 void Cube::draw() {
+    // Bind texture to texture unit 0
+    shader->setUniform("ourTexture", 0);
     this->texture->bind(GL_TEXTURE0);
 
     glBindVertexArray(VAO);

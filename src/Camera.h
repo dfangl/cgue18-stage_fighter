@@ -25,9 +25,6 @@ private:
     glm::mat4 viewMatrix;
     glm::mat4 projectionMatrix;
 
-    float mouseSensitivity = 0.01f;
-    float keySensitivity = 0.001f;
-
     void update();
 
 public:
@@ -46,6 +43,8 @@ public:
     glm::mat4 getViewMatrix() const { return this->viewMatrix; }
     glm::mat4 getProjectionMatrix() const { return this->projectionMatrix; }
 
+    float mouseSensitivity = 0.1f;
+    float keySensitivity = 0.001f;
 };
 
 

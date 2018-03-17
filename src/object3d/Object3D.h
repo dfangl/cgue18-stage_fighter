@@ -16,7 +16,7 @@ protected:
     GLuint VBO, VAO, EBO;
     std::shared_ptr<Shader> shader;
 
-    glm::mat4 model;
+    glm::mat4 model = glm::mat4(1.0f);
 
 public:
     explicit Object3D(const std::shared_ptr<Shader> &shader);

@@ -73,13 +73,18 @@ int main(int argc, char *argv[]) {
 	{
 		auto curTick = std::chrono::high_resolution_clock::now();
 		std::chrono::duration<double, std::milli> delta =  curTick - lastTick;
+
+        // Skip frame, too fast ...
+        //if (delta.count() < 0.001)
+        //    continue;
+
 		lastTick = curTick;
 
 		world->simulate(delta);
-        //triangle->rotate(static_cast<float>(glfwGetTime() * delta.count()), glm::vec3(0.0f, 0.0f, 1.0f));
+        triangle->rotate(static_cast<float>(glfwGetTime() * delta.count()), glm::vec3(0.0f, 0.0f, 1.0f));
 
 		fallRigidBody->getMotionState()->getWorldTransform(trans);
-		std::cout << "sphere height: " << trans.getOrigin().getY() << std::endl;
+		//std::cout << "sphere height: " << trans.getOrigin().getY() << std::endl;
 		std::cout << "tick time: " << delta.count() << std::endl;
 
 		window->render(delta);

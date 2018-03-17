@@ -4,6 +4,7 @@
 
 #include "Camera.h"
 
+#include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
@@ -49,10 +50,8 @@ void Camera::processKeyInput(std::chrono::duration<double, std::milli> delta, Ca
 }
 
 void Camera::processMouseInput(std::chrono::duration<double, std::milli> delta, double xDelta, double yDelta) {
-    auto mouseMovement = static_cast<const float>(delta.count() * mouseSensitivity);
-
-    this->yaw   += xDelta * mouseMovement;
-    this->pitch -= yDelta * mouseMovement;
+    this->yaw   += xDelta * mouseSensitivity;
+    this->pitch -= yDelta * mouseSensitivity;
 
     if(this->pitch >  89.0f) this->pitch =  89.0f;
     if(this->pitch < -89.0f) this->pitch = -89.0f;

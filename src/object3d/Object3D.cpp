@@ -5,11 +5,12 @@
 #include "Object3D.h"
 #include <glm/gtc/matrix_transform.hpp>
 
+#include <iostream>
 void Object3D::render(const Camera &camera) {
-    this->shader->use();
-    this->shader->setUniform("model", this->model);
-    this->shader->setUniform("view", camera.getViewMatrix());
-    this->shader->setUniform("projection", camera.getProjectionMatrix());
+    this->shader->use();                                                        if( glGetError() != GL_NO_ERROR ) std::cout << "[Object3D] this->shader-use()" << std::endl;
+    this->shader->setUniform("model", this->model);                             if( glGetError() != GL_NO_ERROR ) std::cout << "[Object3D] this->shader set model" << std::endl;
+    this->shader->setUniform("view", camera.getViewMatrix());                   if( glGetError() != GL_NO_ERROR ) std::cout << "[Object3D] this->shader set view" << std::endl;
+    this->shader->setUniform("projection", camera.getProjectionMatrix());       if( glGetError() != GL_NO_ERROR ) std::cout << "[Object3D] this->shader set projection" << std::endl;
 
     this->draw();
 }
