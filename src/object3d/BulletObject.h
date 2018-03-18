@@ -2,15 +2,15 @@
 // Created by Raphael on 17.03.2018.
 //
 
-#ifndef STAGE_FIGHTER_ENTITY_H
-#define STAGE_FIGHTER_ENTITY_H
+#ifndef STAGE_FIGHTER_BULLETOBJECT_H
+#define STAGE_FIGHTER_BULLETOBJECT_H
 
 #include <btBulletDynamicsCommon.h>
 #include "Object3D.h"
 
 class BulletObject {
 
-private:
+protected:
     btDefaultMotionState* motionState;
     btRigidBody* rigidBody;
     btCollisionShape* fallShape;
@@ -27,4 +27,4 @@ public:
 };
 
 
-#endif //STAGE_FIGHTER_ENTITY_H
+#endif //STAGE_FIGHTER_BULLETOBJECT_H

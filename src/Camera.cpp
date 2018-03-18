@@ -8,7 +8,6 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-
 Camera::Camera(glm::vec3 position, glm::vec3 up, float yaw, float pitch, float fov, float width, float height, float zNear, float zFar) {
     this->position = position;
     this->worldUp = up;
@@ -30,6 +29,7 @@ void Camera::update() {
     this->right = glm::normalize(glm::cross(this->front, this->worldUp));
     this->up = glm::normalize(glm::cross(this->right, this->front));
 
+    //this->logger->info("{}\tviewMatrix->position = ({},{},{});", static_cast<void*>(this), position.x, position.y, position.z);
     this->viewMatrix = glm::lookAt(this->position, position + front, up);
 }
 
@@ -56,5 +56,11 @@ void Camera::processMouseInput(std::chrono::duration<double, std::milli> delta, 
     if(this->pitch >  89.0f) this->pitch =  89.0f;
     if(this->pitch < -89.0f) this->pitch = -89.0f;
 
+    this->update();
+}
+
+void Camera::update(const glm::vec3 position) {
+    //this->logger->info("{}\tupdate({},{},{});", static_cast<void*>(this), position.x, position.y, position.z);
+    this->position = position;
     this->update();
 }

@@ -13,7 +13,6 @@ public:
     virtual ~Entity() = default;
 
     virtual void setEntityPosition(const glm::vec3 &vec) = 0;
-
     virtual void think(std::chrono::duration<double, std::milli> delta) = 0;
 
 };

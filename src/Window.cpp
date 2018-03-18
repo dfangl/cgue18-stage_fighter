@@ -16,10 +16,10 @@ typedef void (*key_callback)(GLFWwindow*,int,int,int,int);
 void APIENTRY glDebugOutput(GLenum source, GLenum type, GLuint id, GLenum severity,
                             GLsizei length, const GLchar *message, const void *userParam);
 
-Window::Window(const Camera &camera, int width, int height, const std::string &windowName, bool fullscreen) : Logger("Window") {
+Window::Window(Camera &camera, int width, int height, const std::string &windowName, bool fullscreen) : Logger("Window"), camera(camera) {
     this->height = height;
     this->width = width;
-    this->camera = camera;
+    //this->camera = camera;
 
     logger->info("Creating Window: {} ({}x{})", windowName, width, height);
 
@@ -104,12 +104,19 @@ Window::~Window() {
 }
 
 void Window::setVSync(bool enabled) {
+    logger->info("{} Vsync", (enabled ? "Enabling" : "Disabling"));
     glfwSwapInterval(enabled ? 1 : 0);
 }
 
 void Window::glfwWindowSizeChanged(GLFWwindow* window,int width, int height) {
+    // Happens if Fullscreen Window is minimized, glm does not like this
+    if (width == 0 || height == 0)
+        return;
+
     this->height = height;
     this->width = width;
+
+    logger->info("Resizing window to {}x{}", width, height);
 
     // Resize OpenGL Viewport to new Window Size
     glViewport(0, 0, width, height);
@@ -145,12 +152,14 @@ void Window::render(std::chrono::duration<double, std::milli> delta) {
 
     // Process Camera
     // TODO: User should be able to modify input keys:
-    if(this->cameraState) {
+    if(this->cameraKey) {
         if(glfwGetKey(this->glfwWindow, GLFW_KEY_W) == GLFW_PRESS) this->camera.processKeyInput(delta, Camera::FORWARD);
         if(glfwGetKey(this->glfwWindow, GLFW_KEY_A) == GLFW_PRESS) this->camera.processKeyInput(delta, Camera::LEFT);
         if(glfwGetKey(this->glfwWindow, GLFW_KEY_S) == GLFW_PRESS) this->camera.processKeyInput(delta, Camera::RIGHT);
         if(glfwGetKey(this->glfwWindow, GLFW_KEY_D) == GLFW_PRESS) this->camera.processKeyInput(delta, Camera::BACKWARD);
+    }
 
+    if(this->cameraMouse) {
         double xPos, yPos;
         glfwGetCursorPos(this->glfwWindow, &xPos, &yPos);
 

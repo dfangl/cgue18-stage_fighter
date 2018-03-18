@@ -25,11 +25,13 @@ private:
     std::vector<std::function<void(int, int, int, int)>> keyInputCallbacks;
     std::vector<std::shared_ptr<Object3D>> objects;
 
-    Camera camera;
+    Camera &camera;
 
     double oldXCursorPosition = 0.0;
     double oldYCursorPosition = 0.0;
-    bool cameraState = false;
+
+    bool cameraMouse = false;
+    bool cameraKey = false;
 
 protected:
     void glfwWindowSizeChanged(GLFWwindow* window,int width, int height);
@@ -46,7 +48,7 @@ public:
     * @param windowName the name of the window
     * @param fullscreen true if fullscreen mode is desired
     */
-    Window(const Camera &camera, int width, int height, const std::string &windowName, bool fullscreen = false);
+    Window(Camera &camera, int width, int height, const std::string &windowName, bool fullscreen = false);
     ~Window();
 
     void setVSync(bool enabled);
@@ -68,9 +70,12 @@ public:
     void hideCursor();
     void showCurosor();
 
-    void processCameraModifications(bool locked) { this->cameraState = locked; }
+    void processCameraMouseMovement(bool locked) { this->cameraMouse = locked; }
+    void processCameraKeyMovment(bool locked) { this->cameraKey = locked; }
 
     inline int getKey(int keycode) { return glfwGetKey(this->glfwWindow, keycode); }
+    inline Camera &getCamera() { return this->camera; }
+
 };
 
 

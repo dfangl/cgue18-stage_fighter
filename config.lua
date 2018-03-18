@@ -1,5 +1,6 @@
 config = {
-    height=600,
-    width=800,
-    vsync=true
+    width=1280,
+    height=1024,
+    vsync=true,
+    fullscreen=false
 }

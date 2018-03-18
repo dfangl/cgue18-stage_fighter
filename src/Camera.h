@@ -8,8 +8,9 @@
 #include <glm/glm.hpp>
 #include <functional>
 #include <chrono>
+#include "helper/Logger.h"
 
-class Camera {
+class Camera /*: public Logger*/ {
 
 private:
     glm::vec3 position;
@@ -45,6 +46,13 @@ public:
 
     float mouseSensitivity = 0.1f;
     float keySensitivity = 0.001f;
+
+    void update(const glm::vec3 position);
+    glm::vec3 getPosition() const { return this->position; }
+    glm::vec3 getFront() const { return this->front; }
+    glm::vec3 getRight() const { return this->right; }
+    float getPitch() const { return this->pitch; }
+    float getYaw() const { return this->yaw; }
 };
 
 

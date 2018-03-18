@@ -29,4 +29,7 @@ void CubeEntity::think(std::chrono::duration<double, std::milli> delta) {
 void CubeEntity::setEntityPosition(const glm::vec3 &vec) {
     Cube::setOrigin(vec);
     BulletObject::setOrigin(btVector3(vec.x,vec.y,vec.z));
+
+    // Reactivate even if Bullet removed all forces
+    this->getRigidBody()->activate(true);
 }

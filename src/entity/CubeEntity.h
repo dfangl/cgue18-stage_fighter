@@ -10,18 +10,17 @@
 #include "../BulletUniverse.h"
 #include "Entity.h"
 
-//Entity is no class-name ???
-class CubeEntity : public Cube, public BulletObject /*, public Entity */ {
+class CubeEntity : public Cube, public BulletObject, public Entity {
 
     std::shared_ptr<BulletUniverse> world;
 
 public:
     CubeEntity(const glm::vec3 &pos, const std::shared_ptr<Texture> &texture, std::shared_ptr<BulletUniverse> world);
-    ~CubeEntity() override;
+    virtual ~CubeEntity();
 
-    void think(std::chrono::duration<double, std::milli> delta);
+    void think(std::chrono::duration<double, std::milli> delta) override;
 
-    void setEntityPosition(const glm::vec3 &vec);
+    void setEntityPosition(const glm::vec3 &vec) override;
 };
 
 
