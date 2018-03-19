@@ -15,7 +15,7 @@
 #include "manager/TextureManager.h"
 #include "object3d/Cube.h"
 #include "entity/CubeEntity.h"
-#include "entity/CameraEntity.h"
+#include "controller/CameraController.h"
 
 #include <kaguya/kaguya.hpp>
 #include <spdlog/spdlog.h>

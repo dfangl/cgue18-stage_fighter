@@ -234,7 +234,7 @@ add_executable(
 		src/manager/ShaderManager.h src/Texture.cpp src/Texture.h src/manager/TextureManager.cpp src/entity/Entity.h
 		src/manager/TextureManager.h src/Camera.cpp src/Camera.h src/object3d/Cube.cpp src/object3d/Cube.h
 		src/object3d/BulletObject.cpp src/object3d/BulletObject.h src/entity/CubeEntity.cpp src/entity/CubeEntity.h
-        src/entity/CameraEntity.cpp src/entity/CameraEntity.h)
+        src/controller/CameraController.cpp src/controller/CameraController.h)
 
 set_target_properties("${BINARY}" PROPERTIES LINKER_LANGUAGE CXX)	
 	

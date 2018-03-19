@@ -2,7 +2,7 @@
 // Created by Raphael on 17.03.2018.
 //
 
-#include "CameraEntity.h"
+#include "CameraController.h"
 #include "../manager/TextureManager.h"
 #include <GLFW/glfw3.h>
 
@@ -28,7 +28,6 @@ CameraEntity::CameraEntity(Camera &camera, std::shared_ptr<BulletUniverse> world
     rigidBody->setRestitution(100.0f);
 
     world->addRigidBody(rigidBody);
-    //rigidBody->setFlags(rigidBody->getCollisionFlags()|btCollisionObject::CF_KINEMATIC_OBJECT);
 }
 
 void CameraEntity::setEntityPosition(const glm::vec3 &vec) {
@@ -60,7 +59,7 @@ void CameraEntity::think(std::chrono::duration<double, std::milli> delta) {
     //else                speed.setY(0.0f);
 
     //this->rigidBody->activate(true);
-    rigidBody->setAngularFactor(bulletMovementVector);
+    //rigidBody->setAngularFactor(bulletMovementVector);
     rigidBody->setLinearVelocity(speed.rotate(bulletMovementVector, btRadians(-camera.getYaw())));
 
     if(jump) {
