@@ -215,6 +215,9 @@ include_directories("${EXTERN}/spdlog/include")
 ## stb single headers ##
 include_directories("${EXTERN}/stb")
 
+## tinygltf-loader ##
+set(GLTF_HEADERS ${EXTERN}/tinygltf/tiny_gltf.h ${EXTERN}/tinygltf/json.hpp)
+
 #
 # Link & Include Stuff into the binary
 #
@@ -227,7 +230,7 @@ include_directories(
 	)
 
 add_executable(
-		"${BINARY}"
+		"${BINARY}" ${GLTF_HEADERS}
 		src/main.cpp src/object3d/Triangle.cpp src/object3d/Triangle.h
 		src/Window.cpp src/Window.h src/helper/Callback.h src/BulletUniverse.cpp src/BulletUniverse.h
 		src/object3d/Object3D.cpp src/object3d/Object3D.h src/Shader.cpp src/Shader.h src/manager/ShaderManager.cpp
