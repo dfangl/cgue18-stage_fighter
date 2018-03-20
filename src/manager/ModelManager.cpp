@@ -2,13 +2,14 @@
 // Created by raphael on 19.03.18.
 //
 
+#include <tiny_gltf.h>
 #include <spdlog/spdlog.h>
 #include "ModelManager.h"
 
 std::string ModelManager::root;
 std::map<std::string, std::shared_ptr<tinygltf::Model>> ModelManager::models;
 tinygltf::TinyGLTF ModelManager::loader;
-std::shared_ptr<spdlog::logger> logger = spdlog::stdout_color_mt(std::string("Gltf Loader"));
+std::shared_ptr<spdlog::logger> ModelManager::logger = spdlog::stdout_color_mt(std::string("Gltf Loader"));
 
 void ModelManager::build(const std::string &root) {
     ModelManager::root = root;
@@ -25,11 +26,11 @@ std::shared_ptr<tinygltf::Model> ModelManager::load(const std::string &name) {
         auto ret = loader.LoadASCIIFromFile(model, &error, (root + name + ".gltf"));
 
         if(!error.empty())
-            logger->error(error);
+            ModelManager::logger->error(error);
 
         if(!ret) {
-            logger->error("Unable to load file: {}", name);
-            logger->flush();
+            ModelManager::logger->error("Unable to load file: {}", name);
+            ModelManager::logger->flush();
 
             throw std::runtime_error("Unable to load model!");
         }

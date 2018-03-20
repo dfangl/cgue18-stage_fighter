@@ -57,39 +57,39 @@ void Shader::use() {
     glUseProgram(this->shaderID);
 }
 
-void Shader::setUniform(const GLint location, bool value) const {
+void Shader::setUniform(const GLint location, bool value) {
     glUniform1i(location, (int)value);
 }
 
-void Shader::setUniform(const GLint location, int value) const {
+void Shader::setUniform(const GLint location, int value) {
     glUniform1i(location, value);
 }
 
-void Shader::setUniform(const GLint location, float value) const {
+void Shader::setUniform(const GLint location, float value) {
     glUniform1f(location, value);
 }
 
-void Shader::setUniform(const GLint location, const glm::vec2 &value) const {
+void Shader::setUniform(const GLint location, const glm::vec2 &value) {
     glUniform2fv(location, 1, &value[0]);
 }
 
-void Shader::setUniform(const GLint location, const glm::vec3 &value) const {
+void Shader::setUniform(const GLint location, const glm::vec3 &value) {
     glUniform3fv(location, 1, &value[0]);
 }
 
-void Shader::setUniform(const GLint location, const glm::vec4 &value) const {
+void Shader::setUniform(const GLint location, const glm::vec4 &value) {
     glUniform4fv(location, 1, &value[0]);
 }
 
-void Shader::setUniform(const GLint location, const glm::mat2 &mat) const {
+void Shader::setUniform(const GLint location, const glm::mat2 &mat) {
     glUniformMatrix2fv(location, 1, GL_FALSE, &mat[0][0]);
 }
 
-void Shader::setUniform(const GLint location, const glm::mat3 &mat) const {
+void Shader::setUniform(const GLint location, const glm::mat3 &mat) {
     glUniformMatrix3fv(location, 1, GL_FALSE, &mat[0][0]);
 }
 
-void Shader::setUniform(const GLint location, const glm::mat4 &mat) const {
+void Shader::setUniform(const GLint location, const glm::mat4 &mat) {
     glUniformMatrix4fv(location, 1, GL_FALSE, &mat[0][0]);
 }
 
@@ -126,4 +126,46 @@ std::shared_ptr<Shader> Shader::fromFile(const std::string vertex, const std::st
     }
 
     return std::make_shared<Shader>(vertexCode, fragmentCode);
+}
+
+GLint Shader::getLocation(const std::string &name) {
+    auto element = this->mapping.find(name);
+    if(element == this->mapping.end()) {
+        const GLint location = glGetUniformLocation(this->shaderID, name.c_str());
+        this->mapping[name] = location;
+
+        return location;
+    }
+
+    return element->second;
+}
+
+void Shader::setVertexAttributePointer(const GLuint location, GLuint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid *pointer) {
+    glVertexAttribPointer(location, size, type, normalized, stride, pointer);
+    glEnableVertexAttribArray(location);
+}
+
+void Shader::setVertexAttributePointer(const std::string &name, GLuint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid *pointer) {
+    if(this->mapping.find(name) == this->mapping.end()) {
+        const GLint location = glGetAttribLocation(this->shaderID, name.c_str());
+        if(location<0)
+            return;
+
+        this->mapping[name] = location;
+    }
+ 
+    setVertexAttributePointer(static_cast<const GLuint>(this->mapping[name]), size, type, normalized, stride, pointer);
+}
+
+void Shader::disableVAO(const GLuint location) {
+    glDisableVertexAttribArray(location);
+}
+
+void Shader::disableVAO(const std::string &name) {
+    auto element = this->mapping.find(name);
+    if(element == this->mapping.end()) {
+        return;
+    }
+
+    glDisableVertexAttribArray(static_cast<GLuint>(element->second));
 }

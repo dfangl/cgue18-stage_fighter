@@ -16,9 +16,16 @@
 #include "object3d/Cube.h"
 #include "entity/CubeEntity.h"
 #include "controller/CameraController.h"
+#include "manager/ModelManager.h"
+#include "object3d/Model3DObject.h"
 
 #include <kaguya/kaguya.hpp>
 #include <spdlog/spdlog.h>
+
+// Needed for one time implementation, do NOT delete
+#define TINYGLTF_IMPLEMENTATION
+#include <tiny_gltf.h>
+
 
 int main(int argc, char *argv[]) {
     spdlog::set_async_mode(8192);
@@ -31,6 +38,7 @@ int main(int argc, char *argv[]) {
 	console->info("Shader root is ../resources/shader");
     ShaderManager::build("../resources/shader/");
     TextureManager::build("../resources/texture/");
+    ModelManager::build("../resources/");
 
     Camera camera(glm::vec3(0.0f, 10.0f, 3.0f), glm::vec3(0.0f, 1.0f, 0.0f), -90.0f, 0.0f, 45.0f, config["config"]["width"], config["config"]["height"], 0.01f, 100.0f);
 	auto *window = new Window(camera, config["config"]["width"], config["config"]["height"], "Stage Fighter", config["config"]["fullscreen"]);
@@ -59,6 +67,7 @@ int main(int argc, char *argv[]) {
     auto cube4 = std::make_shared<CubeEntity>(glm::vec4(5,10,0,1), TextureManager::load("wall.jpg"), world);
     auto triangle = std::make_shared<Triangle>(glm::vec4(0,1,0,1), TextureManager::load("wall.jpg"));
     auto player = std::make_shared<CameraEntity>(camera, world);
+    auto cubeModel = std::make_shared<Model3DObject>(ModelManager::load("cube"), ShaderManager::load("cube"));
 
     triangle->rotate(90.0f, glm::vec3(1,0,0));
 
@@ -68,6 +77,7 @@ int main(int argc, char *argv[]) {
     window->addObject3D(cube3);
     window->addObject3D(cube4);
     window->addObject3D(triangle);
+    window->addObject3D(cubeModel);
 
     auto lastTick = std::chrono::high_resolution_clock::now();
 

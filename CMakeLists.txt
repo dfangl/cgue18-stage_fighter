@@ -171,7 +171,9 @@ link_directories(${GLM_LIBRARY_DIRS})
 ## Kaguya ##
 if(UNIX)
 	find_package(PkgConfig REQUIRED)
-	pkg_search_module(lua REQUIRED lua5.3)
+    pkg_search_module(LUA REQUIRED lua5.3 lua-5.3 lua53)
+#    message(STATUS "LUA_FOUND: ${LUA_FOUND}")
+#    set(LUA_FOUND ON)
 
 	if(LUA_FOUND)
 		message(STATUS "Lua was found by pkg-config: '${LUA_INCLUDE_DIRS}'")
@@ -230,7 +232,7 @@ include_directories(
 	)
 
 add_executable(
-		"${BINARY}" ${GLTF_HEADERS}
+		"${BINARY}"
 		src/main.cpp src/object3d/Triangle.cpp src/object3d/Triangle.h
 		src/Window.cpp src/Window.h src/helper/Callback.h src/BulletUniverse.cpp src/BulletUniverse.h
 		src/object3d/Object3D.cpp src/object3d/Object3D.h src/Shader.cpp src/Shader.h src/manager/ShaderManager.cpp

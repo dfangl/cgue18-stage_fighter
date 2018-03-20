@@ -7,14 +7,20 @@
 
 #include <vector>
 #include <tiny_gltf.h>
-#include "../helper/Logger.h"
+
 #include "Object3D.h"
+#include "../Texture.h"
+#include "../helper/Logger.h"
+
+
+
 
 class Model3DObject : public Object3D, Logger {
 
 private:
     std::vector<GLuint> vbos;
     std::shared_ptr<tinygltf::Model> gltfModel;
+    std::shared_ptr<Texture> texture0;
 
     void drawNode(const tinygltf::Node &node);
     void drawMesh(const tinygltf::Mesh &mesh);

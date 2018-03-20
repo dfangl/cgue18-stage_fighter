@@ -2,12 +2,16 @@
 // Created by raphael on 19.03.18.
 //
 
+#include <algorithm>
 
 #include <glad/glad.h>
 #include <tiny_gltf.h>
+
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/transform.hpp>
+
 #include "Model3DObject.h"
+#include "../manager/TextureManager.h"
 
 #define BUFFER_OFFSET(i) ((char *)NULL + (i))
 
@@ -40,6 +44,7 @@ Model3DObject::Model3DObject(const std::shared_ptr<tinygltf::Model> &model, cons
     }
 
     //TODO: Material and Texture loading
+    this->texture0 = TextureManager::load("wall.jpg");
 }
 
 void Model3DObject::draw() {
@@ -76,7 +81,10 @@ void Model3DObject::drawNode(const tinygltf::Node &node) {
         }
     }
 
-    shader->setUniform("model", modelMatrix);
+    shader->setUniform("model", modelMatrix * this->model);
+    texture0->bind(GL_TEXTURE0);
+    shader->setUniform("texture_0", 0);
+
     this->drawMesh(this->gltfModel->meshes[node.mesh]);
 
     for (auto &child : node.children) {
@@ -103,20 +111,23 @@ void Model3DObject::drawMesh(const tinygltf::Mesh &mesh) {
                 default: throw std::runtime_error("Unknown accessor type!");
             }
 
-            // TODO: Manually read attributes:
+            // Some of these attributes are read from gltf
             /*      "JOINTS_0"
                     "NORMAL"
                     "POSITION"
                     "TEXCOORD_0"
                     "WEIGHTS_0"
             */
-            // if(attribute.first.compare("POSITION"))
-            /*
-             * auto byteStide = accessor.ByteStride(gltfModel->bufferViews[accessor.bufferView]);
-             * glVertexAttribPointer(???, size, accessor.componentType, accessor.normalized ? GL_TRUE : GL_FALSE, byteStride, BUFFER_OFFSET(accessor.byteOffset);
-             * glEnableVertexAttribArray(???)
-             *
-             */
+            std::string attrName = attribute.first;
+            std::transform(attrName.begin(), attrName.end(), attrName.begin(), ::tolower);
+
+            auto byteStide = accessor.ByteStride(gltfModel->bufferViews[accessor.bufferView]);
+            this->shader->setVertexAttributePointer(attrName,
+                                                    static_cast<GLuint>(size),
+                                                    static_cast<GLenum>(accessor.componentType),
+                                                    static_cast<GLboolean>(accessor.normalized ? GL_TRUE : GL_FALSE),
+                                                    byteStide,
+                                                    BUFFER_OFFSET(accessor.byteOffset));
         }
 
         const tinygltf::Accessor &indexAccess = gltfModel->accessors[primitive.indices];
@@ -139,9 +150,11 @@ void Model3DObject::drawMesh(const tinygltf::Mesh &mesh) {
                        BUFFER_OFFSET(indexAccess.byteOffset)
         );
 
-        //TODO: release attributes
         for (auto &attribute : primitive.attributes) {
-            //glDisableVertexAttribArray(???)
+            std::string attrName = attribute.first;
+            std::transform(attrName.begin(), attrName.end(), attrName.begin(), ::tolower);
+
+            this->shader->disableVAO(attrName);
         }
     }
 }

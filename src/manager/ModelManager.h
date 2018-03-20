@@ -6,9 +6,8 @@
 #define STAGE_FIGHTER_MODELMANAGER_H
 
 #include <memory>
-#include <tiny_gltf.h>
 #include <spdlog/logger.h>
-
+#include <tiny_gltf.h>
 
 class ModelManager {
 
