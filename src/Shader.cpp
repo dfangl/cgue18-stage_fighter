@@ -141,12 +141,8 @@ GLint Shader::getLocation(const std::string &name) {
 }
 
 void Shader::setVertexAttributePointer(const GLuint location, GLuint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid *pointer) {
-    logger->info("setVertexAttributePointer({}, {}, {}, {}, {}, {})", location, size, type, normalized, stride, (void *)pointer);
     glVertexAttribPointer(location, size, type, normalized, stride, pointer);
-    logger->info("glError={}", glGetError());
-
     glEnableVertexAttribArray(location);
-    logger->info("glError={}", glGetError());
 }
 
 void Shader::setVertexAttributePointer(const std::string &name, GLuint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid *pointer) {
@@ -158,7 +154,6 @@ void Shader::setVertexAttributePointer(const std::string &name, GLuint size, GLe
         this->mapping[name] = location;
     }
 
-    spdlog::get("console")->info("Attribute Index: {} -> {}", name, static_cast<const GLuint>(this->mapping[name]));
     setVertexAttributePointer(static_cast<const GLuint>(this->mapping[name]), size, type, normalized, stride, pointer);
 }
 

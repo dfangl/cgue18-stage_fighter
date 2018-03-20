@@ -84,7 +84,7 @@ int main(int argc, char *argv[]) {
     window->processCameraMouseMovement(true);
     window->processCameraKeyMovment(false);
     player->enabled = true;
-    //window->hideCursor();
+    window->hideCursor();
 
     double frameSampleCount = 0.0;
 
