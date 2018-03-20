@@ -28,8 +28,8 @@ Model3DObject::Model3DObject(const std::shared_ptr<tinygltf::Model> &model, cons
             continue;
         }
 
-        GLuint vbo, vao;
-        glGenVertexArrays(1, &vao);
+        GLuint vbo;
+        glGenVertexArrays(1, &this->VAO);
         glGenBuffers(1, &vbo);
         glBindBuffer(static_cast<GLenum>(bufferView.target), vbo);
 
@@ -41,7 +41,6 @@ Model3DObject::Model3DObject(const std::shared_ptr<tinygltf::Model> &model, cons
         glBindBuffer(static_cast<GLenum>(bufferView.target), 0);
 
         this->vbos.push_back(vbo);
-        this->vao.push_back(vao);
     }
 
     //TODO: Material and Texture loading
@@ -50,6 +49,14 @@ Model3DObject::Model3DObject(const std::shared_ptr<tinygltf::Model> &model, cons
 
 void Model3DObject::draw() {
     //Support for more than one scene necessary?
+
+    texture0->bind(GL_TEXTURE0);
+    shader->setUniform("texture_0", 0);
+
+    auto err = glGetError();
+    if (err != GL_NO_ERROR) {
+        logger->info("Texture Error: {}", err);
+    }
 
     const tinygltf::Scene &scene = this->gltfModel->scenes[gltfModel->defaultScene];
     for (auto &node : gltfModel->nodes) {
@@ -82,9 +89,7 @@ void Model3DObject::drawNode(const tinygltf::Node &node) {
         }
     }
 
-    shader->setUniform("model", this->model);
-    texture0->bind(GL_TEXTURE0);
-    shader->setUniform("texture_0", 0);
+    shader->setUniform("model", modelMatrix * this->model);
 
     if(node.mesh != -1)
         this->drawMesh(this->gltfModel->meshes[node.mesh]);
@@ -99,10 +104,11 @@ void Model3DObject::drawMesh(const tinygltf::Mesh &mesh) {
         if(primitive.indices < 0)
             return;
 
+        glBindVertexArray(this->VAO);
+
         // Prepare attributes
         for (auto &attribute : primitive.attributes) {
             const tinygltf::Accessor &accessor = gltfModel->accessors[attribute.second];
-            glBindVertexArray(this->vao[accessor.bufferView]);
             glBindBuffer(GL_ARRAY_BUFFER, this->vbos[accessor.bufferView]);
 
             size_t size;
@@ -131,6 +137,12 @@ void Model3DObject::drawMesh(const tinygltf::Mesh &mesh) {
                                                     static_cast<GLboolean>(accessor.normalized ? GL_TRUE : GL_FALSE),
                                                     byteStide,
                                                     BUFFER_OFFSET(accessor.byteOffset));
+
+            auto glEr = glGetError();
+            if (glEr != GL_NO_ERROR)  {
+                logger->info("Error: {}", glEr);
+            }
+
         }
 
         const tinygltf::Accessor &indexAccess = gltfModel->accessors[primitive.indices];

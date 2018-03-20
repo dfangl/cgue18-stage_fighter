@@ -79,6 +79,8 @@ int main(int argc, char *argv[]) {
     window->addObject3D(triangle);
     window->addObject3D(cubeModel);
 
+    cubeModel->setOrigin(glm::vec3(0,3,0));
+
     auto lastTick = std::chrono::high_resolution_clock::now();
 
     window->processCameraMouseMovement(true);
