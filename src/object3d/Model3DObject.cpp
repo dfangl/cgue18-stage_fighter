@@ -28,7 +28,8 @@ Model3DObject::Model3DObject(const std::shared_ptr<tinygltf::Model> &model, cons
             continue;
         }
 
-        GLuint vbo;
+        GLuint vbo, vao;
+        glGenVertexArrays(1, &vao);
         glGenBuffers(1, &vbo);
         glBindBuffer(static_cast<GLenum>(bufferView.target), vbo);
 
@@ -37,10 +38,19 @@ Model3DObject::Model3DObject(const std::shared_ptr<tinygltf::Model> &model, cons
                      &buffer.data.at(0) + bufferView.byteOffset,
                      GL_STATIC_DRAW
         );
+        logger->info("glBufferData:\t{}", glGetError());
+
+        logger->info("vbo={}\tglBindBufferData({}, {}, {}, GL_STATIC_DRAW)",vbo, bufferView.target, bufferView.byteLength, (void *)( &buffer.data.at(0) + bufferView.byteOffset));
+        float *RAW_BUFFER = reinterpret_cast<float *>(&buffer.data.at(0) + bufferView.byteOffset);
+        for(int i=0; i<bufferView.byteLength/sizeof(float); i+=3) {
+            logger->info("{},  {}, {}", RAW_BUFFER[i], RAW_BUFFER[i+1], RAW_BUFFER[i+3]);
+        }
+
 
         glBindBuffer(static_cast<GLenum>(bufferView.target), 0);
 
         this->vbos.push_back(vbo);
+        this->vao.push_back(vao);
     }
 
     //TODO: Material and Texture loading
@@ -81,11 +91,12 @@ void Model3DObject::drawNode(const tinygltf::Node &node) {
         }
     }
 
-    shader->setUniform("model", modelMatrix * this->model);
+    shader->setUniform("model", this->model);
     texture0->bind(GL_TEXTURE0);
     shader->setUniform("texture_0", 0);
 
-    this->drawMesh(this->gltfModel->meshes[node.mesh]);
+    if(node.mesh != -1)
+        this->drawMesh(this->gltfModel->meshes[node.mesh]);
 
     for (auto &child : node.children) {
         this->drawNode(gltfModel->nodes[child]);
@@ -100,7 +111,9 @@ void Model3DObject::drawMesh(const tinygltf::Mesh &mesh) {
         // Prepare attributes
         for (auto &attribute : primitive.attributes) {
             const tinygltf::Accessor &accessor = gltfModel->accessors[attribute.second];
+            glBindVertexArray(this->vao[accessor.bufferView]);
             glBindBuffer(GL_ARRAY_BUFFER, this->vbos[accessor.bufferView]);
+            logger->info("glBindBuffer({}): \t{}", this->vbos[accessor.bufferView], glGetError());
 
             size_t size;
             switch(accessor.type) {
@@ -132,6 +145,7 @@ void Model3DObject::drawMesh(const tinygltf::Mesh &mesh) {
 
         const tinygltf::Accessor &indexAccess = gltfModel->accessors[primitive.indices];
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->vbos[indexAccess.bufferView]);
+        logger->info("glBindBuffer2\t{}", glGetError());
 
         GLenum mode;
         switch(primitive.mode) {
@@ -150,11 +164,16 @@ void Model3DObject::drawMesh(const tinygltf::Mesh &mesh) {
                        BUFFER_OFFSET(indexAccess.byteOffset)
         );
 
+        logger->info("glDrawElements({}, {}, {}): \t{}", indexAccess.count, indexAccess.componentType, (void*)BUFFER_OFFSET(indexAccess.byteOffset) ,glGetError());
+
+
         for (auto &attribute : primitive.attributes) {
             std::string attrName = attribute.first;
             std::transform(attrName.begin(), attrName.end(), attrName.begin(), ::tolower);
 
             this->shader->disableVAO(attrName);
         }
+
+        glBindVertexArray(0);
     }
 }

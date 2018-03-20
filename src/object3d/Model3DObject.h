@@ -19,6 +19,7 @@ class Model3DObject : public Object3D, Logger {
 
 private:
     std::vector<GLuint> vbos;
+    std::vector<GLuint> vao;
     std::shared_ptr<tinygltf::Model> gltfModel;
     std::shared_ptr<Texture> texture0;
 

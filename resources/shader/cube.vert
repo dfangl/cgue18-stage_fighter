@@ -1,5 +1,5 @@
 #version 450 core
-in vec3 position;
+layout (location = 0) in vec3 position;
 in vec2 texcoord_0;
 
 out vec2 out_texcoord_0;
