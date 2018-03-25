@@ -30,7 +30,7 @@ private:
     static btVector3 bulletMovementVector;
 
 public:
-    explicit CameraEntity(Camera &camera, std::shared_ptr<BulletUniverse> world, btCollisionShape *bulletShape = new btBoxShape(btVector3(0.5,0.5,0.5)), btScalar mass = 0.1);
+    explicit CameraEntity(Camera &camera, std::shared_ptr<BulletUniverse> world, btCollisionShape *bulletShape = new btBoxShape(btVector3(0.5,0.5,0.5)), btScalar mass = 1);
     virtual ~CameraEntity();
 
     void setEntityPosition(const glm::vec3 &vec) override;
@@ -40,7 +40,7 @@ public:
     std::function<void(int,int,int,int)> getKeyboardCallback() const { return this->keyboardCallback; }
 
     bool enabled = false;
-    float entitySpeed = 3.0f;
+    float entitySpeed = 7.0f;
 };
 
 

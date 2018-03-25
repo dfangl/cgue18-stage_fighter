@@ -19,6 +19,7 @@ Model3DObject::Model3DObject(const std::shared_ptr<tinygltf::Model> &model, cons
     : Object3D(shader) {
 
     this->gltfModel = model;
+    glGenVertexArrays(1, &this->VAO);
 
     for( auto &bufferView : model->bufferViews ) {
         tinygltf::Buffer &buffer = model->buffers[bufferView.buffer];
@@ -29,7 +30,6 @@ Model3DObject::Model3DObject(const std::shared_ptr<tinygltf::Model> &model, cons
         }
 
         GLuint vbo;
-        glGenVertexArrays(1, &this->VAO);
         glGenBuffers(1, &vbo);
         glBindBuffer(static_cast<GLenum>(bufferView.target), vbo);
 
@@ -44,11 +44,15 @@ Model3DObject::Model3DObject(const std::shared_ptr<tinygltf::Model> &model, cons
     }
 
     //TODO: Material and Texture loading
-    this->texture0 = TextureManager::load("wall.jpg");
+    //if (gltfModel->textures.empty())
+        this->texture0 = TextureManager::load("wall.jpg");
+
+
 }
 
 void Model3DObject::draw() {
     //Support for more than one scene necessary?
+
 
     texture0->bind(GL_TEXTURE0);
     shader->setUniform("texture_0", 0);
@@ -68,6 +72,7 @@ void Model3DObject::draw() {
 void Model3DObject::drawNode(const tinygltf::Node &node) {
     glm::mat4 modelMatrix(1.0);
 
+    /*
     if(node.matrix.size() == 16)
         modelMatrix = glm::make_mat4(node.matrix.data());
     else {
@@ -80,7 +85,7 @@ void Model3DObject::drawNode(const tinygltf::Node &node) {
         if(node.rotation.size() == 4) {
             const glm::vec3 &r = glm::make_vec3(&node.rotation.at(1));
             const auto angle = static_cast<const float>(node.rotation.at(0));
-            modelMatrix = glm::rotate(modelMatrix, angle, r);
+            modelMatrix = glm::rotate(modelMatrix, glm::radians(angle), r);
         }
 
         if(node.translation.size() == 3) {
@@ -88,6 +93,7 @@ void Model3DObject::drawNode(const tinygltf::Node &node) {
             modelMatrix = glm::translate(modelMatrix, t);
         }
     }
+     */
 
     shader->setUniform("model", modelMatrix * this->model);
 

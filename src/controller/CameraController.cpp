@@ -25,7 +25,7 @@ CameraEntity::CameraEntity(Camera &camera, std::shared_ptr<BulletUniverse> world
 
     rigidBody->setActivationState(DISABLE_DEACTIVATION);
     rigidBody->setFriction(1.0f);
-    rigidBody->setRestitution(100.0f);
+    rigidBody->setRestitution(0.1f);
 
     world->addRigidBody(rigidBody);
 }
@@ -53,19 +53,25 @@ void CameraEntity::think(std::chrono::duration<double, std::milli> delta) {
 
     speed.setZ(zVelocity);
     speed.setX(xVelocity);
-    speed.setY(0.0f);
+    speed.setY(0.0);
 
-    if (o.y() > 0.99999f) speed.setY(-9.81f);
-    //else                speed.setY(0.0f);
-
-    //this->rigidBody->activate(true);
-    //rigidBody->setAngularFactor(bulletMovementVector);
-    rigidBody->setLinearVelocity(speed.rotate(bulletMovementVector, btRadians(-camera.getYaw())));
-
-    if(jump) {
-        rigidBody->applyCentralImpulse(btVector3(0, 9.81f * this->entitySpeed, 0));
+    if (jump) {
+        speed.setY(this->entitySpeed * 9.81f);
         jump = false;
     }
+
+    if(!forewardPressed && !backwardPressed && !leftPressed && !rightPressed) {
+        rigidBody->setDamping(200.0f, 0.0f);
+    } else {
+        rigidBody->setDamping(0.0f, 0.0f);
+    }
+
+
+    //if (o.y() > 0.99999f) speed.setY(-9.81f);
+    //else                speed.setY(0.0f);
+
+    //rigidBody->setLinearVelocity(speed.rotate(bulletMovementVector, btRadians(-camera.getYaw())));
+    rigidBody->applyCentralForce(speed.rotate(bulletMovementVector, btRadians(-camera.getYaw())));
 }
 
 CameraEntity::~CameraEntity() {

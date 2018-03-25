@@ -33,3 +33,11 @@ void BulletUniverse::simulate(std::chrono::duration<double, std::milli> tick) {
 void BulletUniverse::removeRigidBody(btRigidBody *body) {
     this->dynamicsWorld->removeRigidBody(body);
 }
+
+void BulletUniverse::addCollsipnObject(btCollisionObject *body) {
+    this->dynamicsWorld->addCollisionObject(body);
+}
+
+void BulletUniverse::removeCollsipnObject(btCollisionObject *body) {
+    this->dynamicsWorld->removeCollisionObject(body);
+}

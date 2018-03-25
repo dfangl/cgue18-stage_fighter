@@ -22,8 +22,11 @@ public:
     explicit BulletUniverse(const btVector3 &gravity);
     ~BulletUniverse();
 
-    void addRigidBody(btRigidBody*body);
-    void removeRigidBody(btRigidBody*body);
+    void addRigidBody(btRigidBody *body);
+    void removeRigidBody(btRigidBody *body);
+
+    void addCollsipnObject(btCollisionObject *body);
+    void removeCollsipnObject(btCollisionObject *body);
 
     void simulate(std::chrono::duration<double, std::milli> tick);
 

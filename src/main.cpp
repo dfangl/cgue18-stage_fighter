@@ -18,6 +18,7 @@
 #include "controller/CameraController.h"
 #include "manager/ModelManager.h"
 #include "object3d/Model3DObject.h"
+#include "object3d/StaticBulletModelObject.h"
 
 #include <kaguya/kaguya.hpp>
 #include <spdlog/spdlog.h>
@@ -40,7 +41,7 @@ int main(int argc, char *argv[]) {
     TextureManager::build("../resources/texture/");
     ModelManager::build("../resources/");
 
-    Camera camera(glm::vec3(0.0f, 10.0f, 3.0f), glm::vec3(0.0f, 1.0f, 0.0f), -90.0f, 0.0f, 45.0f, config["config"]["width"], config["config"]["height"], 0.01f, 100.0f);
+    Camera camera(glm::vec3(0.0f, 10.0f, 3.0f), glm::vec3(0.0f, 1.0f, 0.0f), -90.0f, 0.0f, 45.0f, config["config"]["width"], config["config"]["height"], 0.01f, 1000.0f);
 	auto *window = new Window(camera, config["config"]["width"], config["config"]["height"], "Stage Fighter", config["config"]["fullscreen"]);
     window->setVSync(config["config"]["vsync"]);
 
@@ -69,6 +70,7 @@ int main(int argc, char *argv[]) {
     auto player = std::make_shared<CameraEntity>(camera, world);
     auto cubeModel = std::make_shared<Model3DObject>(ModelManager::load("cube"), ShaderManager::load("cube"));
 
+    auto map = std::make_shared<StaticBulletModelObject>(btVector3(0, -50, 0), btQuaternion(0,0,0,1), 9999999, ModelManager::load("map"), ShaderManager::load("cube"));
     triangle->rotate(90.0f, glm::vec3(1,0,0));
 
     window->addObject3D(cube);
@@ -78,8 +80,13 @@ int main(int argc, char *argv[]) {
     window->addObject3D(cube4);
     window->addObject3D(triangle);
     window->addObject3D(cubeModel);
+    window->addObject3D(map);
 
     cubeModel->setOrigin(glm::vec3(0,3,0));
+    //map->rotate(-90.0f, glm::vec3(1,0,0));
+    //map->setOrigin(glm::vec3(0,-50, 0));
+
+    world->addCollsipnObject(map->getStaticObject());
 
     auto lastTick = std::chrono::high_resolution_clock::now();
 
