@@ -12,6 +12,8 @@ BulletUniverse::BulletUniverse(const btVector3 &gravity) {
 
     this->dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration);
     this->dynamicsWorld->setGravity(gravity);
+
+    this->debugDrawer = std::make_shared<GLDebugDrawer>();
 }
 
 BulletUniverse::~BulletUniverse() {
@@ -34,10 +36,20 @@ void BulletUniverse::removeRigidBody(btRigidBody *body) {
     this->dynamicsWorld->removeRigidBody(body);
 }
 
-void BulletUniverse::addCollsipnObject(btCollisionObject *body) {
+void BulletUniverse::addCollsionObject(btCollisionObject *body) {
     this->dynamicsWorld->addCollisionObject(body);
 }
 
 void BulletUniverse::removeCollsipnObject(btCollisionObject *body) {
     this->dynamicsWorld->removeCollisionObject(body);
 }
+
+void BulletUniverse::enableDebugging() {
+    this->debugDrawer->setDebugMode(btIDebugDraw::DBG_DrawWireframe | btIDebugDraw::DBG_DrawAabb);
+    this->dynamicsWorld->setDebugDrawer(debugDrawer.get());
+}
+
+void BulletUniverse::drawDebug() {
+    this->dynamicsWorld->debugDrawWorld();
+}
+

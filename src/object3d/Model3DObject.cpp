@@ -7,6 +7,7 @@
 #include <glad/glad.h>
 #include <tiny_gltf.h>
 
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/transform.hpp>
 
@@ -72,7 +73,6 @@ void Model3DObject::draw() {
 void Model3DObject::drawNode(const tinygltf::Node &node) {
     glm::mat4 modelMatrix(1.0);
 
-    /*
     if(node.matrix.size() == 16)
         modelMatrix = glm::make_mat4(node.matrix.data());
     else {
@@ -93,16 +93,18 @@ void Model3DObject::drawNode(const tinygltf::Node &node) {
             modelMatrix = glm::translate(modelMatrix, t);
         }
     }
-     */
 
     shader->setUniform("model", modelMatrix * this->model);
 
-    if(node.mesh != -1)
+    if(node.mesh != -1) {
+        //spdlog::get("console")->info("Mesh id: {}, Node: {}", node.mesh, node.name);
         this->drawMesh(this->gltfModel->meshes[node.mesh]);
-
-    for (auto &child : node.children) {
-        this->drawNode(gltfModel->nodes[child]);
     }
+
+    //Not needed, model->nodes does contain all nodes (?)
+    //for (auto &child : node.children) {
+    //    this->drawNode(gltfModel->nodes[child]);
+    //}
 }
 
 void Model3DObject::drawMesh(const tinygltf::Mesh &mesh) {

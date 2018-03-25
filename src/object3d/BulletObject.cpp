@@ -10,9 +10,10 @@ BulletObject::BulletObject(const btVector3 &pos, const btQuaternion &rotation, b
     this->fallShape = bulletShape;
     this->mass = mass;
 
-    this->motionState = new btDefaultMotionState(btTransform(rotation, pos));
-    this->fallShape->calculateLocalInertia(mass, inertia);
+    if (this->mass > 0)
+        this->fallShape->calculateLocalInertia(mass, inertia);
 
+    this->motionState = new btDefaultMotionState(btTransform(rotation, pos));
     btRigidBody::btRigidBodyConstructionInfo rigidBodyCI(mass, this->motionState, fallShape, inertia);
     this->rigidBody = new btRigidBody(rigidBodyCI);
 }

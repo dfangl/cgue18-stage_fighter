@@ -5,35 +5,27 @@
 #ifndef STAGE_FIGHTER_BULLETMODELOBJECT_H
 #define STAGE_FIGHTER_BULLETMODELOBJECT_H
 
+#include <memory>
 #include <vector>
 #include <btBulletDynamicsCommon.h>
 
 #include "BulletObject.h"
 #include "Model3DObject.h"
+#include "../BulletUniverse.h"
 
 class StaticBulletModelObject : public BulletObject, public Model3DObject {
 
-
 private:
-    struct btVertexData {
-        btVector3 v1;
-        btVector3 v2;
-        btVector3 v3;
-    };
-
     std::vector<BulletObject> additionalObjects;
-    btCollisionObject *collisionObject;
-
+    std::shared_ptr<BulletUniverse> world;
 
 protected:
     static btBvhTriangleMeshShape *convertModelToTriangleMesh(const std::shared_ptr<tinygltf::Model> &model);
 
 public:
     StaticBulletModelObject(const btVector3 &pos, const btQuaternion &rotation, btScalar mass,
-                            const std::shared_ptr<tinygltf::Model> &model, const std::shared_ptr<Shader> &shader);
-
-
-    btCollisionObject *getStaticObject() { return this->collisionObject; }
+                            const std::shared_ptr<tinygltf::Model> &model, const std::shared_ptr<Shader> &shader,
+                            std::shared_ptr<BulletUniverse> &world);
 
 };
 

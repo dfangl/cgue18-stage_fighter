@@ -13,6 +13,7 @@ class BulletObject {
 protected:
     btDefaultMotionState* motionState;
     btRigidBody* rigidBody;
+    //btCollisionObject* staticBody;
     btCollisionShape* fallShape;
     btScalar mass;
 

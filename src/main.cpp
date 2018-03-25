@@ -41,7 +41,7 @@ int main(int argc, char *argv[]) {
     TextureManager::build("../resources/texture/");
     ModelManager::build("../resources/");
 
-    Camera camera(glm::vec3(0.0f, 10.0f, 3.0f), glm::vec3(0.0f, 1.0f, 0.0f), -90.0f, 0.0f, 45.0f, config["config"]["width"], config["config"]["height"], 0.01f, 1000.0f);
+    Camera camera(glm::vec3(0.0f, 1.0f, 3.0f), glm::vec3(0.0f, 1.0f, 0.0f), -90.0f, 0.0f, 45.0f, config["config"]["width"], config["config"]["height"], 0.01f, 1000.0f);
 	auto *window = new Window(camera, config["config"]["width"], config["config"]["height"], "Stage Fighter", config["config"]["fullscreen"]);
     window->setVSync(config["config"]["vsync"]);
 
@@ -62,31 +62,54 @@ int main(int argc, char *argv[]) {
 	//=============================
 
     auto cube = std::make_shared<CubeEntity>(glm::vec4(0,10,0,1), TextureManager::load("wall.jpg"), world);
-    auto cube1 = std::make_shared<CubeEntity>(glm::vec4(5,10,1,1), TextureManager::load("wall.jpg"), world);
-    auto cube2 = std::make_shared<CubeEntity>(glm::vec4(3,3,1,1), TextureManager::load("wall.jpg"), world);
-    auto cube3 = std::make_shared<CubeEntity>(glm::vec4(1,3,4,1), TextureManager::load("wall.jpg"), world);
-    auto cube4 = std::make_shared<CubeEntity>(glm::vec4(5,10,0,1), TextureManager::load("wall.jpg"), world);
+    //auto cube1 = std::make_shared<CubeEntity>(glm::vec4(5,60,1,1), TextureManager::load("wall.jpg"), world);
+    //auto cube2 = std::make_shared<CubeEntity>(glm::vec4(3,53,1,1), TextureManager::load("wall.jpg"), world);
+    //auto cube3 = std::make_shared<CubeEntity>(glm::vec4(1,53,4,1), TextureManager::load("wall.jpg"), world);
+    //auto cube4 = std::make_shared<CubeEntity>(glm::vec4(5,60,0,1), TextureManager::load("wall.jpg"), world);
     auto triangle = std::make_shared<Triangle>(glm::vec4(0,1,0,1), TextureManager::load("wall.jpg"));
     auto player = std::make_shared<CameraEntity>(camera, world);
     auto cubeModel = std::make_shared<Model3DObject>(ModelManager::load("cube"), ShaderManager::load("cube"));
 
-    auto map = std::make_shared<StaticBulletModelObject>(btVector3(0, -50, 0), btQuaternion(0,0,0,1), 9999999, ModelManager::load("map"), ShaderManager::load("cube"));
+    /* Doesn't work: */
+    auto map = std::make_shared<StaticBulletModelObject>(
+            btVector3(0, -48, 0),
+            btQuaternion(0,0,0,1),
+            0,
+            ModelManager::load("map"),
+            ShaderManager::load("cube"),
+            world
+    );
+
+
+    // Jop, here strange stuff happens:
+    auto staticCube = std::make_shared<StaticBulletModelObject>(
+            btVector3(0, 1, 0),
+            btQuaternion(0,0,0,1),
+            0,
+            ModelManager::load("cube"),
+            ShaderManager::load("cube"),
+            world
+    );
+
     triangle->rotate(90.0f, glm::vec3(1,0,0));
 
     window->addObject3D(cube);
-    window->addObject3D(cube1);
-    window->addObject3D(cube2);
-    window->addObject3D(cube3);
-    window->addObject3D(cube4);
+    //window->addObject3D(cube1);
+    //window->addObject3D(cube2);
+    //window->addObject3D(cube3);
+    //window->addObject3D(cube4);
     window->addObject3D(triangle);
     window->addObject3D(cubeModel);
     window->addObject3D(map);
+    window->addObject3D(staticCube);
 
-    cubeModel->setOrigin(glm::vec3(0,3,0));
-    //map->rotate(-90.0f, glm::vec3(1,0,0));
+    // ONLY when debugging bullet!
+    world->enableDebugging();
+    window->addObject3D(world->getDebugDrawer());
+
+    cubeModel->setOrigin(glm::vec3(3,0,3));
+    cubeModel->rotate(-45.0f, glm::vec3(0.5,0.5,0.5));
     //map->setOrigin(glm::vec3(0,-50, 0));
-
-    world->addCollsipnObject(map->getStaticObject());
 
     auto lastTick = std::chrono::high_resolution_clock::now();
 
@@ -117,13 +140,14 @@ int main(int argc, char *argv[]) {
         player->think(delta);
 
 		world->simulate(delta);
+        world->drawDebug();
 
         // transfer bullet world to opengl
         cube->think(delta);
-        cube1->think(delta);
-        cube2->think(delta);
-        cube3->think(delta);
-        cube4->think(delta);
+        //cube1->think(delta);
+        //cube2->think(delta);
+        //cube3->think(delta);
+        //cube4->think(delta);
 
 
         if ((frameSampleCount+=delta.count()) > 1000.0) {
