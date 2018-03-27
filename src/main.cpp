@@ -72,10 +72,11 @@ int main(int argc, char *argv[]) {
 
     /* Doesn't work: */
     auto map = std::make_shared<StaticBulletModelObject>(
-            btVector3(0, -48, 0),
-            btQuaternion(0,0,0,1),
-            0,
-            ModelManager::load("map"),
+            btVector3(0, -10, 0),
+            StaticBulletModelObject::StaticModel {
+                    .graphical = ModelManager::load("coliseum"),
+                    .collision = ModelManager::load("coliseum-bullet"),
+            },
             ShaderManager::load("cube"),
             world
     );
@@ -83,10 +84,11 @@ int main(int argc, char *argv[]) {
 
     // Jop, here strange stuff happens:
     auto staticCube = std::make_shared<StaticBulletModelObject>(
-            btVector3(0, 1, 0),
-            btQuaternion(0,0,0,1),
-            0,
-            ModelManager::load("cube"),
+            btVector3(0, 2, 0),
+            StaticBulletModelObject::StaticModel {
+                    .graphical = ModelManager::load("cube"),
+                    .collision = ModelManager::load("cube"),
+            },
             ShaderManager::load("cube"),
             world
     );
@@ -99,7 +101,7 @@ int main(int argc, char *argv[]) {
     //window->addObject3D(cube3);
     //window->addObject3D(cube4);
     window->addObject3D(triangle);
-    window->addObject3D(cubeModel);
+    //window->addObject3D(cubeModel);
     window->addObject3D(map);
     window->addObject3D(staticCube);
 

@@ -45,7 +45,7 @@ public:
     glm::mat4 getProjectionMatrix() const { return this->projectionMatrix; }
 
     float mouseSensitivity = 0.1f;
-    float keySensitivity = 0.001f;
+    float keySensitivity = 0.1f;
 
     void update(const glm::vec3 position);
     glm::vec3 getPosition() const { return this->position; }

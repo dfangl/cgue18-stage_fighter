@@ -16,15 +16,19 @@
 class StaticBulletModelObject : public BulletObject, public Model3DObject {
 
 private:
-    std::vector<BulletObject> additionalObjects;
     std::shared_ptr<BulletUniverse> world;
 
 protected:
     static btBvhTriangleMeshShape *convertModelToTriangleMesh(const std::shared_ptr<tinygltf::Model> &model);
+    static btQuaternion getModelRotationQuat(const std::shared_ptr<tinygltf::Model> &model);
 
 public:
-    StaticBulletModelObject(const btVector3 &pos, const btQuaternion &rotation, btScalar mass,
-                            const std::shared_ptr<tinygltf::Model> &model, const std::shared_ptr<Shader> &shader,
+    struct StaticModel {
+        std::shared_ptr<tinygltf::Model> graphical;
+        std::shared_ptr<tinygltf::Model> collision;
+    };
+
+    StaticBulletModelObject(const btVector3 &pos, const StaticModel &model, const std::shared_ptr<Shader> &shader,
                             std::shared_ptr<BulletUniverse> &world);
 
 };
