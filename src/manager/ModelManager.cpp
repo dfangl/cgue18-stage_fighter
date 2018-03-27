@@ -32,7 +32,8 @@ std::shared_ptr<tinygltf::Model> ModelManager::load(const std::string &name) {
             ModelManager::logger->error("Unable to load file: {}", name);
             ModelManager::logger->flush();
 
-            throw std::runtime_error("Unable to load model!");
+            // If mingw is used on Windows, save the file with LF endings and try again ...
+            throw std::runtime_error(std::string("Unable to load model file: ") + root + name + ".gltf" + "!");
         }
 
         models[name] = std::shared_ptr<tinygltf::Model>(model);
