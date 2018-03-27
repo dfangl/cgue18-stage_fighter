@@ -3,7 +3,10 @@
 //
 
 #include "Object3D.h"
+
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/quaternion.hpp>
 
 #include <iostream>
 void Object3D::render(const Camera &camera) {
@@ -25,6 +28,10 @@ void Object3D::rotate(float angle, const glm::vec3 &vec) {
 
 void Object3D::translate(const glm::vec3 &vec) {
     this->model = glm::translate(this->model, vec);
+}
+
+void Object3D::rotate(const glm::quat &quat) {
+    this->model = this->model * glm::toMat4(quat);
 }
 
 void Object3D::setOrigin(const glm::vec3 &vec) {

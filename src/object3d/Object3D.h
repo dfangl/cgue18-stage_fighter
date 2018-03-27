@@ -25,6 +25,8 @@ public:
     virtual void draw() = 0;
 
     virtual void rotate(float angle, const glm::vec3 &vec);
+    virtual void rotate(const glm::quat &quat);
+
     virtual void translate(const glm::vec3 &vec);
     virtual void setOrigin(const glm::vec3 &vec);
 
