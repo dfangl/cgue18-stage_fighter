@@ -8,8 +8,11 @@
 #include <tiny_gltf.h>
 
 #define GLM_ENABLE_EXPERIMENTAL
+#include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/transform.hpp>
+#include <glm/gtc/quaternion.hpp>
+#include <glm/gtx/quaternion.hpp>
 
 #include "Model3DObject.h"
 #include "../manager/TextureManager.h"
@@ -73,6 +76,10 @@ void Model3DObject::draw() {
 void Model3DObject::drawNode(const tinygltf::Node &node) {
     glm::mat4 modelMatrix(1.0);
 
+    // TODO: support Object Scaling
+    // TODO: support Object rotation
+    modelMatrix = glm::translate(modelMatrix, this->translation);
+
     if(node.matrix.size() == 16)
         modelMatrix = glm::make_mat4(node.matrix.data());
     else {
@@ -83,9 +90,14 @@ void Model3DObject::drawNode(const tinygltf::Node &node) {
         }
 
         if(node.rotation.size() == 4) {
-            const glm::vec3 &r = glm::make_vec3(&node.rotation.at(1));
-            const auto angle = static_cast<const float>(node.rotation.at(0));
-            modelMatrix = glm::rotate(modelMatrix, glm::radians(angle), r);
+            const glm::quat &q = glm::quat(
+                    static_cast<float>(node.rotation[3]),
+                    static_cast<float>(node.rotation[0]),
+                    static_cast<float>(node.rotation[1]),
+                    static_cast<float>(node.rotation[2])
+            );
+
+            modelMatrix = modelMatrix * glm::toMat4(q);
         }
 
         if(node.translation.size() == 3) {
@@ -94,7 +106,7 @@ void Model3DObject::drawNode(const tinygltf::Node &node) {
         }
     }
 
-    shader->setUniform("model", modelMatrix * this->model);
+    shader->setUniform("model", modelMatrix);
 
     if(node.mesh != -1) {
         //spdlog::get("console")->info("Mesh id: {}, Node: {}", node.mesh, node.name);
@@ -182,4 +194,8 @@ void Model3DObject::drawMesh(const tinygltf::Mesh &mesh) {
 
         glBindVertexArray(0);
     }
+}
+
+void Model3DObject::setOrigin(const glm::vec3 &vec) {
+    this->translation = vec;
 }

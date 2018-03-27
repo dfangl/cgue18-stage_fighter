@@ -21,7 +21,7 @@ private:
     std::shared_ptr<tinygltf::Model> gltfModel;
     std::shared_ptr<Texture> texture0;
 
-    std::vector<glm::mat4> nodeMatrices;
+    glm::vec3 translation;
 
     void drawNode(const tinygltf::Node &node);
     void drawMesh(const tinygltf::Mesh &mesh);
@@ -31,6 +31,7 @@ public:
 
     void draw() override;
 
+    void setOrigin(const glm::vec3 &vec) override;
 };
 
 
