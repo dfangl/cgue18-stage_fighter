@@ -4,6 +4,9 @@
 
 #include "CubeEntity.h"
 
+#include <glm/glm.hpp>
+#include <glm/gtc/quaternion.hpp>
+
 CubeEntity::CubeEntity(const glm::vec3 &pos, const std::shared_ptr<Texture> &texture, std::shared_ptr<BulletUniverse> world) :
         Cube(pos, texture),
         BulletObject(btVector3(pos.x,pos.y,pos.z), btQuaternion(0,0,0,1), new btBoxShape(btVector3(0.5,0.5,0.5))) {
@@ -23,7 +26,12 @@ void CubeEntity::think(std::chrono::duration<double, std::milli> delta) {
     Cube::setOrigin(glm::vec3(origin.x(), origin.y(), origin.z()));
 
     auto rotation = bT.getRotation();
-    Cube::rotate(rotation.getAngle(), glm::vec3(rotation.getAxis().x(), rotation.getAxis().y(), rotation.getAxis().z()));
+    Cube::rotate(glm::quat(
+            rotation.w(),
+            rotation.x(),
+            rotation.y(),
+            rotation.z()
+    ));
 }
 
 void CubeEntity::setEntityPosition(const glm::vec3 &vec) {
