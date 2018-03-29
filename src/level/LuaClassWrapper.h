@@ -30,19 +30,11 @@ class LuaVec4 {
 public:
     glm::vec4 pos;
 
-    LuaVec4(const LuaVec4 &source) : pos(source.pos) {
-        spdlog::get("console")->info("LuaVec4 {} copy constr from {}", (void *)this, (void *)&source);
-        spdlog::get("console")->info("LuaVec4 {}: {}, {}, {}, {}", (void *)this, pos.x, pos.y, pos.z, pos.w);
-    };
-    LuaVec4(double x, double y, double z, double w) : pos(x,y,z,w) {
-        spdlog::get("console")->info("LuaVec4 {}: {}, {}, {}, {}", (void *)this, x, y, z, w);
-    }
+    LuaVec4(const LuaVec4 &source) : pos(source.pos) {};
+    LuaVec4(double x, double y, double z, double w) : pos(x,y,z,w) {}
 
     LuaVec4 &operator=(const LuaVec4 &source) {
         this->pos = source.pos;
-        spdlog::get("console")->info("LuaVec4 {} operator= {}", (void *)this, (void *)&source);
-        spdlog::get("console")->info("LuaVec4 {}: {}, {}, {}, {}", (void *)this, pos.x, pos.y, pos.z, pos.w);
-
         return *this;
     };
 
@@ -65,13 +57,9 @@ protected:
 
 public:
     LuaBtCollisionShape(LuaVec3 const &pos, LuaVec4 const &rot, const double mass) :
-            position(pos), rotation(rot), mass(mass) {
-        spdlog::get("console")->info("LuaBtCollisionShape {}: rotation:{}, rot:{}", (void *)this, (void *)&pos, (void *)&rot);
-        spdlog::get("console")->info("LuaBtCollisionShape {}: {},{},{},{} ({})", (void *)this, rot.pos.x, rot.pos.y, rot.pos.z, rot.pos.w, (void *)&rot);
-    }
+            position(pos), rotation(rot), mass(mass) {}
 
     std::shared_ptr<BulletObject> toCollisionShape() const {
-        spdlog::get("console")->info("btCollisionShape {}: {},{},{}, {},{},{},{}, shape, {}", (void *)this, position.pos.x, position.pos.y, position.pos.z, rotation.pos.x, rotation.pos.y, rotation.pos.z, rotation.pos.w, mass);
         return std::make_shared<BulletObject>(position.toVector3(), rotation.toQuat(), generateShape(), mass);
     }
 };
@@ -98,7 +86,6 @@ public:
             LuaBtCollisionShape(pos, rot, mass), size(size) {}
 
     btCollisionShape *generateShape() const override {
-        spdlog::get("console")->info("btBoxShape: {}, {}, {}", size.pos.x, size.pos.y, size.pos.z);
         return new btBoxShape(size.toVector3());
     }
 };
