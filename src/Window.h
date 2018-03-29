@@ -23,7 +23,7 @@ private:
 
     std::vector<std::function<void(double, double)>> mouseCallbacks;
     std::vector<std::function<void(int, int, int, int)>> keyInputCallbacks;
-    std::vector<std::shared_ptr<Object3D>> objects;
+    std::vector<std::shared_ptr<Object3DAbstract>> objects;
 
     Camera &camera;
 
@@ -58,8 +58,8 @@ public:
 
     void render(std::chrono::duration<double, std::milli> delta);
 
-    void addObject3D(const std::shared_ptr<Object3D> &object3D);
-    void removeObject(const std::shared_ptr<Object3D> &object3D);
+    void addObject3D(const std::shared_ptr<Object3DAbstract> &object3D);
+    void removeObject(const std::shared_ptr<Object3DAbstract> &object3D);
 
     void registerMouseCallback(std::function<void(double,double)> callback);
     void registerKeyCallback(std::function<void(int, int, int, int)> callback);

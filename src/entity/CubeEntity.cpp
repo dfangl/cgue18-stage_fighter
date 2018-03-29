@@ -41,3 +41,7 @@ void CubeEntity::setEntityPosition(const glm::vec3 &vec) {
     // Reactivate even if Bullet removed all forces
     this->getRigidBody()->activate(true);
 }
+
+void CubeEntity::render(const Camera &camera) {
+    Cube::render(camera);
+}

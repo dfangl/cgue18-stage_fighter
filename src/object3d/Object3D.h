@@ -10,7 +10,12 @@
 #include "../Shader.h"
 #include "../Camera.h"
 
-class Object3D {
+class Object3DAbstract {
+public:
+    virtual void render(const Camera &camera) = 0;
+};
+
+class Object3D : public Object3DAbstract {
 
 protected:
     GLuint VBO, VAO, EBO;

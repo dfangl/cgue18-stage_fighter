@@ -239,7 +239,7 @@ add_executable(
 		src/manager/ShaderManager.h src/Texture.cpp src/Texture.h src/manager/TextureManager.cpp src/entity/Entity.h
 		src/manager/TextureManager.h src/Camera.cpp src/Camera.h src/object3d/Cube.cpp src/object3d/Cube.h
 		src/object3d/BulletObject.cpp src/object3d/BulletObject.h src/entity/CubeEntity.cpp src/entity/CubeEntity.h
-        src/controller/CameraController.cpp src/controller/CameraController.h src/manager/ModelManager.cpp src/manager/ModelManager.h src/object3d/Model3DObject.cpp src/object3d/Model3DObject.h src/object3d/StaticBulletModelObject.cpp src/object3d/StaticBulletModelObject.h src/bullet/GLDebugDrawer.cpp src/bullet/GLDebugDrawer.h)
+        src/controller/CameraController.cpp src/controller/CameraController.h src/manager/ModelManager.cpp src/manager/ModelManager.h src/object3d/Model3DObject.cpp src/object3d/Model3DObject.h src/object3d/StaticBulletModelObject.cpp src/object3d/StaticBulletModelObject.h src/bullet/GLDebugDrawer.cpp src/bullet/GLDebugDrawer.h src/level/Level.cpp src/level/Level.h src/level/LuaClassWrapper.h)
 
 set_target_properties("${BINARY}" PROPERTIES LINKER_LANGUAGE CXX)	
 	

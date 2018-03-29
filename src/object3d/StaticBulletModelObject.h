@@ -13,6 +13,8 @@
 #include "Model3DObject.h"
 #include "../BulletUniverse.h"
 
+
+// Something is fucked up, don't use ...
 class StaticBulletModelObject : public BulletObject, public Model3DObject {
 
 private:

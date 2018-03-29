@@ -19,6 +19,7 @@
 #include "manager/ModelManager.h"
 #include "object3d/Model3DObject.h"
 #include "object3d/StaticBulletModelObject.h"
+#include "level/Level.h"
 
 #include <kaguya/kaguya.hpp>
 #include <spdlog/spdlog.h>
@@ -41,7 +42,7 @@ int main(int argc, char *argv[]) {
     TextureManager::build("../resources/texture/");
     ModelManager::build("../resources/");
 
-    Camera camera(glm::vec3(0.0f, 1.0f, 3.0f), glm::vec3(0.0f, 1.0f, 0.0f), -90.0f, 0.0f, 45.0f, config["config"]["width"], config["config"]["height"], 0.01f, 1000.0f);
+    Camera camera(glm::vec3(0.0f, 1.0f, 3.0f), glm::vec3(0.0f, 1.0f, 0.0f), -90.0f, 0.0f, config["camera"]["fov"], config["config"]["width"], config["config"]["height"], 0.01f, 1000.0f);
 	auto *window = new Window(camera, config["config"]["width"], config["config"]["height"], "Stage Fighter", config["config"]["fullscreen"]);
     window->setVSync(config["config"]["vsync"]);
 
@@ -52,66 +53,25 @@ int main(int argc, char *argv[]) {
 			window->close();
 	});
 
-	//TODO: Move Bullet stuff to anoter location:
-	btCollisionShape* groundShape = new btStaticPlaneShape(btVector3(0, 1, 0), 1);
+	//TODO: Remove:
+    /*
+    btCollisionShape* groundShape = new btStaticPlaneShape(btVector3(0, 1, 0), 1);
 	btDefaultMotionState* groundMotionState = new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, -1, 0)));
 	btRigidBody::btRigidBodyConstructionInfo
 		groundRigidBodyCI(0, groundMotionState, groundShape, btVector3(0, 0, 0));
 	btRigidBody* groundRigidBody = new btRigidBody(groundRigidBodyCI);
 	world->addRigidBody(groundRigidBody);
+     */
 	//=============================
 
-    auto cube = std::make_shared<CubeEntity>(glm::vec4(0,10,0,1), TextureManager::load("wall.jpg"), world);
-    //auto cube1 = std::make_shared<CubeEntity>(glm::vec4(5,60,1,1), TextureManager::load("wall.jpg"), world);
-    //auto cube2 = std::make_shared<CubeEntity>(glm::vec4(3,53,1,1), TextureManager::load("wall.jpg"), world);
-    //auto cube3 = std::make_shared<CubeEntity>(glm::vec4(1,53,4,1), TextureManager::load("wall.jpg"), world);
-    //auto cube4 = std::make_shared<CubeEntity>(glm::vec4(5,60,0,1), TextureManager::load("wall.jpg"), world);
-    auto triangle = std::make_shared<Triangle>(glm::vec4(0,1,0,1), TextureManager::load("wall.jpg"));
+
+    // Load level data:
+    auto level = std::make_shared<Level>("../resources/level/test.lua", world);
     auto player = std::make_shared<CameraEntity>(camera, world);
-    auto cubeModel = std::make_shared<Model3DObject>(ModelManager::load("cube"), ShaderManager::load("cube"));
-
-    /* Doesn't work: */
-    auto map = std::make_shared<StaticBulletModelObject>(
-            btVector3(0, -10, 0),
-            StaticBulletModelObject::StaticModel {
-                    .graphical = ModelManager::load("coliseum"),
-                    .collision = ModelManager::load("coliseum-bullet"),
-            },
-            ShaderManager::load("cube"),
-            world
-    );
-
-
-    // Jop, here strange stuff happens:
-    auto staticCube = std::make_shared<StaticBulletModelObject>(
-            btVector3(0, 2, 0),
-            StaticBulletModelObject::StaticModel {
-                    .graphical = ModelManager::load("cube"),
-                    .collision = ModelManager::load("cube"),
-            },
-            ShaderManager::load("cube"),
-            world
-    );
-
-    triangle->rotate(90.0f, glm::vec3(1,0,0));
-
-    window->addObject3D(cube);
-    //window->addObject3D(cube1);
-    //window->addObject3D(cube2);
-    //window->addObject3D(cube3);
-    //window->addObject3D(cube4);
-    window->addObject3D(triangle);
-    //window->addObject3D(cubeModel);
-    window->addObject3D(map);
-    window->addObject3D(staticCube);
 
     // ONLY when debugging bullet!
     world->enableDebugging();
     window->addObject3D(world->getDebugDrawer());
-
-    cubeModel->setOrigin(glm::vec3(3,0,3));
-    cubeModel->rotate(-45.0f, glm::vec3(0.5,0.5,0.5));
-    //map->setOrigin(glm::vec3(0,-50, 0));
 
     auto lastTick = std::chrono::high_resolution_clock::now();
 
@@ -123,15 +83,18 @@ int main(int argc, char *argv[]) {
     double frameSampleCount = 0.0;
 
     window->registerKeyCallback(player->getKeyboardCallback());
-    window->registerKeyCallback([cube, player, window](int key, int scancode, int action, int mods){
-        if(key == GLFW_KEY_R && action == GLFW_RELEASE)
-            cube->setEntityPosition(glm::vec3(0,10,0));
-
-        if(key == GLFW_KEY_F3 && action == GLFW_RELEASE) {
+    window->registerKeyCallback([console, player, window](int key, int scancode, int action, int mods){
+        if (key == GLFW_KEY_F3 && action == GLFW_RELEASE) {
             window->processCameraKeyMovment(player->enabled);
             player->enabled = !player->enabled;
         }
+        if (key == GLFW_KEY_F4 && action == GLFW_RELEASE) {
+            auto p = player->getPosition();
+            console->info("Camera Position: {} {} {}", p.x, p.y, p.z);
+        }
     });
+
+    level->start(camera, window);
 
 	while (window->isOpen())
 	{
@@ -144,13 +107,7 @@ int main(int argc, char *argv[]) {
 		world->simulate(delta);
         world->drawDebug();
 
-        // transfer bullet world to opengl
-        cube->think(delta);
-        //cube1->think(delta);
-        //cube2->think(delta);
-        //cube3->think(delta);
-        //cube4->think(delta);
-
+        level->tick(delta);
 
         if ((frameSampleCount+=delta.count()) > 1000.0) {
             console->info("tick time: {}\t fps: {}", delta.count(), 1000.0/delta.count());
@@ -169,15 +126,18 @@ int main(int argc, char *argv[]) {
 
     window->showCurosor();
 
-	world->removeRigidBody(groundRigidBody);
+	/*
+    world->removeRigidBody(groundRigidBody);
 	delete groundRigidBody->getMotionState();
 	delete groundRigidBody;
 
 	delete groundShape;
+	*/
 	delete window;
 
     ShaderManager::destroy();
     TextureManager::destroy();
+    ModelManager::destroy();
 
 	glfwTerminate();
 	exit(EXIT_SUCCESS);

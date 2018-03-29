@@ -7,6 +7,8 @@
 BulletObject::BulletObject(const btVector3 &pos, const btQuaternion &rotation, btCollisionShape *bulletShape, btScalar mass) {
     btVector3 inertia(0, 0, 0);
 
+    spdlog::get("console")->info("BulletObject: pos:{},{},{}, rot:{},{},{},{}", pos.x(), pos.y(), pos.z(), rotation.x(), rotation.y(), rotation.z(), rotation.w());
+
     this->fallShape = bulletShape;
     this->mass = mass;
 
@@ -16,6 +18,12 @@ BulletObject::BulletObject(const btVector3 &pos, const btQuaternion &rotation, b
     this->motionState = new btDefaultMotionState(btTransform(rotation, pos));
     btRigidBody::btRigidBodyConstructionInfo rigidBodyCI(mass, this->motionState, fallShape, inertia);
     this->rigidBody = new btRigidBody(rigidBodyCI);
+
+    if (this->mass <= 0) {
+        this->rigidBody->setFlags(
+                this->rigidBody->getFlags() |  btCollisionObject::CF_KINEMATIC_OBJECT
+        );
+    }
 }
 
 BulletObject::~BulletObject() {

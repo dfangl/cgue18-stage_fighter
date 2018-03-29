@@ -45,7 +45,7 @@ void BulletUniverse::removeCollsipnObject(btCollisionObject *body) {
 }
 
 void BulletUniverse::enableDebugging() {
-    this->debugDrawer->setDebugMode(btIDebugDraw::DBG_DrawWireframe | btIDebugDraw::DBG_DrawAabb);
+    this->debugDrawer->setDebugMode(btIDebugDraw::DBG_DrawWireframe);// | btIDebugDraw::DBG_DrawAabb);
     this->dynamicsWorld->setDebugDrawer(debugDrawer.get());
 }
 

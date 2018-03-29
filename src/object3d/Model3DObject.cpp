@@ -67,8 +67,8 @@ void Model3DObject::draw() {
     }
 
     const tinygltf::Scene &scene = this->gltfModel->scenes[gltfModel->defaultScene];
-    for (auto &node : gltfModel->nodes) {
-        this->drawNode(node);
+    for (auto &node : scene.nodes) {
+        this->drawNode(gltfModel->nodes[node]);
     }
 
 }
@@ -150,12 +150,12 @@ void Model3DObject::drawMesh(const tinygltf::Mesh &mesh) {
             std::string attrName = attribute.first;
             std::transform(attrName.begin(), attrName.end(), attrName.begin(), ::tolower);
 
-            auto byteStide = accessor.ByteStride(gltfModel->bufferViews[accessor.bufferView]);
+            auto byteStride = accessor.ByteStride(gltfModel->bufferViews[accessor.bufferView]);
             this->shader->setVertexAttributePointer(attrName,
                                                     static_cast<GLuint>(size),
                                                     static_cast<GLenum>(accessor.componentType),
                                                     static_cast<GLboolean>(accessor.normalized ? GL_TRUE : GL_FALSE),
-                                                    byteStide,
+                                                    byteStride,
                                                     BUFFER_OFFSET(accessor.byteOffset));
 
             auto glEr = glGetError();

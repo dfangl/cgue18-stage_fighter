@@ -10,7 +10,7 @@
 #include "../BulletUniverse.h"
 #include "Entity.h"
 
-class CubeEntity : public Cube, public BulletObject, public Entity {
+class CubeEntity : public Entity, public BulletObject, public Cube {
 
     std::shared_ptr<BulletUniverse> world;
 
@@ -21,6 +21,8 @@ public:
     void think(std::chrono::duration<double, std::milli> delta) override;
 
     void setEntityPosition(const glm::vec3 &vec) override;
+
+    virtual void render(const Camera &camera);
 };
 
 

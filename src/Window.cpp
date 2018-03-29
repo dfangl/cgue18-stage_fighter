@@ -181,16 +181,16 @@ void Window::render(std::chrono::duration<double, std::milli> delta) {
     glfwPollEvents();
 }
 
-void Window::addObject3D(const std::shared_ptr<Object3D> &object3D) {
+void Window::addObject3D(const std::shared_ptr<Object3DAbstract> &object3D) {
     this->objects.push_back(object3D);
 }
 
-void Window::removeObject(const std::shared_ptr<Object3D> &object3D) {
+void Window::removeObject(const std::shared_ptr<Object3DAbstract> &object3D) {
     this->objects.erase(
             std::remove_if(
                     this->objects.begin(),
                     this->objects.end(),
-                    [object3D](std::shared_ptr<Object3D> current) -> bool {
+                    [object3D](std::shared_ptr<Object3DAbstract> current) -> bool {
                         return current == object3D;
                     }
             ),

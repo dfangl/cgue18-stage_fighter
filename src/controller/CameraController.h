@@ -11,7 +11,7 @@
 
 #include <functional>
 
-class CameraEntity : public BulletObject, public Entity {
+class CameraEntity : public Entity, public BulletObject {
 
 private:
     Camera &camera;
@@ -37,10 +37,16 @@ public:
 
     void think(std::chrono::duration<double, std::milli> delta) override;
 
+    virtual void render(const Camera &camera){}
+
     std::function<void(int,int,int,int)> getKeyboardCallback() const { return this->keyboardCallback; }
 
     bool enabled = false;
     float entitySpeed = 7.0f;
+
+    glm::vec3 getPosition() {
+        return this->camera.getPosition();
+    }
 };
 
 

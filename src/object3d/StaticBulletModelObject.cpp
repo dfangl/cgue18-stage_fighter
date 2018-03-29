@@ -41,59 +41,101 @@ btBvhTriangleMeshShape *StaticBulletModelObject::convertModelToTriangleMesh(cons
         throw std::runtime_error("Unable to find Node for Mesh, broken model?");
     }
 
-    //auto *triangleMesh = new btTriangleMesh(false, false);
+
+    auto *triangleMesh = new btTriangleMesh(false, false);
     auto *vertexArray = new btTriangleIndexVertexArray();
+
+    spdlog::get("console")->info("Primitives  : {}", modelMesh.primitives.size());
 
     //for (auto &primitive : modelMesh.primitives) {
     auto &primitive = modelMesh.primitives[0];
         // Mesh must be triangles
         if (primitive.mode != TINYGLTF_MODE_TRIANGLES || primitive.indices < 0) {
             spdlog::get("console")->error("Unable to process given primitive, bullet might crash ...");
-        //    continue;
+            //continue;
         }
 
         auto idxAccessor     = model->accessors[primitive.indices];
         auto indices         = model->bufferViews[idxAccessor.bufferView];
         auto &indexBuffer    = model->buffers[indices.buffer];
         auto indexByteStride = idxAccessor.ByteStride(indices);
+        auto indexOffset     = idxAccessor.byteOffset + indices.byteOffset;
 
         auto posAccessor     = model->accessors[primitive.attributes["POSITION"]];
-        auto &vertices       = model->buffers[primitive.attributes["POSITION"]];
-        auto posBufferView   = model->bufferViews[posAccessor.bufferView];
-        auto posByteStride   = posAccessor.ByteStride(posBufferView);
+        auto vertices        = model->bufferViews[posAccessor.bufferView];
+        auto &vertexBuffer   = model->buffers[primitive.attributes["POSITION"]];
+        auto posByteStride   = posAccessor.ByteStride(vertices);
+        auto vertexOffset    = posAccessor.byteOffset + vertices.byteOffset;
+
+        const auto *idx = reinterpret_cast<unsigned short *>(&indexBuffer.data.at(indexOffset));
+        const auto *vtx = reinterpret_cast<float *>(&vertexBuffer.data.at(vertexOffset));
+
+    spdlog::get("console")->info("Indices  : {}", idxAccessor.count);
+    spdlog::get("console")->info("Vertices : {}", posAccessor.count);
+    spdlog::get("console")->info("Triangles: {}", idxAccessor.count / 3);
+
+    /*
+    for (int i=0; i<posAccessor.count; i+=9) {
+        spdlog::get("console")->info("T:{} = {}, {}, {}", i/3, vtx[i+0], vtx[i+1], vtx[i+2]);
+        spdlog::get("console")->info("T:{} = {}, {}, {}", i/3, vtx[i+1], vtx[i+2], vtx[i+3]);
+        spdlog::get("console")->info("T:{} = {}, {}, {}", i/3, vtx[i+4], vtx[i+5], vtx[i+6]);
+
+        triangleMesh->addTriangle(
+                btVector3(vtx[i*3+0], vtx[i*3+1], vtx[i*3+2]),
+                btVector3(vtx[i*3+3], vtx[i*3+4], vtx[i*3+5]),
+                btVector3(vtx[i*3+6], vtx[i*3+7], vtx[i*3+8])
+        );
+    }
+     */
+
+    /*
+    for (int i=0; i<idxAccessor.count; i+=3) {
+        int v1 = idx[i+0] * 3;
+        int v2 = idx[i+1] * 3;
+        int v3 = idx[i+2] * 3;
+
+        spdlog::get("console")->info("{} = {}, {}, {}", idx[i+0], vtx[v1+0], vtx[v1+1], vtx[v1+2]);
+        spdlog::get("console")->info("{} = {}, {}, {}", idx[i+1], vtx[v2+0], vtx[v2+1], vtx[v2+2]);
+        spdlog::get("console")->info("{} = {}, {}, {}", idx[i+2], vtx[v3+0], vtx[v3+1], vtx[v3+2]);
+
+        triangleMesh->addTriangle(
+                btVector3(vtx[v1+0], vtx[v1+1], vtx[v1+2]),
+                btVector3(vtx[v2+0], vtx[v2+1], vtx[v2+2]),
+                btVector3(vtx[v3+0], vtx[v3+1], vtx[v3+2])
+        );
+    }
+     */
+
 
         btIndexedMesh mIndexedMesh;
         {
-            mIndexedMesh.m_numTriangles         = static_cast<int>(idxAccessor.count / 3) ;
-            mIndexedMesh.m_triangleIndexBase    = const_cast<unsigned char *>(&indexBuffer.data.at(0)) + indices.byteOffset;
+            mIndexedMesh.m_numTriangles         = static_cast<int>(idxAccessor.count / 3);
+            mIndexedMesh.m_triangleIndexBase    = reinterpret_cast<const unsigned char *>(idx);
             mIndexedMesh.m_triangleIndexStride  = indexByteStride;
             mIndexedMesh.m_numVertices          = static_cast<int>(posAccessor.count);
-            mIndexedMesh.m_vertexBase           = const_cast<unsigned char *>(&vertices.data.at(0)) + posBufferView.byteOffset;
+            mIndexedMesh.m_vertexBase           = reinterpret_cast<const unsigned char *>(vtx);
             mIndexedMesh.m_vertexStride         = posByteStride;
-
-            // Totally useless in this bullet version:
-            //mIndexedMesh.m_indexType = PHY_SHORT;
 
             mIndexedMesh.m_vertexType = PHY_FLOAT;
             switch(posAccessor.componentType) {
                 case TINYGLTF_COMPONENT_TYPE_FLOAT : mIndexedMesh.m_vertexType = PHY_FLOAT; break;
+                case TINYGLTF_COMPONENT_TYPE_DOUBLE: mIndexedMesh.m_vertexType = PHY_DOUBLE; break;
                 default:
-                    spdlog::get("console")->critical("Bullet not compatible with gltf type, falling back to PHY_FLOAT! (vertices)");
+                    spdlog::get("console")->critical("Bullet not compatible with gltf type, falling back to PHY_FLOAT! (vertexBuffer)");
+            }
+
+            mIndexedMesh.m_indexType = PHY_INTEGER;
+            switch(idxAccessor.componentType) {
+                case TINYGLTF_COMPONENT_TYPE_BYTE   : mIndexedMesh.m_indexType = PHY_UCHAR; break;
+                case TINYGLTF_COMPONENT_TYPE_DOUBLE : mIndexedMesh.m_indexType = PHY_DOUBLE; break;
+                case TINYGLTF_COMPONENT_TYPE_FLOAT  : mIndexedMesh.m_indexType = PHY_FLOAT; break;
+                case TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT : mIndexedMesh.m_indexType = PHY_SHORT; break;
+                default:
+                    spdlog::get("console")->critical("Bullet not compatible with gltf type, falling back to PHY_INTEGER! (indices)");
             }
         }
 
-        PHY_ScalarType type = PHY_INTEGER;
-        switch(idxAccessor.componentType) {
-            case TINYGLTF_COMPONENT_TYPE_BYTE   : type = PHY_UCHAR; break;
-            case TINYGLTF_COMPONENT_TYPE_DOUBLE : type = PHY_DOUBLE; break;
-            case TINYGLTF_COMPONENT_TYPE_FLOAT  : type = PHY_FLOAT; break;
-            case TINYGLTF_COMPONENT_TYPE_SHORT  : type = PHY_SHORT; break;
-            case TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT : type = PHY_SHORT; break;
-            default:
-                spdlog::get("console")->critical("Bullet not compatible with gltf type, falling back to PHY_INTEGER! (indices)");
-        }
-
-        vertexArray->addIndexedMesh(mIndexedMesh, type);
+        vertexArray->addIndexedMesh(mIndexedMesh,  mIndexedMesh.m_indexType);
     //}
 
     if(node->scale.size() == 3) {

@@ -4,3 +4,7 @@ config = {
     vsync=true,
     fullscreen=false
 }
+
+camera = {
+    fov=45
+}
