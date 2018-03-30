@@ -25,7 +25,8 @@ Model3DObject::Model3DObject(const std::shared_ptr<tinygltf::Model> &model, cons
     this->gltfModel = model;
     glGenVertexArrays(1, &this->VAO);
 
-    for( auto &bufferView : model->bufferViews ) {
+    // Build Static VBOs of the gltf file:
+    for (auto &bufferView : model->bufferViews) {
         tinygltf::Buffer &buffer = model->buffers[bufferView.buffer];
 
         if(bufferView.target == 0) {
@@ -47,18 +48,27 @@ Model3DObject::Model3DObject(const std::shared_ptr<tinygltf::Model> &model, cons
         this->vbos.push_back(vbo);
     }
 
-    //TODO: Material and Texture loading
-    //if (gltfModel->textures.empty())
-        this->texture0 = TextureManager::load("wall.jpg");
+    // Prepare Static Node matrices:
+    prepareModelMatrices();
 
+    // Load Textures
+    for (auto &texture : gltfModel->textures) {
+        // TODO: Use TextureManager to mange textures smart ...
+        this->textures.emplace_back(gltfModel->images[texture.source], gltfModel->samplers[texture.sampler]);
+    }
 
+    if (textures.empty()) {
+        spdlog::get("console")->critical(".glft Model did not contain any textures, loading fallback one");
+        this->textures.push_back(*TextureManager::load("wall.jpg").get());
+    }
 }
 
 void Model3DObject::draw() {
     //Support for more than one scene necessary?
+    const tinygltf::Scene &scene = this->gltfModel->scenes[gltfModel->defaultScene];
 
-
-    texture0->bind(GL_TEXTURE0);
+    // When to bind which texture?
+    textures[0].bind(GL_TEXTURE0);
     shader->setUniform("texture_0", 0);
 
     auto err = glGetError();
@@ -66,57 +76,16 @@ void Model3DObject::draw() {
         logger->info("Texture Error: {}", err);
     }
 
-    const tinygltf::Scene &scene = this->gltfModel->scenes[gltfModel->defaultScene];
     for (auto &node : scene.nodes) {
-        this->drawNode(gltfModel->nodes[node]);
+        this->drawNode(node, gltfModel->nodes[node]);
     }
-
 }
 
-void Model3DObject::drawNode(const tinygltf::Node &node) {
-    glm::mat4 modelMatrix(1.0);
-
-    // TODO: support Object Scaling
-    // TODO: support Object rotation
-    modelMatrix = glm::translate(modelMatrix, this->translation);
-
-    if(node.matrix.size() == 16)
-        modelMatrix = glm::make_mat4(node.matrix.data());
-    else {
-
-        if(node.scale.size() == 3) {
-            const glm::vec3 &s = glm::make_vec3(node.scale.data());
-            modelMatrix = glm::scale(modelMatrix, s);
-        }
-
-        if(node.rotation.size() == 4) {
-            const glm::quat &q = glm::quat(
-                    static_cast<float>(node.rotation[3]),
-                    static_cast<float>(node.rotation[0]),
-                    static_cast<float>(node.rotation[1]),
-                    static_cast<float>(node.rotation[2])
-            );
-
-            modelMatrix = modelMatrix * glm::toMat4(q);
-        }
-
-        if(node.translation.size() == 3) {
-            const glm::vec3 &t = glm::make_vec3(node.translation.data());
-            modelMatrix = glm::translate(modelMatrix, t);
-        }
-    }
-
-    shader->setUniform("model", modelMatrix);
-
+void Model3DObject::drawNode(const int idx, const tinygltf::Node &node) {
     if(node.mesh != -1) {
-        //spdlog::get("console")->info("Mesh id: {}, Node: {}", node.mesh, node.name);
+        shader->setUniform("model", this->modelMatrix[idx]);
         this->drawMesh(this->gltfModel->meshes[node.mesh]);
     }
-
-    //Not needed, model->nodes does contain all nodes (?)
-    //for (auto &child : node.children) {
-    //    this->drawNode(gltfModel->nodes[child]);
-    //}
 }
 
 void Model3DObject::drawMesh(const tinygltf::Mesh &mesh) {
@@ -141,12 +110,7 @@ void Model3DObject::drawMesh(const tinygltf::Mesh &mesh) {
             }
 
             // Some of these attributes are read from gltf
-            /*      "JOINTS_0"
-                    "NORMAL"
-                    "POSITION"
-                    "TEXCOORD_0"
-                    "WEIGHTS_0"
-            */
+            /*      JOINTS_0, NORMAL, POSITION, TEXCOORD_0, WEIGHTS_0 */
             std::string attrName = attribute.first;
             std::transform(attrName.begin(), attrName.end(), attrName.begin(), ::tolower);
 
@@ -157,12 +121,6 @@ void Model3DObject::drawMesh(const tinygltf::Mesh &mesh) {
                                                     static_cast<GLboolean>(accessor.normalized ? GL_TRUE : GL_FALSE),
                                                     byteStride,
                                                     BUFFER_OFFSET(accessor.byteOffset));
-
-            auto glEr = glGetError();
-            if (glEr != GL_NO_ERROR)  {
-                logger->info("Error: {}", glEr);
-            }
-
         }
 
         const tinygltf::Accessor &indexAccess = gltfModel->accessors[primitive.indices];
@@ -198,4 +156,48 @@ void Model3DObject::drawMesh(const tinygltf::Mesh &mesh) {
 
 void Model3DObject::setOrigin(const glm::vec3 &vec) {
     this->translation = vec;
+    prepareModelMatrices();
+}
+
+void Model3DObject::prepareModelMatrices() {
+    const tinygltf::Scene &scene = this->gltfModel->scenes[gltfModel->defaultScene];
+    for (auto &nodeIndex : scene.nodes) {
+        auto &node = gltfModel->nodes[nodeIndex];
+        glm::mat4 modelMatrix(1.0);
+
+        // Local Modifications:
+
+        // TODO: support Object Scaling
+        // TODO: support Object rotation
+        modelMatrix = glm::translate(modelMatrix, this->translation);
+
+        // Gltf World:
+        if(node.matrix.size() == 16)
+            modelMatrix = glm::make_mat4(node.matrix.data());
+        else {
+
+            if(node.scale.size() == 3) {
+                const glm::vec3 &s = glm::make_vec3(node.scale.data());
+                modelMatrix = glm::scale(modelMatrix, s);
+            }
+
+            if(node.rotation.size() == 4) {
+                const glm::quat &q = glm::quat(
+                        static_cast<float>(node.rotation[3]),
+                        static_cast<float>(node.rotation[0]),
+                        static_cast<float>(node.rotation[1]),
+                        static_cast<float>(node.rotation[2])
+                );
+
+                modelMatrix = modelMatrix * glm::toMat4(q);
+            }
+
+            if(node.translation.size() == 3) {
+                const glm::vec3 &t = glm::make_vec3(node.translation.data());
+                modelMatrix = glm::translate(modelMatrix, t);
+            }
+        }
+
+        this->modelMatrix[nodeIndex] = modelMatrix;
+    }
 }

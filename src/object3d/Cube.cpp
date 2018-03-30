@@ -72,11 +72,11 @@ Cube::Cube(const glm::vec3 &pos, const std::shared_ptr<Texture> &texture): Objec
     glEnableVertexAttribArray(1);
 
     glBindVertexArray(0);
-    this->texture->bind(GL_TEXTURE0);
     this->setOrigin(pos);
 }
 
 void Cube::draw() {
+    this->texture->bind(GL_TEXTURE0);
     shader->setUniform(0, 0);
 
     glBindVertexArray(VAO);

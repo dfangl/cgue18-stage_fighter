@@ -64,8 +64,6 @@ void Level::start(const Camera &camera, Window *window) {
 
     for (auto &bulletObj : this->bullet) {
         auto &o = bulletObj->getTransformation().getOrigin();
-        logger->info("Bullet world position: {}, {}, {}", o.x(), o.y(), o.z());
-
         world->addRigidBody(bulletObj->getRigidBody());
     }
 

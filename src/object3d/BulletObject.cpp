@@ -7,8 +7,6 @@
 BulletObject::BulletObject(const btVector3 &pos, const btQuaternion &rotation, btCollisionShape *bulletShape, btScalar mass) {
     btVector3 inertia(0, 0, 0);
 
-    spdlog::get("console")->info("BulletObject: pos:{},{},{}, rot:{},{},{},{}", pos.x(), pos.y(), pos.z(), rotation.x(), rotation.y(), rotation.z(), rotation.w());
-
     this->fallShape = bulletShape;
     this->mass = mass;
 

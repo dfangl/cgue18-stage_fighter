@@ -7,6 +7,8 @@
 
 #include <glad/glad.h>
 #include <string>
+
+#include <tiny_gltf.h>
 #include "helper/Logger.h"
 
 class Texture : Logger {
@@ -16,6 +18,8 @@ private:
 
 public:
     explicit Texture(const std::string &path);
+    explicit Texture(const tinygltf::Image &image, const tinygltf::Sampler &sampler);
+
     ~Texture();
 
     void bind(GLenum texUnit);

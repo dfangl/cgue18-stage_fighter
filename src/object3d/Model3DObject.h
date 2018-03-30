@@ -6,6 +6,7 @@
 #define STAGE_FIGHTER_MODEL3DOBJECT_H
 
 #include <vector>
+#include <map>
 #include <glm/glm.hpp>
 #include <tiny_gltf.h>
 
@@ -21,9 +22,14 @@ private:
     std::shared_ptr<tinygltf::Model> gltfModel;
     std::shared_ptr<Texture> texture0;
 
-    glm::vec3 translation;
+    std::vector<Texture> textures;
+    std::map<int, glm::mat4> modelMatrix;
 
-    void drawNode(const tinygltf::Node &node);
+    glm::vec3 translation;
+    //glm::quat rotation;
+
+    void prepareModelMatrices();
+    void drawNode(const int idx, const tinygltf::Node &node);
     void drawMesh(const tinygltf::Mesh &mesh);
 
 public:

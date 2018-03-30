@@ -53,16 +53,7 @@ int main(int argc, char *argv[]) {
 			window->close();
 	});
 
-	//TODO: Remove:
-    /*
-    btCollisionShape* groundShape = new btStaticPlaneShape(btVector3(0, 1, 0), 1);
-	btDefaultMotionState* groundMotionState = new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, -1, 0)));
-	btRigidBody::btRigidBodyConstructionInfo
-		groundRigidBodyCI(0, groundMotionState, groundShape, btVector3(0, 0, 0));
-	btRigidBody* groundRigidBody = new btRigidBody(groundRigidBodyCI);
-	world->addRigidBody(groundRigidBody);
-     */
-	//=============================
+
 
 
     // Load level data:
@@ -125,14 +116,6 @@ int main(int argc, char *argv[]) {
 	}
 
     window->showCurosor();
-
-	/*
-    world->removeRigidBody(groundRigidBody);
-	delete groundRigidBody->getMotionState();
-	delete groundRigidBody;
-
-	delete groundShape;
-	*/
 	delete window;
 
     ShaderManager::destroy();
