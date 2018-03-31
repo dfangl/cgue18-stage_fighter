@@ -79,6 +79,8 @@ void Cube::draw() {
     this->texture->bind(GL_TEXTURE0);
     shader->setUniform(0, 0);
 
+    glDisable(GL_CULL_FACE);
+
     glBindVertexArray(VAO);
     glDrawArrays(GL_TRIANGLES, 0, 36);
     glBindVertexArray(0);

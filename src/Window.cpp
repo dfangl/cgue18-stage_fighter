@@ -150,6 +150,10 @@ void Window::render(std::chrono::duration<double, std::milli> delta) {
     glClearColor(0.63f, 0.79f, 0.94f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    for (auto &callback : this->inputPollCallbacks) {
+        callback(this);
+    }
+
     // Process Camera
     // TODO: User should be able to modify input keys:
     if(this->cameraKey) {
@@ -216,6 +220,9 @@ void Window::showCurosor() {
     glfwSetInputMode(this->glfwWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 }
 
+void Window::registerKeyPollingCallback(std::function<void(Window const *)> callback) {
+    this->inputPollCallbacks.push_back(callback);
+}
 
 void APIENTRY glDebugOutput(GLenum source,
                             GLenum type,

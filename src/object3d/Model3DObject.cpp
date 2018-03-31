@@ -65,16 +65,7 @@ Model3DObject::Model3DObject(const std::shared_ptr<tinygltf::Model> &model, cons
 
 void Model3DObject::draw() {
     //Support for more than one scene necessary?
-    const tinygltf::Scene &scene = this->gltfModel->scenes[gltfModel->defaultScene];
-
-    // When to bind which texture?
-    textures[0].bind(GL_TEXTURE0);
-    shader->setUniform("texture_0", 0);
-
-    auto err = glGetError();
-    if (err != GL_NO_ERROR) {
-        logger->info("Texture Error: {}", err);
-    }
+    const auto &scene = this->gltfModel->scenes[gltfModel->defaultScene];
 
     for (auto &node : scene.nodes) {
         this->drawNode(node, gltfModel->nodes[node]);
@@ -83,8 +74,10 @@ void Model3DObject::draw() {
 
 void Model3DObject::drawNode(const int idx, const tinygltf::Node &node) {
     if(node.mesh != -1) {
+        auto &mesh = this->gltfModel->meshes[node.mesh];
+
         shader->setUniform("model", this->modelMatrix[idx]);
-        this->drawMesh(this->gltfModel->meshes[node.mesh]);
+        this->drawMesh(mesh);
     }
 }
 
@@ -92,6 +85,19 @@ void Model3DObject::drawMesh(const tinygltf::Mesh &mesh) {
     for (auto &primitive : mesh.primitives) {
         if(primitive.indices < 0)
             return;
+
+        // Process Material:
+        auto &material = this->gltfModel->materials[primitive.material];
+        if (!material.values["doubleSided"].bool_value) {
+            glEnable(GL_CULL_FACE);
+        } else {
+            glDisable(GL_CULL_FACE);
+        }
+
+        // Bind Texture (Error?)
+        auto &texture = this->textures[material.values["baseColorTexture"].TextureIndex()];
+        texture.bind(GL_TEXTURE0);
+        shader->setUniform("texture_0", 0);
 
         glBindVertexArray(this->VAO);
 

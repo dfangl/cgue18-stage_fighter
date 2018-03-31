@@ -8,6 +8,7 @@
 #include "../object3d/BulletObject.h"
 #include "../entity/Entity.h"
 #include "../entity/CubeEntity.h"
+#include "../Window.h"
 
 #include <functional>
 
@@ -25,7 +26,7 @@ private:
 
     std::shared_ptr<BulletUniverse> world;
 
-    std::function<void(int,int,int,int)> keyboardCallback;
+    std::function<void(Window const *)> keyboardCallback;
 
     static btVector3 bulletMovementVector;
 
@@ -39,7 +40,7 @@ public:
 
     virtual void render(const Camera &camera){}
 
-    std::function<void(int,int,int,int)> getKeyboardCallback() const { return this->keyboardCallback; }
+    std::function<void(Window const *)> getKeyboardCallback() const { return this->keyboardCallback; }
 
     bool enabled = false;
     float entitySpeed = 7.0f;

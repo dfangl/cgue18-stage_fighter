@@ -6,21 +6,18 @@
 #include "../manager/TextureManager.h"
 #include <GLFW/glfw3.h>
 
+
 btVector3 CameraEntity::bulletMovementVector(0, 1, 0);
 
-#include <iostream>
 CameraEntity::CameraEntity(Camera &camera, std::shared_ptr<BulletUniverse> world, btCollisionShape *bulletShape, btScalar mass) :
         BulletObject(btVector3(camera.getPosition().x,camera.getPosition().y,camera.getPosition().z), btQuaternion(0,0,0,1), bulletShape, mass), camera(camera){
     this->speed = btVector3(0.0, 0.0, 0.0);
-    this->keyboardCallback = [this](int key, int scancode, int action ,int mode) {
-        switch(key) {
-            case GLFW_KEY_W: this->forewardPressed  = action != GLFW_RELEASE; break;
-            case GLFW_KEY_A: this->leftPressed      = action != GLFW_RELEASE; break;
-            case GLFW_KEY_S: this->backwardPressed  = action != GLFW_RELEASE; break;
-            case GLFW_KEY_D: this->rightPressed     = action != GLFW_RELEASE; break;
-            case GLFW_KEY_SPACE: this->jump         = action == GLFW_PRESS; break;
-            default:; /* nothing to do ... */
-        }
+    this->keyboardCallback = [this](Window const *window) {
+        this->forewardPressed  = window->getKey(GLFW_KEY_W) != GLFW_RELEASE;
+        this->leftPressed      = window->getKey(GLFW_KEY_A) != GLFW_RELEASE;
+        this->backwardPressed  = window->getKey(GLFW_KEY_S) != GLFW_RELEASE;
+        this->rightPressed     = window->getKey(GLFW_KEY_D) != GLFW_RELEASE;
+        this->jump             = window->getKey(GLFW_KEY_SPACE) == GLFW_PRESS;
     };
 
     rigidBody->setActivationState(DISABLE_DEACTIVATION);

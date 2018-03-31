@@ -23,6 +23,7 @@ private:
 
     std::vector<std::function<void(double, double)>> mouseCallbacks;
     std::vector<std::function<void(int, int, int, int)>> keyInputCallbacks;
+    std::vector<std::function<void(Window const *)>> inputPollCallbacks;
     std::vector<std::shared_ptr<Object3DAbstract>> objects;
 
     Camera &camera;
@@ -63,6 +64,7 @@ public:
 
     void registerMouseCallback(std::function<void(double,double)> callback);
     void registerKeyCallback(std::function<void(int, int, int, int)> callback);
+    void registerKeyPollingCallback(std::function<void(Window const *)> callback);
 
     bool isOpen();
     void close();
@@ -73,8 +75,8 @@ public:
     void processCameraMouseMovement(bool locked) { this->cameraMouse = locked; }
     void processCameraKeyMovment(bool locked) { this->cameraKey = locked; }
 
-    inline int getKey(int keycode) { return glfwGetKey(this->glfwWindow, keycode); }
-    inline Camera &getCamera() { return this->camera; }
+    inline int getKey(int keycode) const { return glfwGetKey(this->glfwWindow, keycode); }
+    inline Camera &getCamera() const { return this->camera; }
 
 };
 

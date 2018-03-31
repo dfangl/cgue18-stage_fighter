@@ -73,7 +73,7 @@ int main(int argc, char *argv[]) {
 
     double frameSampleCount = 0.0;
 
-    window->registerKeyCallback(player->getKeyboardCallback());
+    window->registerKeyPollingCallback(player->getKeyboardCallback());
     window->registerKeyCallback([console, player, window](int key, int scancode, int action, int mods){
         if (key == GLFW_KEY_F3 && action == GLFW_RELEASE) {
             window->processCameraKeyMovment(player->enabled);
