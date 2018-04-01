@@ -7,6 +7,7 @@
 
 #include <algorithm>
 #include <iostream>
+#include <glm/gtc/matrix_transform.hpp>
 
 typedef void (*framebuffer_size_callback)(GLFWwindow*,int,int);
 typedef void (*mouse_callback)(GLFWwindow*,double,double);
@@ -96,6 +97,8 @@ Window::Window(Camera &camera, int width, int height, const std::string &windowN
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
         throw std::runtime_error("Failed to initialize GLAD");
     }
+
+    this->widgetProjectionMatrix = glm::ortho(0.0f, (float)width, 0.0f, (float)height);
 }
 
 Window::~Window() {
@@ -121,6 +124,7 @@ void Window::glfwWindowSizeChanged(GLFWwindow* window,int width, int height) {
     // Resize OpenGL Viewport to new Window Size
     glViewport(0, 0, width, height);
     this->camera.screenSizeChanged(width, height);
+    this->widgetProjectionMatrix = glm::ortho(0.0f, (float)width, 0.0f, (float)height);
 }
 
 void Window::glfwMouseCallabck(GLFWwindow* window, double xpos, double ypos) {
@@ -174,12 +178,20 @@ void Window::render(std::chrono::duration<double, std::milli> delta) {
         oldYCursorPosition = yPos;
     }
 
-    glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_LESS);
+    //glEnable(GL_DEPTH_TEST);
+    //glDepthFunc(GL_LESS);
 
     // Render all Objects to the Window
     for(auto &obj : this->objects) {
         obj->render(this->camera);
+    }
+
+    // Models don't disable backface culling if they enabled it
+    glDisable(GL_CULL_FACE);
+
+    // Render all Widgets:
+    for (auto &widget : this->widgets) {
+        widget->render(this->widgetProjectionMatrix);
     }
 
     // Swap Buffers and listen to events (as GLFW suggests)
@@ -229,6 +241,23 @@ int Window::registerKeyPollingCallback(std::function<void(Window const *)> callb
 
 void Window::removeKeyPollingCallback(int callback) {
     this->inputPollCallbacks.erase(this->inputPollCallbacks.begin() + callback);
+}
+
+void Window::addWidget(const std::shared_ptr<Widget> &widget) {
+    this->widgets.push_back(widget);
+}
+
+void Window::removeWidget(const std::shared_ptr<Widget> &widget) {
+    this->widgets.erase(
+            std::remove_if(
+                    this->widgets.begin(),
+                    this->widgets.end(),
+                    [widget](std::shared_ptr<Widget> current) -> bool {
+                        return current == widget;
+                    }
+            ),
+            this->widgets.end()
+    );
 }
 
 void APIENTRY glDebugOutput(GLenum source,

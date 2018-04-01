@@ -254,7 +254,7 @@ add_executable(
         src/controller/CameraController.cpp src/controller/CameraController.h src/manager/ModelManager.cpp
 		src/manager/ModelManager.h src/object3d/Model3DObject.cpp src/object3d/Model3DObject.h
 		src/object3d/StaticBulletModelObject.cpp src/object3d/StaticBulletModelObject.h src/bullet/GLDebugDrawer.cpp
-		src/bullet/GLDebugDrawer.h src/level/Level.cpp src/level/Level.h src/level/LuaClassWrapper.h)
+		src/bullet/GLDebugDrawer.h src/level/Level.cpp src/level/Level.h src/level/LuaClassWrapper.h src/manager/FontManager.cpp src/manager/FontManager.h src/widget/Label.cpp src/widget/Label.h src/widget/Widget.h src/helper/Font.cpp src/helper/Font.h)
 
 set_target_properties("${BINARY}" PROPERTIES LINKER_LANGUAGE CXX)	
 	

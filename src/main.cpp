@@ -20,6 +20,8 @@
 #include "object3d/Model3DObject.h"
 #include "object3d/StaticBulletModelObject.h"
 #include "level/Level.h"
+#include "manager/FontManager.h"
+#include "widget/Label.h"
 
 #include <kaguya/kaguya.hpp>
 #include <spdlog/spdlog.h>
@@ -27,9 +29,6 @@
 // Needed for one time implementation, do NOT delete
 #define TINYGLTF_IMPLEMENTATION
 #include <tiny_gltf.h>
-
-#include <ft2build.h>
-#include FT_FREETYPE_H
 
 int main(int argc, char *argv[]) {
     // Setup Logger:
@@ -45,7 +44,9 @@ int main(int argc, char *argv[]) {
 	console->info("Shader root is ../resources/shader");
     ShaderManager::build("../resources/shader/");
     TextureManager::build("../resources/texture/");
+    FontManager::build("../resources/fonts/");
     ModelManager::build("../resources/");
+    //Lato-Regular
 
     // Create Window and Camera system:
     Camera camera(glm::vec3(0.0f, 1.0f, 3.0f), glm::vec3(0.0f, 1.0f, 0.0f),
@@ -81,6 +82,11 @@ int main(int argc, char *argv[]) {
     window->processCameraMouseMovement(true);
     window->processCameraKeyMovment(false);
     window->hideCursor();
+
+    FontManager::load("Lato-Regular")->setSize(48);
+    auto t = std::string("\"Test text\"");
+    auto text = std::make_shared<Label>(t, FontManager::load("Lato-Regular"), 520.0f, 570.0f, 1.0f, glm::vec3(0.3f, 0.7f, 0.9f));
+    window->addWidget(text);
 
     // Enter main game Loop:
     auto lastTick = std::chrono::high_resolution_clock::now();
@@ -123,12 +129,14 @@ int main(int argc, char *argv[]) {
 	// Destroy all the Stuff we created:
 	level->destroy();
     window->showCurosor();
+    window->removeWidget(text);
 	delete window;
 
     ShaderManager::destroy();
     TextureManager::destroy();
     ModelManager::destroy();
-    
+    FontManager::destroy();
+
 	glfwTerminate();
 	exit(EXIT_SUCCESS);
 }
