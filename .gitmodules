@@ -22,3 +22,6 @@
 [submodule "extern/tinygltf"]
 	path = extern/tinygltf
 	url = https://github.com/syoyo/tinygltf
+[submodule "extern/freetype2"]
+	path = extern/freetype2
+	url = git://git.savannah.gnu.org/freetype/freetype2.git
