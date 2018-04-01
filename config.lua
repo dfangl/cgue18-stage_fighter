@@ -8,3 +8,8 @@ config = {
 camera = {
     fov=45
 }
+
+debug = {
+    bullet=true,
+    opengl=true
+}

@@ -32,85 +32,95 @@
 #include FT_FREETYPE_H
 
 int main(int argc, char *argv[]) {
+    // Setup Logger:
     spdlog::set_async_mode(8192);
     auto console = spdlog::stdout_color_mt("console");
     console->info("Loading ../config.lua");
 
+    // Load configuration file:
 	kaguya::State config;
     config.dofile("../config.lua");
 
+    // Initialize "smart" resource management stuff":
 	console->info("Shader root is ../resources/shader");
     ShaderManager::build("../resources/shader/");
     TextureManager::build("../resources/texture/");
     ModelManager::build("../resources/");
 
-    Camera camera(glm::vec3(0.0f, 1.0f, 3.0f), glm::vec3(0.0f, 1.0f, 0.0f), -90.0f, 0.0f, config["camera"]["fov"], config["config"]["width"], config["config"]["height"], 0.01f, 1000.0f);
-	auto *window = new Window(camera, config["config"]["width"], config["config"]["height"], "Stage Fighter", config["config"]["fullscreen"]);
+    // Create Window and Camera system:
+    Camera camera(glm::vec3(0.0f, 1.0f, 3.0f), glm::vec3(0.0f, 1.0f, 0.0f),
+                  -90.0f, 0.0f,
+                  config["camera"]["fov"], config["config"]["width"], config["config"]["height"],
+                  0.01f, 1000.0f
+    );
+	auto *window = new Window(camera, config["config"]["width"], config["config"]["height"], "Stage Fighter",
+                              config["config"]["fullscreen"]
+    );
+
+	// Configure Window Stuff:
     window->setVSync(config["config"]["vsync"]);
+    // TODO: Should be removed -> ESC window closes
+    window->registerKeyCallback([window](int key, int scancode, int action, int mods){
+        if(key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+            window->close();
+    });
 
+    // Create Bullet World and load the Test level:
 	auto world = std::make_shared<BulletUniverse>(btVector3(0,-9.81f,0));
-
-	window->registerKeyCallback([window](int key, int scancode, int action, int mods){
-		if(key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-			window->close();
-	});
-
-    // Load level data:
     auto level = std::make_shared<Level>("../resources/level/test.lua", world);
 
-    // ONLY when debugging bullet!
-    world->enableDebugging();
-    window->addObject3D(world->getDebugDrawer());
+    // When debugging bullet!
+    bool bulletDbgFlag = config["debug"]["bullet"];
+    if (bulletDbgFlag){
+        world->enableDebugging();
+        window->addObject3D(world->getDebugDrawer());
+    }
 
-    auto lastTick = std::chrono::high_resolution_clock::now();
-
+    // Prepare level and window ...
+    level->start(camera, window);
     window->processCameraMouseMovement(true);
     window->processCameraKeyMovment(false);
     window->hideCursor();
 
+    // Enter main game Loop:
+    auto lastTick = std::chrono::high_resolution_clock::now();
     double frameSampleCount = 0.0;
+    bool openGlDbgFlag = config["debug"]["opengl"];
 
-    /*
-    window->registerKeyCallback([console, player, window](int key, int scancode, int action, int mods){
-        if (key == GLFW_KEY_F3 && action == GLFW_RELEASE) {
-            window->processCameraKeyMovment(player->enabled);
-            player->enabled = !player->enabled;
-        }
-        if (key == GLFW_KEY_F4 && action == GLFW_RELEASE) {
-            auto p = player->getPosition();
-            console->info("Camera Position: {} {} {}", p.x, p.y, p.z);
-        }
-    });
-    */
-
-    level->start(camera, window);
-
-	while (window->isOpen())
-	{
+	while (window->isOpen()) {
+	    // Timing, delta from frames
 		auto curTick = std::chrono::high_resolution_clock::now();
 		std::chrono::duration<double, std::milli> delta =  curTick - lastTick;
 		lastTick = curTick;
 
+		// Process Bullet physics and debug renderer
 		world->simulate(delta);
-        world->drawDebug();
+        if (bulletDbgFlag) world->drawDebug();
 
+        // Process level stuff:
         level->tick(delta);
 
+        // Process fps counter
+        // TODO: move into window class (?)
         if ((frameSampleCount+=delta.count()) > 1000.0) {
             console->info("tick time: {}\t fps: {}", delta.count(), 1000.0/delta.count());
             frameSampleCount = 0;
         }
 
+        // Finally render Window content:
         window->render(delta);
 
-        //TODO: should only be present if debug build
-		auto error = glGetError();
-		if(error != GL_NO_ERROR) {
-			console->error("OpenGL Error Code: {}", error);
-		}
-
+        // Process the glGetError function, but only
+        // if requested in the config file
+        if (openGlDbgFlag) {
+            auto error = glGetError();
+            if(error != GL_NO_ERROR) {
+                console->error("OpenGL Error Code: {}", error);
+            }
+        }
 	}
 
+	// Destroy all the Stuff we created:
 	level->destroy();
     window->showCurosor();
 	delete window;
@@ -118,7 +128,7 @@ int main(int argc, char *argv[]) {
     ShaderManager::destroy();
     TextureManager::destroy();
     ModelManager::destroy();
-
+    
 	glfwTerminate();
 	exit(EXIT_SUCCESS);
 }
