@@ -178,8 +178,8 @@ void Window::render(std::chrono::duration<double, std::milli> delta) {
         oldYCursorPosition = yPos;
     }
 
-    //glEnable(GL_DEPTH_TEST);
-    //glDepthFunc(GL_LESS);
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);
 
     // Render all Objects to the Window
     for(auto &obj : this->objects) {
