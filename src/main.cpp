@@ -28,6 +28,8 @@
 #define TINYGLTF_IMPLEMENTATION
 #include <tiny_gltf.h>
 
+#include <ft2build.h>
+#include FT_FREETYPE_H
 
 int main(int argc, char *argv[]) {
     spdlog::set_async_mode(8192);
@@ -52,7 +54,7 @@ int main(int argc, char *argv[]) {
 		if(key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 			window->close();
 	});
-	
+
     // Load level data:
     auto level = std::make_shared<Level>("../resources/level/test.lua", world);
 

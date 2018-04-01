@@ -73,8 +73,6 @@ if(BULLET_FOUND)
 else()
 	message(STATUS "Using Bullet in ${EXTERN}/bullet3")
 
-
-
 	 list(APPEND BulletCmakeArgs
 		-DCMAKE_INSTALL_PREFIX=${EXTERN}/bullet3
         -DBUILD_BULLET2_DEMOS=OFF 
@@ -220,6 +218,19 @@ include_directories("${EXTERN}/stb")
 ## tinygltf-loader ##
 include_directories(${EXTERN}/tinygltf)
 
+## freetype2 ##
+if (UNIX)
+    find_package("freetype2")
+endif()
+
+if (NOT FREETYPE_FOUND)
+    message(STATUS "Freetype2 not found, using extern/freetype2 as dependency")
+    add_subdirectory("${EXTERN}/freetype2")
+
+    set(FREETYPE_INCLUDE_DIRS ${EXTERN}/freetype2/include)
+	set(FREETYPE_LIBRARIES freetype)
+endif()
+
 #
 # Link & Include Stuff into the binary
 #
@@ -229,6 +240,7 @@ include_directories(
 		${BULLET_INCLUDE_DIRS}
 		${KAGUYA_INCLUDE_DIRS}
         PRIVATE ${GLAD_INCLUDE_DIR}
+        ${FREETYPE_INCLUDE_DIRS}
 	)
 
 add_executable(
@@ -239,7 +251,10 @@ add_executable(
 		src/manager/ShaderManager.h src/Texture.cpp src/Texture.h src/manager/TextureManager.cpp src/entity/Entity.h
 		src/manager/TextureManager.h src/Camera.cpp src/Camera.h src/object3d/Cube.cpp src/object3d/Cube.h
 		src/object3d/BulletObject.cpp src/object3d/BulletObject.h src/entity/CubeEntity.cpp src/entity/CubeEntity.h
-        src/controller/CameraController.cpp src/controller/CameraController.h src/manager/ModelManager.cpp src/manager/ModelManager.h src/object3d/Model3DObject.cpp src/object3d/Model3DObject.h src/object3d/StaticBulletModelObject.cpp src/object3d/StaticBulletModelObject.h src/bullet/GLDebugDrawer.cpp src/bullet/GLDebugDrawer.h src/level/Level.cpp src/level/Level.h src/level/LuaClassWrapper.h)
+        src/controller/CameraController.cpp src/controller/CameraController.h src/manager/ModelManager.cpp
+		src/manager/ModelManager.h src/object3d/Model3DObject.cpp src/object3d/Model3DObject.h
+		src/object3d/StaticBulletModelObject.cpp src/object3d/StaticBulletModelObject.h src/bullet/GLDebugDrawer.cpp
+		src/bullet/GLDebugDrawer.h src/level/Level.cpp src/level/Level.h src/level/LuaClassWrapper.h)
 
 set_target_properties("${BINARY}" PROPERTIES LINKER_LANGUAGE CXX)	
 	
@@ -250,6 +265,7 @@ target_link_libraries(
 		${LUA_LIBRARIES}
 		glad
         Threads::Threads
+        ${FREETYPE_LIBRARIES}
 	)
 
 if(NOT BULLET_FOUND)	
