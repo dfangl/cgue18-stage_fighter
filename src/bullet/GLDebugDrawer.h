@@ -26,10 +26,7 @@ private:
         glm::vec3 from;
         glm::vec3 to;
 
-        Line(glm::vec3 _from, glm::vec3 _to) {
-            from = _from;
-            to = _to;
-        }
+        Line(glm::vec3 _from, glm::vec3 _to) : from(_from), to(_to) {}
     };
 
     std::vector<Line> lines;

@@ -52,13 +52,9 @@ int main(int argc, char *argv[]) {
 		if(key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 			window->close();
 	});
-
-
-
-
+	
     // Load level data:
     auto level = std::make_shared<Level>("../resources/level/test.lua", world);
-    auto player = std::make_shared<CameraEntity>(camera, world);
 
     // ONLY when debugging bullet!
     world->enableDebugging();
@@ -68,12 +64,11 @@ int main(int argc, char *argv[]) {
 
     window->processCameraMouseMovement(true);
     window->processCameraKeyMovment(false);
-    player->enabled = true;
     window->hideCursor();
 
     double frameSampleCount = 0.0;
 
-    window->registerKeyPollingCallback(player->getKeyboardCallback());
+    /*
     window->registerKeyCallback([console, player, window](int key, int scancode, int action, int mods){
         if (key == GLFW_KEY_F3 && action == GLFW_RELEASE) {
             window->processCameraKeyMovment(player->enabled);
@@ -84,6 +79,7 @@ int main(int argc, char *argv[]) {
             console->info("Camera Position: {} {} {}", p.x, p.y, p.z);
         }
     });
+    */
 
     level->start(camera, window);
 
@@ -92,8 +88,6 @@ int main(int argc, char *argv[]) {
 		auto curTick = std::chrono::high_resolution_clock::now();
 		std::chrono::duration<double, std::milli> delta =  curTick - lastTick;
 		lastTick = curTick;
-
-        player->think(delta);
 
 		world->simulate(delta);
         world->drawDebug();
@@ -115,6 +109,7 @@ int main(int argc, char *argv[]) {
 
 	}
 
+	level->destroy();
     window->showCurosor();
 	delete window;
 

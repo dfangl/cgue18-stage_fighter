@@ -20,7 +20,7 @@ public:
 
     void think(std::chrono::duration<double, std::milli> delta) override;
 
-    void setEntityPosition(const glm::vec3 &vec) override;
+    void setEntityPosition(const glm::vec3 &vec, const glm::quat &rot) override;
 
     virtual void render(const Camera &camera);
 };

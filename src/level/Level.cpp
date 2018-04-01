@@ -6,6 +6,8 @@
 #include "../entity/CubeEntity.h"
 #include "../manager/TextureManager.h"
 
+#include <glm/gtc/quaternion.hpp>
+
 Level::Level(const std::string &file, const std::shared_ptr<BulletUniverse> &world) : Logger("Level"), world(world) {
     logger->info("Loading file {}", file);
 
@@ -44,12 +46,18 @@ Level::Level(const std::string &file, const std::shared_ptr<BulletUniverse> &wor
     state.dofile(file);
 }
 
-void Level::start(const Camera &camera, Window *window) {
+void Level::start(Camera &camera, Window *window) {
     this->window = window;
+    this->player = std::make_shared<CameraEntity>(camera, world);
 
-    //TODO: Set Camera position
-    //TODO: Set Camera rotation
+    player->entitySpeed = state["player"]["speed"];
+    const LuaVec3 *pPosition = state["player"]["position"];
+    const LuaVec3 *pLookAt = state["player"]["lookAt"];
 
+    player->setEntityPosition(pPosition->pos, glm::quat(0, 0, 0, 1));
+    player->lookAt(pLookAt->pos);
+
+    playerInputCallbackID = window->registerKeyPollingCallback(player->getKeyboardCallback());
 
     for (auto &entity : state["entities"].map<int, LuaEntity *>()) {
         this->entities.push_back(entity.second->toEntity3D(this->world));
@@ -79,12 +87,15 @@ void Level::destroy() {
 
     this->entities.clear();
     this->statics.clear();
+    window->removeKeyPollingCallback(playerInputCallbackID);
 }
 
 void Level::tick(std::chrono::duration<double, std::milli> delta) {
     for (auto &entity : this->entities) {
         entity->think(delta);
     }
+
+    player->think(delta);
 }
 
 void Level::resetEnvironment() {
@@ -92,11 +103,13 @@ void Level::resetEnvironment() {
 }
 
 void Level::hide() {
+    player->enabled = false;
     for (auto &entity : this->entities) this->window->removeObject(entity);
     for (auto &obj    : this->statics ) this->window->removeObject(obj);
 }
 
 void Level::show() {
+    player->enabled = true;
     for (auto &entity : this->entities) this->window->addObject3D(entity);
     for (auto &obj    : this->statics ) this->window->addObject3D(obj);
 }

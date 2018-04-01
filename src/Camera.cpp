@@ -8,6 +8,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+
 Camera::Camera(glm::vec3 position, glm::vec3 up, float yaw, float pitch, float fov, float width, float height, float zNear, float zFar) {
     this->position = position;
     this->worldUp = up;
@@ -63,4 +64,15 @@ void Camera::update(const glm::vec3 position) {
     //this->logger->info("{}\tupdate({},{},{});", static_cast<void*>(this), position.x, position.y, position.z);
     this->position = position;
     this->update();
+}
+
+void Camera::lookAt(const glm::vec3 &object) {
+    //TODO: This doesn't work ...
+
+    const auto &direction = glm::normalize(
+            glm::vec3(position.x - object.x, position.y - object.y, position.z - object.z)
+    );
+
+    this->pitch = static_cast<float>(M_PI * asinf(direction.y));
+    this->yaw = static_cast<float>(M_PI * atan2f(direction.x, direction.z));
 }

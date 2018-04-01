@@ -2,8 +2,9 @@
 -- TODO: Make it possible to call functions by named parameters
 
 player = {}
-player.position = vec3(0, 10, 0)
-player.lookAt   = vec3(10, 0, 10)
+player.position = vec3(1, -47.5088, 1)
+player.lookAt   = vec3(0, 7, 0)
+player.speed    = 7.0
 
 objects = {
     StaticObject(

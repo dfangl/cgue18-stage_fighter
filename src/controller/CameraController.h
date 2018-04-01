@@ -34,7 +34,8 @@ public:
     explicit CameraEntity(Camera &camera, std::shared_ptr<BulletUniverse> world, btCollisionShape *bulletShape = new btBoxShape(btVector3(0.5,0.5,0.5)), btScalar mass = 1);
     virtual ~CameraEntity();
 
-    void setEntityPosition(const glm::vec3 &vec) override;
+    void setEntityPosition(const glm::vec3 &vec, const glm::quat &rot) override;
+    void lookAt(const glm::vec3 &obj);
 
     void think(std::chrono::duration<double, std::milli> delta) override;
 

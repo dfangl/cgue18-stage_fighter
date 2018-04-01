@@ -49,6 +49,7 @@ GLDebugDrawer::~GLDebugDrawer() {
 
 void GLDebugDrawer::draw() {
 
+    glDisable(GL_CULL_FACE);
     glBindVertexArray(VAO);
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
@@ -62,7 +63,6 @@ void GLDebugDrawer::draw() {
     glEnableVertexAttribArray(1);
 
     glDrawArrays(GL_LINES, 0, static_cast<GLsizei>(lines.size()));
-    //logger->info("error: 5 {} {}", glGetError(), lines.size());
 
     glBindVertexArray(0);
 

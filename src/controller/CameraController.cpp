@@ -5,6 +5,7 @@
 #include "CameraController.h"
 #include "../manager/TextureManager.h"
 #include <GLFW/glfw3.h>
+#include <glm/gtc/quaternion.hpp>
 
 
 btVector3 CameraEntity::bulletMovementVector(0, 1, 0);
@@ -27,9 +28,9 @@ CameraEntity::CameraEntity(Camera &camera, std::shared_ptr<BulletUniverse> world
     world->addRigidBody(rigidBody);
 }
 
-void CameraEntity::setEntityPosition(const glm::vec3 &vec) {
+void CameraEntity::setEntityPosition(const glm::vec3 &vec, const glm::quat &rot) {
     this->camera.update(vec);
-    BulletObject::setOrigin(btVector3(vec.x,vec.y,vec.z), btQuaternion(0,0,0,1));
+    BulletObject::setOrigin(btVector3(vec.x,vec.y,vec.z), btQuaternion(rot.x, rot.y, rot.z, rot.w));
 }
 
 void CameraEntity::think(std::chrono::duration<double, std::milli> delta) {
@@ -73,4 +74,8 @@ void CameraEntity::think(std::chrono::duration<double, std::milli> delta) {
 
 CameraEntity::~CameraEntity() {
     world->removeRigidBody(BulletObject::rigidBody);
+}
+
+void CameraEntity::lookAt(const glm::vec3 &obj) {
+    this->camera.lookAt(obj);
 }

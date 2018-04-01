@@ -137,12 +137,14 @@ void Window::close() {
     glfwSetWindowShouldClose(this->glfwWindow, true);
 }
 
-void Window::registerMouseCallback(std::function<void(double, double)> callback) {
+int Window::registerMouseCallback(std::function<void(double, double)> callback) {
     this->mouseCallbacks.push_back(callback);
+    return static_cast<int>(this->mouseCallbacks.size() - 1);
 }
 
-void Window::registerKeyCallback(std::function<void(int, int, int, int)> callback) {
+int Window::registerKeyCallback(std::function<void(int, int, int, int)> callback) {
     this->keyInputCallbacks.push_back(callback);
+    return static_cast<int>(this->keyInputCallbacks.size() - 1);
 }
 
 void Window::render(std::chrono::duration<double, std::milli> delta) {
@@ -220,8 +222,13 @@ void Window::showCurosor() {
     glfwSetInputMode(this->glfwWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 }
 
-void Window::registerKeyPollingCallback(std::function<void(Window const *)> callback) {
+int Window::registerKeyPollingCallback(std::function<void(Window const *)> callback) {
     this->inputPollCallbacks.push_back(callback);
+    return static_cast<int>(this->inputPollCallbacks.size() - 1);
+}
+
+void Window::removeKeyPollingCallback(int callback) {
+    this->inputPollCallbacks.erase(this->inputPollCallbacks.begin() + callback);
 }
 
 void APIENTRY glDebugOutput(GLenum source,

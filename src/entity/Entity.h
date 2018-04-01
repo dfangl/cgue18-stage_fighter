@@ -15,7 +15,7 @@ class Entity : public Object3DAbstract {
 public:
     virtual ~Entity() = default;
 
-    virtual void setEntityPosition(const glm::vec3 &vec) = 0;
+    virtual void setEntityPosition(const glm::vec3 &vec, const glm::quat &rot) = 0;
     virtual void think(std::chrono::duration<double, std::milli> delta) = 0;
 
     virtual void render(const Camera &camera) = 0;

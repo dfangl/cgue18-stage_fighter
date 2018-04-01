@@ -48,6 +48,8 @@ public:
     float keySensitivity = 0.1f;
 
     void update(const glm::vec3 position);
+    void lookAt(const glm::vec3 &object);
+
     glm::vec3 getPosition() const { return this->position; }
     glm::vec3 getFront() const { return this->front; }
     glm::vec3 getRight() const { return this->right; }
