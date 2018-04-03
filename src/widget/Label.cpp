@@ -103,3 +103,5 @@ void Label::setPosition(float x, float y) {
     this->x = x;
     this->y = y;
 }
+
+void Label::resize(float x, float y) {}

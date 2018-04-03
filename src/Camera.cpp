@@ -2,6 +2,9 @@
 // Created by raphael on 15.03.18.
 //
 
+#define _USE_MATH_DEFINES
+#include <cmath>
+
 #include "Camera.h"
 
 #include <glm/glm.hpp>

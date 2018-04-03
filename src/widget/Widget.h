@@ -11,6 +11,7 @@ class Widget {
 
 public:
     virtual void render(const glm::mat4 &projection) = 0;
+    virtual void resize(float x, float y) = 0;
 
 };
 

@@ -18,24 +18,24 @@ include(${CMAKE_ROOT}/Modules/ExternalProject.cmake)
 # Comiler Stuff:
 #
 
-if (MSVC)
-	set(USE_MSVC_RUNTIME_LIBRARY_DLL OFF)
-
-	foreach (flag CMAKE_C_FLAGS
-				  CMAKE_C_FLAGS_DEBUG
-				  CMAKE_C_FLAGS_RELEASE
-				  CMAKE_C_FLAGS_MINSIZEREL
-				  CMAKE_C_FLAGS_RELWITHDEBINFO)
-
-		if (${flag} MATCHES "/MD")
-			string(REGEX REPLACE "/MD" "/MT" ${flag} "${${flag}}")
-		endif()
-		if (${flag} MATCHES "/MDd")
-			string(REGEX REPLACE "/MDd" "/MTd" ${flag} "${${flag}}")
-		endif()
-
-	endforeach()
-endif()
+#if (MSVC)
+#	set(USE_MSVC_RUNTIME_LIBRARY_DLL OFF)
+#
+#	foreach (flag CMAKE_C_FLAGS
+#				  CMAKE_C_FLAGS_DEBUG
+#				  CMAKE_C_FLAGS_RELEASE
+#				  CMAKE_C_FLAGS_MINSIZEREL
+#				  CMAKE_C_FLAGS_RELWITHDEBINFO)
+#
+#		if (${flag} MATCHES "/MD")
+#			string(REGEX REPLACE "/MD" "/MT" ${flag} "${${flag}}")
+#		endif()
+#		if (${flag} MATCHES "/MDd")
+#			string(REGEX REPLACE "/MDd" "/MTd" ${flag} "${${flag}}")
+#		endif()
+#
+#	endforeach()
+#endif()
 
 #
 # Dependencies:
@@ -86,7 +86,7 @@ else()
         -DUSE_GRAPHICAL_BENCHMARK=OFF 
         -DBULLET2_USE_OPEN_MP_MULTITHREADING=ON 
         -DINSTALL_LIBS=ON 
-		-DUSE_MSVC_RUNTIME_LIBRARY_DLL=OFF
+		-DUSE_MSVC_RUNTIME_LIBRARY_DLL=ON
         -DCMAKE_BUILD_TYPE=RELEASE -G ${CMAKE_GENERATOR}
       )
 	  

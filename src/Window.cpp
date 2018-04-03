@@ -123,8 +123,15 @@ void Window::glfwWindowSizeChanged(GLFWwindow* window,int width, int height) {
 
     // Resize OpenGL Viewport to new Window Size
     glViewport(0, 0, width, height);
+
+    // Resize Camera and such stuff:
     this->camera.screenSizeChanged(width, height);
     this->widgetProjectionMatrix = glm::ortho(0.0f, (float)width, 0.0f, (float)height);
+
+    // Resize widgets
+    for( auto &w : this->widgets) {
+        w->resize(width, height);
+    }
 }
 
 void Window::glfwMouseCallabck(GLFWwindow* window, double xpos, double ypos) {

@@ -31,6 +31,7 @@ public:
     virtual ~Label();
 
     void render(const glm::mat4 &projection) override;
+    void resize(float x, float y) override;
 
     float getWidth();
     void setPosition(float x, float y);
