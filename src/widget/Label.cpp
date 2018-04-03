@@ -86,3 +86,20 @@ void Label::render(const glm::mat4 &projection) {
 
     glDisable(GL_BLEND);
 }
+
+float Label::getWidth() {
+    float width = 0.0f;
+
+    std::string::const_iterator c;
+    for (c = text.begin(); c != text.end(); c++) {
+        Font::Character ch = font->get((unsigned long) *c);
+        width += (ch.advance >> 6) * scale;
+    }
+
+    return width;
+}
+
+void Label::setPosition(float x, float y) {
+    this->x = x;
+    this->y = y;
+}

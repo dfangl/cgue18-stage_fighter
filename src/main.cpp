@@ -84,8 +84,9 @@ int main(int argc, char *argv[]) {
     window->hideCursor();
 
     FontManager::load("Lato-Regular")->setSize(48);
-    auto t = std::string("\"Test text\"");
-    auto text = std::make_shared<Label>(t, FontManager::load("Lato-Regular"), 520.0f, 570.0f, 1.0f, glm::vec3(0.3f, 0.7f, 0.9f));
+    auto t = std::string("Stage Figther");
+    auto text = std::make_shared<Label>(t, FontManager::load("Lato-Regular"), 0.0f, 570.0f, 1.0f, glm::vec3(1.0f, 1.0f, 1.0f));
+    text->setPosition(window->getWidth()/2.0f-text->getWidth()/2.0f, window->getHeight()-52);
     window->addWidget(text);
 
     // Enter main game Loop:

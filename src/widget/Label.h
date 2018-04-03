@@ -32,6 +32,9 @@ public:
 
     void render(const glm::mat4 &projection) override;
 
+    float getWidth();
+    void setPosition(float x, float y);
+
 };
 
 
