@@ -13,6 +13,7 @@ btVector3 CameraEntity::bulletMovementVector(0, 1, 0);
 CameraEntity::CameraEntity(Camera &camera, std::shared_ptr<BulletUniverse> world, btCollisionShape *bulletShape, btScalar mass) :
         BulletObject(btVector3(camera.getPosition().x,camera.getPosition().y,camera.getPosition().z), btQuaternion(0,0,0,1), bulletShape, mass), camera(camera){
     this->speed = btVector3(0.0, 0.0, 0.0);
+    this->world = world;
     this->keyboardCallback = [this](Window const *window) {
         this->forewardPressed  = window->getKey(GLFW_KEY_W) != GLFW_RELEASE;
         this->leftPressed      = window->getKey(GLFW_KEY_A) != GLFW_RELEASE;
@@ -24,6 +25,7 @@ CameraEntity::CameraEntity(Camera &camera, std::shared_ptr<BulletUniverse> world
     rigidBody->setActivationState(DISABLE_DEACTIVATION);
     rigidBody->setFriction(1.0f);
     rigidBody->setRestitution(0.1f);
+    this->kind = BulletObject::PLAYER;
 
     world->addRigidBody(rigidBody);
 }
@@ -51,25 +53,41 @@ void CameraEntity::think(std::chrono::duration<double, std::milli> delta) {
 
     speed.setZ(zVelocity);
     speed.setX(xVelocity);
-    speed.setY(0.0);
 
-    if (jump) {
+    {
+        auto end = btVector3(o.x(), o.y()-height, o.z());
+        auto &start = o;
+        btCollisionWorld::ClosestRayResultCallback rayCallback(start, end);
+        world->rayTest(start, end, rayCallback);
+
+        if (rayCallback.hasHit()) {
+            speed.setY(0.0);
+            canJump = true;
+        } else {
+            speed.setY(-9.81f);
+            canJump = false;
+        }
+    }
+
+    if (jump && canJump) {
         speed.setY(this->entitySpeed * 9.81f);
         jump = false;
     }
 
+    /*
     if(!forewardPressed && !backwardPressed && !leftPressed && !rightPressed) {
         rigidBody->setDamping(200.0f, 0.0f);
     } else {
         rigidBody->setDamping(0.0f, 0.0f);
     }
+    */
 
 
     //if (o.y() > 0.99999f) speed.setY(-9.81f);
     //else                speed.setY(0.0f);
 
-    //rigidBody->setLinearVelocity(speed.rotate(bulletMovementVector, btRadians(-camera.getYaw())));
-    rigidBody->applyCentralForce(speed.rotate(bulletMovementVector, btRadians(-camera.getYaw())));
+    rigidBody->setLinearVelocity(speed.rotate(bulletMovementVector, btRadians(-camera.getYaw())));
+    //rigidBody->applyCentralForce(speed.rotate(bulletMovementVector, btRadians(-camera.getYaw())));
 }
 
 CameraEntity::~CameraEntity() {
@@ -78,4 +96,8 @@ CameraEntity::~CameraEntity() {
 
 void CameraEntity::lookAt(const glm::vec3 &obj) {
     this->camera.lookAt(obj);
+}
+
+void CameraEntity::collideWith(BulletObject *other) {
+    spdlog::get("console")->info("Collided with: {}", other->getKind());
 }

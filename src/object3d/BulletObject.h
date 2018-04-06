@@ -9,13 +9,18 @@
 #include "Object3D.h"
 
 class BulletObject {
+public:
+    enum Kind {
+        PLAYER, ENEMY, BULLET, ENVIRONMENT, WEAPON
+    };
 
 protected:
     btDefaultMotionState* motionState;
     btRigidBody* rigidBody;
-    //btCollisionObject* staticBody;
     btCollisionShape* fallShape;
     btScalar mass;
+
+    Kind kind = ENVIRONMENT;
 
 public:
     explicit BulletObject(const btVector3 &pos, const btQuaternion &rotation, btCollisionShape* bulletShape, btScalar mass = 0.001);
@@ -25,6 +30,10 @@ public:
 
     btRigidBody *getRigidBody() { return this->rigidBody; }
     btTransform getTransformation();
+
+    virtual void collideWith(BulletObject *other) {};
+
+    Kind getKind() const { return this->kind; }
 };
 
 

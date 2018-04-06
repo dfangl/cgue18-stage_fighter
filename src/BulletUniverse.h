@@ -39,6 +39,7 @@ public:
     void enableDebugging();
 
     void drawDebug();
+    void rayTest(const btVector3 &start, const btVector3 &end, btCollisionWorld::ClosestRayResultCallback &rayCallback);
 
 };
 

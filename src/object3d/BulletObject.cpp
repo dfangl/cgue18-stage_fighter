@@ -22,6 +22,8 @@ BulletObject::BulletObject(const btVector3 &pos, const btQuaternion &rotation, b
                 this->rigidBody->getFlags() |  btCollisionObject::CF_KINEMATIC_OBJECT
         );
     }
+
+    this->rigidBody->setUserPointer(this);
 }
 
 BulletObject::~BulletObject() {

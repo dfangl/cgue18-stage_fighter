@@ -6,12 +6,15 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
+#include <utility>
 
 CubeEntity::CubeEntity(const glm::vec3 &pos, const std::shared_ptr<Texture> &texture, std::shared_ptr<BulletUniverse> world) :
         Cube(pos, texture),
         BulletObject(btVector3(pos.x,pos.y,pos.z), btQuaternion(0,0,0,1), new btBoxShape(btVector3(0.5,0.5,0.5))) {
 
     this->world = world;
+    this->kind = BulletObject::ENEMY;
+
     world->addRigidBody(this->getRigidBody());
 }
 
