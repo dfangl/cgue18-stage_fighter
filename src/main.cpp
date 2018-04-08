@@ -50,11 +50,11 @@ int main(int argc, char *argv[]) {
     // Create Window and Camera system:
     Camera camera(glm::vec3(0.0f, 1.0f, 3.0f), glm::vec3(0.0f, 1.0f, 0.0f),
                   -90.0f, 0.0f,
-                  config["camera"]["fov"], config["config"]["width"], config["config"]["height"],
+                  config["camera"]["fov"], config["window"]["width"], config["window"]["height"],
                   0.01f, 1000.0f
     );
-	auto *window = new Window(camera, config["config"]["width"], config["config"]["height"], "Stage Fighter",
-                              config["config"]["fullscreen"]
+	auto *window = new Window(camera, config["window"]["width"], config["window"]["height"], "Stage Fighter",
+                              config["window"]["fullscreen"], config["window"]["refreshRate"]
     );
 
 	// Configure Window Stuff:

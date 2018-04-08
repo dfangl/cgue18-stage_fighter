@@ -17,7 +17,8 @@ typedef void (*key_callback)(GLFWwindow*,int,int,int,int);
 void APIENTRY glDebugOutput(GLenum source, GLenum type, GLuint id, GLenum severity,
                             GLsizei length, const GLchar *message, const void *userParam);
 
-Window::Window(Camera &camera, int width, int height, const std::string &windowName, bool fullscreen) : Logger("Window"), camera(camera) {
+Window::Window(Camera &camera, int width, int height, const std::string &windowName, bool fullscreen, int refreshRate)
+        : Logger("Window"), camera(camera) {
     this->height = height;
     this->width = width;
     //this->camera = camera;
@@ -56,9 +57,14 @@ Window::Window(Camera &camera, int width, int height, const std::string &windowN
      */
 
     GLFWmonitor *monitor = nullptr;
-    if(fullscreen)
+    if(fullscreen) {
         monitor = glfwGetPrimaryMonitor();
 
+        // Ignored in Window mode
+        glfwWindowHint(GLFW_REFRESH_RATE, refreshRate);
+    }
+
+    glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
     this->glfwWindow = glfwCreateWindow(width, height, windowName.c_str(), monitor, nullptr);
     if (this->glfwWindow == nullptr) {
         glfwTerminate();

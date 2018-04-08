@@ -53,7 +53,7 @@ public:
     * @param windowName the name of the window
     * @param fullscreen true if fullscreen mode is desired
     */
-    Window(Camera &camera, int width, int height, const std::string &windowName, bool fullscreen = false);
+    Window(Camera &camera, int width, int height, const std::string &windowName, bool fullscreen = false, int refreshRate = GLFW_DONT_CARE);
     ~Window();
 
     void setVSync(bool enabled);

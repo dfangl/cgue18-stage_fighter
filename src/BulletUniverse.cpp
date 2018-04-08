@@ -42,7 +42,7 @@ void BulletUniverse::simulate(std::chrono::duration<double, std::milli> tick) {
         auto bA = reinterpret_cast<BulletObject *>(obA->getUserPointer());
         auto bB = reinterpret_cast<BulletObject *>(obB->getUserPointer());
 
-        if (bA->getKind() == BulletObject::ENVIRONMENT || bB->getKind() == BulletObject::ENVIRONMENT)
+        if (bA->getKind() == BulletObject::ENVIRONMENT && bB->getKind() == BulletObject::ENVIRONMENT)
             continue;
 
         bA->collideWith(bB);

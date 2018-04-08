@@ -18,12 +18,14 @@ private:
     Camera &camera;
     btVector3 speed;
     float height = 0.9f * 2.0f; // Capsule height * 2 [radius]
+    const float airTime = 500.0f; // in ms
 
     bool forewardPressed = false;
     bool backwardPressed = false;
     bool leftPressed = false;
     bool rightPressed = false;
-    bool jump = false;
+
+    float jump = 0.0f;
     bool canJump = false;
 
     std::shared_ptr<BulletUniverse> world;
@@ -34,7 +36,7 @@ private:
 public:
     explicit CameraEntity(Camera &camera,
                           std::shared_ptr<BulletUniverse> world,
-                          btCollisionShape *bulletShape = new btCapsuleShape(0.5f, 0.9f),
+                          btCollisionShape *bulletShape = new btSphereShape(0.7f),
                           btScalar mass = 1.0f);
 
     virtual ~CameraEntity();
@@ -42,6 +44,7 @@ public:
 
     bool enabled = false;
     float entitySpeed = 7.0f;
+    float jumpSpeed = 14.0f;
 
     void setEntityPosition(const glm::vec3 &vec, const glm::quat &rot) override;
     void lookAt(const glm::vec3 &obj);
