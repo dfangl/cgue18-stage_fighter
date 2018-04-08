@@ -85,7 +85,7 @@ void CameraEntity::lookAt(const glm::vec3 &obj) {
 }
 
 void CameraEntity::collideWith(BulletObject *other) {
-    if (other->kind == BulletObject::ENVIRONMENT)
+    if (other->getKind() == BulletObject::ENVIRONMENT)
         return;
 
     spdlog::get("console")->info("Collided with: {}", other->getKind());

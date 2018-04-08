@@ -22,6 +22,7 @@
 #include "level/Level.h"
 #include "manager/FontManager.h"
 #include "widget/Label.h"
+#include "widget/NuklearCtx.h"
 
 #include <kaguya/kaguya.hpp>
 #include <spdlog/spdlog.h>
@@ -58,7 +59,7 @@ int main(int argc, char *argv[]) {
     );
 
 	// Configure Window Stuff:
-    window->setVSync(config["config"]["vsync"]);
+    window->setVSync(config["window"]["vsync"]);
     // TODO: Should be removed -> ESC window closes
     window->registerKeyCallback([window](int key, int scancode, int action, int mods){
         if(key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
@@ -84,14 +85,34 @@ int main(int argc, char *argv[]) {
 
     FontManager::load("Lato-Regular")->setSize(48);
     auto t = std::string("Stage Figther");
-    auto text = std::make_shared<Label>(t, FontManager::load("Lato-Regular"), 0.0f, 570.0f, 1.0f, glm::vec3(1.0f, 1.0f, 1.0f));
-    text->setPosition(window->getWidth()/2.0f-text->getWidth()/2.0f, window->getHeight()-52);
+    auto text = std::make_shared<Label>(t, FontManager::load("Lato-Regular"), 0.0f, 25.0f, 1.0f, glm::vec3(1.0f, 1.0f, 1.0f));
+    text->setPosition(window->getWidth()/2.0f-text->getWidth()/2.0f, 52.0f);
     window->addWidget(text);
+
+    // Nuklear Test:
+    auto n = std::make_shared<NuklearContext>(window);
+    window->addWidget(n);
+
+    struct nk_colorf bg;
+    bg.r = 0.10f, bg.g = 0.18f, bg.b = 0.24f, bg.a = 1.0f;
 
     // Enter main game Loop:
     auto lastTick = std::chrono::high_resolution_clock::now();
     double frameSampleCount = 0.0;
     bool openGlDbgFlag = config["debug"]["opengl"];
+
+    n->enabled = false;
+    window->registerKeyCallback([n, window](int key, int scancode, int action, int mods){
+        if(key == GLFW_KEY_0 && action == GLFW_PRESS) {
+            n->enabled = !n->enabled;
+
+            if (n->enabled) {
+                window->showCurosor();
+            } else {
+                window->hideCursor();
+            }
+        }
+    });
 
 	while (window->isOpen()) {
 	    // Timing, delta from frames
@@ -112,6 +133,44 @@ int main(int argc, char *argv[]) {
             console->info("tick time: {}\t fps: {}", delta.count(), 1000.0/delta.count());
             frameSampleCount = 0;
         }
+
+        n->newFrame();
+        nk_begin(n->context(), "Test", nk_rect(50, 50, 230, 250),
+                 NK_WINDOW_BORDER | NK_WINDOW_MOVABLE | NK_WINDOW_TITLE);
+        {
+            auto ctx = n->context();
+
+            enum {
+                EASY, HARD
+            };
+            static int op = EASY;
+            static int property = 20;
+            nk_layout_row_static(ctx, 30, 80, 1);
+            if (nk_button_label(ctx, "button"))
+                fprintf(stdout, "button pressed\n");
+
+            nk_layout_row_dynamic(ctx, 30, 2);
+            if (nk_option_label(ctx, "easy", op == EASY)) op = EASY;
+            if (nk_option_label(ctx, "hard", op == HARD)) op = HARD;
+
+            nk_layout_row_dynamic(ctx, 25, 1);
+            nk_property_int(ctx, "Compression:", 0, &property, 100, 10, 1);
+
+            nk_layout_row_dynamic(ctx, 20, 1);
+            nk_label(ctx, "background:", NK_TEXT_LEFT);
+            nk_layout_row_dynamic(ctx, 25, 1);
+            if (nk_combo_begin_color(ctx, nk_rgb_cf(bg), nk_vec2(nk_widget_width(ctx), 400))) {
+                nk_layout_row_dynamic(ctx, 120, 1);
+                bg = nk_color_picker(ctx, bg, NK_RGBA);
+                nk_layout_row_dynamic(ctx, 25, 1);
+                bg.r = nk_propertyf(ctx, "#R:", 0, bg.r, 1.0f, 0.01f, 0.005f);
+                bg.g = nk_propertyf(ctx, "#G:", 0, bg.g, 1.0f, 0.01f, 0.005f);
+                bg.b = nk_propertyf(ctx, "#B:", 0, bg.b, 1.0f, 0.01f, 0.005f);
+                bg.a = nk_propertyf(ctx, "#A:", 0, bg.a, 1.0f, 0.01f, 0.005f);
+                nk_combo_end(ctx);
+            }
+        }
+        nk_end(n->context());
 
         // Finally render Window content:
         window->render(delta);

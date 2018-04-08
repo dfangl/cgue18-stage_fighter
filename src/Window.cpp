@@ -9,10 +9,12 @@
 #include <iostream>
 #include <glm/gtc/matrix_transform.hpp>
 
-typedef void (*framebuffer_size_callback)(GLFWwindow*,int,int);
-typedef void (*mouse_callback)(GLFWwindow*,double,double);
-typedef void (*error_callback)(int,const char *);
-typedef void (*key_callback)(GLFWwindow*,int,int,int,int);
+typedef void (*framebuffer_size_callback)(GLFWwindow *, int, int);
+typedef void (*mouse_callback)(GLFWwindow *, double, double);
+typedef void (*error_callback)(int, const char *);
+typedef void (*key_callback)(GLFWwindow *, int, int, int, int);
+typedef void (*scroll_callback)(GLFWwindow *, double, double);
+typedef void (*mbtn_callback)(GLFWwindow *, int, int, int);
 
 void APIENTRY glDebugOutput(GLenum source, GLenum type, GLuint id, GLenum severity,
                             GLsizei length, const GLchar *message, const void *userParam);
@@ -76,7 +78,8 @@ Window::Window(Camera &camera, int width, int height, const std::string &windowN
 
     // Do some black witchery because C++11 and C don't mix function pointer well
     {
-        Callback<void(GLFWwindow *, int, int)>::func = std::bind(&Window::glfwWindowSizeChanged, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
+        Callback<void(GLFWwindow *, int, int)>::func =
+                std::bind(&Window::glfwWindowSizeChanged, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
         auto framebufferCallbackFunc = static_cast<framebuffer_size_callback>(Callback<void(GLFWwindow*,int,int)>::callback);
 
         glfwSetFramebufferSizeCallback(this->glfwWindow, framebufferCallbackFunc);
@@ -99,12 +102,30 @@ Window::Window(Camera &camera, int width, int height, const std::string &windowN
         glfwSetKeyCallback(this->glfwWindow, keyCallbackFunc);
     }
 
+    /*
+    {
+        Callback<void(GLFWwindow*,double,double)>::func =
+                std::bind(&Window::glfwScrollCallback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
+        auto scrollCallbackFunc = static_cast<scroll_callback >(Callback<void(GLFWwindow*,double,double)>::callback);
+
+        glfwSetScrollCallback(this->glfwWindow, scrollCallbackFunc);
+    }
+     */
+
+    {
+        Callback<void(GLFWwindow*,int,int,int)>::func =
+                std::bind(&Window::glfwMouseButtonCallback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4);
+        auto mBtnCallback = static_cast<mbtn_callback >(Callback<void(GLFWwindow*,int,int,int)>::callback);
+
+        glfwSetMouseButtonCallback(this->glfwWindow, mBtnCallback);
+    }
+
     //Load GLAD Stuff:
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
         throw std::runtime_error("Failed to initialize GLAD");
     }
 
-    this->widgetProjectionMatrix = glm::ortho(0.0f, (float)width, 0.0f, (float)height);
+    this->widgetProjectionMatrix = glm::ortho(0.0f, (float)width, (float)height, 0.0f);
 }
 
 Window::~Window() {
@@ -271,6 +292,27 @@ void Window::removeWidget(const std::shared_ptr<Widget> &widget) {
             ),
             this->widgets.end()
     );
+}
+
+void Window::glfwMouseButtonCallback(GLFWwindow *window, int button, int action, int mods) {
+    // TODO: implement me
+    logger->info("Mouse Button: {}, action: {}", button, action);
+}
+
+void Window::glfwScrollCallback(GLFWwindow *window, double xoffset, double yoffset) {
+    // Some funny callback bug, filter out mouse events ...
+    if (xoffset > 2 || yoffset > 2)
+        return;
+
+    logger->info("Scroll: {}x{}", xoffset, yoffset);
+}
+
+void Window::setClipboardString(const char *text) const {
+    glfwSetClipboardString(this->glfwWindow, text);
+}
+
+const char *Window::getClipboardString() const {
+    return glfwGetClipboardString(this->glfwWindow);
 }
 
 void APIENTRY glDebugOutput(GLenum source,

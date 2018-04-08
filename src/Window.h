@@ -43,7 +43,8 @@ protected:
     void glfwMouseCallabck(GLFWwindow* window, double xpos, double ypos);
     void glfwErrorCallabck(int code, const char *text);
     void glfwKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
-    //void glfwScrollCallbakc(GLFWwindow* window, double xoffset, double yoffset);
+    void glfwMouseButtonCallback(GLFWwindow *window, int button, int action, int mods);
+    void glfwScrollCallback(GLFWwindow* window, double xoffset, double yoffset);
 
 public:
     /**
@@ -71,6 +72,7 @@ public:
 
     int registerMouseCallback(std::function<void(double,double)> callback);
     int registerKeyCallback(std::function<void(int, int, int, int)> callback);
+
     int registerKeyPollingCallback(std::function<void(Window const *)> callback);
     void removeKeyPollingCallback(int callback);
 
@@ -84,8 +86,13 @@ public:
     void processCameraKeyMovment(bool locked) { this->cameraKey = locked; }
 
     inline int getKey(int keycode) const { return glfwGetKey(this->glfwWindow, keycode); }
+    inline int getMouseButton(int btn) const { return glfwGetMouseButton(this->glfwWindow, btn); }
     inline Camera &getCamera() const { return this->camera; }
 
+    inline GLFWwindow *getGlfwWindow() const { return this->glfwWindow; }
+
+    void setClipboardString(const char *text) const;
+    const char *getClipboardString() const;
 };
 
 

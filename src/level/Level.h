@@ -55,7 +55,6 @@ public:
 
     void hide();
     void show();
-
 };
 
 

@@ -1,0 +1,72 @@
+//
+// Created by Raphael on 08.04.2018.
+//
+
+#ifndef STAGE_FIGHTER_NUKLEARCTX_H
+#define STAGE_FIGHTER_NUKLEARCTX_H
+
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+
+#include <glm/glm.hpp>
+
+#include <string>
+#include <vector>
+#include <memory>
+
+#define NK_INCLUDE_FIXED_TYPES
+#define NK_INCLUDE_STANDARD_IO
+#define NK_INCLUDE_STANDARD_VARARGS
+#define NK_INCLUDE_DEFAULT_ALLOCATOR
+#define NK_INCLUDE_VERTEX_BUFFER_OUTPUT
+#define NK_INCLUDE_FONT_BAKING
+#define NK_INCLUDE_DEFAULT_FONT
+#include <nuklear.h>
+
+#include "../Window.h"
+#include "Widget.h"
+
+#define MAX_VERTEX_BUFFER (512 * 1024)
+#define MAX_ELEMENT_BUFFER (128 * 1024)
+
+class NuklearContext : public Widget {
+
+private:
+    struct nk_glfw_vertex {
+        float position[2];
+        float uv[2];
+        nk_byte col[4];
+    };
+
+    GLuint vbo, vao, ebo;
+    GLuint font_tex;
+
+    struct nk_context ctx;
+    struct nk_buffer cmds;
+    struct nk_draw_null_texture null;
+    struct nk_font_atlas atlas;
+
+    Window *win;
+
+    std::vector<char> text;
+    std::shared_ptr<Shader> shader;
+
+protected:
+    void nkHandlePaste(nk_handle usr, struct nk_text_edit *edit);
+    void nkHandleCopy(nk_handle usr, const char *text, int len);
+
+public:
+    explicit NuklearContext(Window *window);
+    ~NuklearContext();
+
+    void newFrame();
+    void render(const glm::mat4 &projection) override;
+
+    void resize(float x, float y) override;
+
+    struct nk_context *context() { return &this->ctx; }
+
+    bool enabled = true;
+};
+
+#endif //STAGE_FIGHTER_NUKLEARCTX_H
