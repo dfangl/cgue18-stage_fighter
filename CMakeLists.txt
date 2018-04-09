@@ -167,22 +167,22 @@ include_directories(${GLM_INCLUDE_DIRS})
 link_directories(${GLM_LIBRARY_DIRS})
 
 ## Kaguya ##
-if(UNIX)
-	find_package(PkgConfig REQUIRED)
-    pkg_search_module(LUA REQUIRED lua5.3 lua-5.3 lua53)
+#if(UNIX)
+#	find_package(PkgConfig REQUIRED)
+#    pkg_search_module(LUA REQUIRED lua5.3 lua-5.3 lua53)
 #    message(STATUS "LUA_FOUND: ${LUA_FOUND}")
 #    set(LUA_FOUND ON)
+#
+#	if(LUA_FOUND)
+#		message(STATUS "Lua was found by pkg-config: '${LUA_INCLUDE_DIRS}'")
+#		if(LUA_INCLUDE_DIRS STREQUAL "")
+#			message(STATUS "Assume that lua.h is in /usr/include")
+#			set(LUA_INCLUDE_DIRS "/usr/include")
+#		endif()
+#	endif()
+#endif()
 
-	if(LUA_FOUND)
-		message(STATUS "Lua was found by pkg-config: '${LUA_INCLUDE_DIRS}'")
-		if(LUA_INCLUDE_DIRS STREQUAL "")
-			message(STATUS "Assume that lua.h is in /usr/include")
-			set(LUA_INCLUDE_DIRS "/usr/include")
-		endif()
-	endif()
-endif()
-
-if(NOT LUA_FOUND)
+#if(NOT LUA_FOUND)
 	message(STATUS "Using lua in ${EXTERN}/lua")
 	
 	file(GLOB LUA_SOURCES "${EXTERN}/lua/*.c")
@@ -194,7 +194,7 @@ if(NOT LUA_FOUND)
 	set(LUA_LIBRARIES lualib)
 	
 	include_directories(${LOCAL_LUA_DIRECTORY})
-endif()
+#endif()
 
 set(KAGUYA_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 set(KAGUYA_BUILD_BENCHMARK OFF CACHE BOOL "" FORCE)
@@ -220,7 +220,9 @@ include_directories(${EXTERN}/tinygltf)
 
 ## freetype2 ##
 if (UNIX)
-    find_package("freetype2")
+	find_package(PkgConfig REQUIRED)
+	pkg_search_module(FREETYPE REQUIRED freetype2)
+    #find_package("freetype2")
 endif()
 
 if (NOT FREETYPE_FOUND)
