@@ -50,20 +50,20 @@ void Label::render(const glm::mat4 &projection) {
         Font::Character ch = font->get((unsigned long) *c);
 
         GLfloat xpos = x + ch.bearing.x * scale;
-        GLfloat ypos = y - (ch.size.y - ch.bearing.y) * scale;
+        GLfloat ypos = y + (ch.size.y - ch.bearing.y) * scale;
 
         GLfloat w = ch.size.x * scale;
         GLfloat h = ch.size.y * scale;
 
         // Update VBO for each character
         GLfloat vertices[6][4] = {
-                { xpos,     ypos + h,   0.0, 0.0 },
+                { xpos,     ypos - h,   0.0, 0.0 },
                 { xpos,     ypos,       0.0, 1.0 },
                 { xpos + w, ypos,       1.0, 1.0 },
 
-                { xpos,     ypos + h,   0.0, 0.0 },
+                { xpos,     ypos - h,   0.0, 0.0 },
                 { xpos + w, ypos,       1.0, 1.0 },
-                { xpos + w, ypos + h,   1.0, 0.0 }
+                { xpos + w, ypos - h,   1.0, 0.0 }
         };
 
         // Render glyph texture over quad
