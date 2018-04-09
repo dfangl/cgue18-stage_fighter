@@ -120,6 +120,10 @@ void NuklearContext::render(const glm::mat4 &projection) {
         return;
     }
 
+    for (auto &w : this->widgets) {
+        w->render();
+    }
+
     struct nk_buffer vbuf, ebuf;
     const struct nk_draw_command *cmd;
     const nk_draw_index *offset = nullptr;
@@ -200,7 +204,9 @@ void NuklearContext::render(const glm::mat4 &projection) {
 }
 
 void NuklearContext::resize(float x, float y) {
-
+    for (auto &w : this->widgets) {
+        w->resize(x, y);
+    }
 }
 
 void NuklearContext::newFrame() {
@@ -218,4 +224,8 @@ void NuklearContext::newFrame() {
     nk_input_button(&ctx, NK_BUTTON_RIGHT, (int)x, (int)y, glfwGetMouseButton(win->getGlfwWindow(), GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS);
 
     nk_input_end(&ctx);
+}
+
+void NuklearContext::add(std::shared_ptr<NuklearWidget> widget) {
+    widgets.push_back(widget);
 }

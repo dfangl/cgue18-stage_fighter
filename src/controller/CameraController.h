@@ -27,6 +27,7 @@ private:
 
     float jump = 0.0f;
     bool canJump = false;
+    bool enabled = true;
 
     std::shared_ptr<BulletUniverse> world;
     std::function<void(Window const *)> keyboardCallback;
@@ -41,10 +42,11 @@ public:
 
     virtual ~CameraEntity();
 
-
-    bool enabled = false;
     float entitySpeed = 7.0f;
     float jumpSpeed = 14.0f;
+
+    void enable();
+    void disable();
 
     void setEntityPosition(const glm::vec3 &vec, const glm::quat &rot) override;
     void lookAt(const glm::vec3 &obj);

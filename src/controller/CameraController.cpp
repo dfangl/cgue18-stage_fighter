@@ -43,7 +43,7 @@ void CameraEntity::think(std::chrono::duration<double, std::milli> delta) {
 
     auto bT = this->getTransformation();
     auto o = bT.getOrigin();
-    this->camera.update(glm::vec3(o.x(), o.y()+0.5, o.z()+0.5));
+    this->camera.update(glm::vec3(o.x(), o.y()+0.5, o.z()));
 
     float zVelocity = 0.0f;
     float xVelocity = 0.0f;
@@ -89,4 +89,14 @@ void CameraEntity::collideWith(BulletObject *other) {
         return;
 
     spdlog::get("console")->info("Collided with: {}", other->getKind());
+}
+
+void CameraEntity::enable() {
+    this->enabled = true;
+    this->camera.enableUpdate = true;
+}
+
+void CameraEntity::disable() {
+    this->enabled = false;
+    this->camera.enableUpdate = false;
 }

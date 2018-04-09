@@ -42,6 +42,9 @@ void Camera::screenSizeChanged(int width, int height) {
 }
 
 void Camera::processKeyInput(std::chrono::duration<double, std::milli> delta, Camera::Movement movement) {
+    if (!enableUpdate)
+        return;
+
     const auto velocity = static_cast<float>(this->keySensitivity * delta.count());
 
     switch(movement) {
@@ -54,6 +57,9 @@ void Camera::processKeyInput(std::chrono::duration<double, std::milli> delta, Ca
 }
 
 void Camera::processMouseInput(std::chrono::duration<double, std::milli> delta, double xDelta, double yDelta) {
+    if (!enableUpdate)
+        return;
+
     this->yaw   += xDelta * mouseSensitivity;
     this->pitch -= yDelta * mouseSensitivity;
 

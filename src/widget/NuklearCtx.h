@@ -29,6 +29,12 @@
 #define MAX_VERTEX_BUFFER (512 * 1024)
 #define MAX_ELEMENT_BUFFER (128 * 1024)
 
+class NuklearWidget {
+public:
+    virtual void render() = 0;
+    virtual void resize(float x, float y) = 0;
+};
+
 class NuklearContext : public Widget {
 
 private:
@@ -51,6 +57,8 @@ private:
     std::vector<char> text;
     std::shared_ptr<Shader> shader;
 
+    std::vector<std::shared_ptr<NuklearWidget>> widgets;
+
 protected:
     void nkHandlePaste(nk_handle usr, struct nk_text_edit *edit);
     void nkHandleCopy(nk_handle usr, const char *text, int len);
@@ -64,7 +72,10 @@ public:
 
     void resize(float x, float y) override;
 
+    void add(std::shared_ptr<NuklearWidget> widget);
+
     struct nk_context *context() { return &this->ctx; }
+    Window *window() { return this->win; }
 
     bool enabled = true;
 };

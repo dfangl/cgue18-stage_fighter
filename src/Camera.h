@@ -46,6 +46,7 @@ public:
 
     float mouseSensitivity = 0.1f;
     float keySensitivity = 0.1f;
+    bool enableUpdate = true;
 
     void update(const glm::vec3 position);
     void lookAt(const glm::vec3 &object);

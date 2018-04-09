@@ -91,6 +91,11 @@ void Level::destroy() {
 }
 
 void Level::tick(std::chrono::duration<double, std::milli> delta) {
+    if (paused)
+        return;
+
+    world->simulate(delta);
+
     for (auto &entity : this->entities) {
         entity->think(delta);
     }
@@ -103,13 +108,23 @@ void Level::resetEnvironment() {
 }
 
 void Level::hide() {
-    player->enabled = false;
+    pause();
     for (auto &entity : this->entities) this->window->removeObject(entity);
     for (auto &obj    : this->statics ) this->window->removeObject(obj);
 }
 
 void Level::show() {
-    player->enabled = true;
+    resume();
     for (auto &entity : this->entities) this->window->addObject3D(entity);
     for (auto &obj    : this->statics ) this->window->addObject3D(obj);
+}
+
+void Level::pause() {
+    player->disable();
+    paused = true;
+}
+
+void Level::resume() {
+    player->enable();
+    paused = false;
 }

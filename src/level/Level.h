@@ -44,6 +44,8 @@ private:
     const std::shared_ptr<BulletUniverse> world;
     Window *window;
 
+    bool paused = false;
+
 public:
     Level(const std::string &file, const std::shared_ptr<BulletUniverse> &world);
 
@@ -55,6 +57,9 @@ public:
 
     void hide();
     void show();
+
+    void pause();
+    void resume();
 };
 
 
