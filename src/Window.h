@@ -20,6 +20,7 @@ class Window : public Logger {
 
 private:
     GLFWwindow* glfwWindow;
+    GLFWmonitor* monitor;
     int width, height;
 
     std::vector<std::function<void(double, double)>> mouseCallbacks;
@@ -54,7 +55,7 @@ public:
     * @param windowName the name of the window
     * @param fullscreen true if fullscreen mode is desired
     */
-    Window(Camera &camera, int width, int height, const std::string &windowName, bool fullscreen = false, int refreshRate = GLFW_DONT_CARE);
+    Window(Camera &camera, int width, int height, const std::string &windowName, int fullscreen = -1, int refreshRate = GLFW_DONT_CARE);
     ~Window();
 
     void setVSync(bool enabled);
@@ -93,6 +94,9 @@ public:
 
     void setClipboardString(const char *text) const;
     const char *getClipboardString() const;
+
+    void setGamma(float gamma);
+    bool canSetGamma() const { return monitor != nullptr; }
 };
 
 

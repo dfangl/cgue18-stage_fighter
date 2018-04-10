@@ -2,10 +2,13 @@ window = {
     width=1280,
     height=1024,
     vsync=true,
-    fullscreen=false,
 
-    -- 0 == Default Monitor
-    refreshRate=0
+    -- -1 == false, 0 == primary
+    fullscreen=-1,
+
+    -- -1 == Monitor Default
+    refreshRate=-1,
+    gamma=1.0
 }
 
 camera = {

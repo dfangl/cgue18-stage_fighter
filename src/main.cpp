@@ -61,6 +61,11 @@ int main(int argc, char *argv[]) {
 
 	// Configure Window Stuff:
     window->setVSync(config["window"]["vsync"]);
+    if (window->canSetGamma()) {
+        window->setGamma(config["window"]["gamma"]);
+    } else if (config["window"]["gamma"].get<float>() != 1.0) {
+        console->critical("Can not set gamma value in windowed mode!");
+    }
 
     // Create Bullet World and load the Test level:
 	auto world = std::make_shared<BulletUniverse>(btVector3(0,-9.81f,0));

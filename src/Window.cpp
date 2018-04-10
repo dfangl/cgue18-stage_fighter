@@ -19,7 +19,7 @@ typedef void (*mbtn_callback)(GLFWwindow *, int, int, int);
 void APIENTRY glDebugOutput(GLenum source, GLenum type, GLuint id, GLenum severity,
                             GLsizei length, const GLchar *message, const void *userParam);
 
-Window::Window(Camera &camera, int width, int height, const std::string &windowName, bool fullscreen, int refreshRate)
+Window::Window(Camera &camera, int width, int height, const std::string &windowName, int fullscreen, int refreshRate)
         : Logger("Window"), camera(camera) {
     this->height = height;
     this->width = width;
@@ -58,15 +58,35 @@ Window::Window(Camera &camera, int width, int height, const std::string &windowN
     }
      */
 
-    GLFWmonitor *monitor = nullptr;
-    if(fullscreen) {
-        monitor = glfwGetPrimaryMonitor();
 
-        // Ignored in Window mode
-        glfwWindowHint(GLFW_REFRESH_RATE, refreshRate);
+    int mcount;
+    GLFWmonitor** monitors = glfwGetMonitors(&mcount);
+    if (fullscreen > mcount) {
+        logger->critical("Not enough Monitors connected to open at Monitor: {}", fullscreen);
+        fullscreen = -1;
+    }
+
+    monitor = fullscreen > - 1 ? monitors[fullscreen] : nullptr;
+
+    // Enumerate Modes:
+    {
+        for (int mi=0; mi<mcount; mi++) {
+            int count;
+            const GLFWvidmode* modes = glfwGetVideoModes(monitors[mi], &count);
+            logger->info("Monitor: {}", glfwGetMonitorName(monitors[mi]));
+
+            for (int i=0; i<count; i++) {
+                logger->info("\tMode: {}x{} @ {}Hz, ({},{},{})", modes[i].width, modes[i].height, modes[i].refreshRate,
+                             modes[i].redBits, modes[i].greenBits, modes[i].blueBits);
+            }
+        }
+
     }
 
     glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
+    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+    glfwWindowHint(GLFW_REFRESH_RATE, refreshRate);
+
     this->glfwWindow = glfwCreateWindow(width, height, windowName.c_str(), monitor, nullptr);
     if (this->glfwWindow == nullptr) {
         glfwTerminate();
@@ -153,7 +173,7 @@ void Window::glfwWindowSizeChanged(GLFWwindow* window,int width, int height) {
 
     // Resize Camera and such stuff:
     this->camera.screenSizeChanged(width, height);
-    this->widgetProjectionMatrix = glm::ortho(0.0f, (float)width, 0.0f, (float)height);
+    this->widgetProjectionMatrix = glm::ortho(0.0f, (float)width, (float)height, 0.0f);
 
     // Resize widgets
     for( auto &w : this->widgets) {
@@ -313,6 +333,11 @@ void Window::setClipboardString(const char *text) const {
 
 const char *Window::getClipboardString() const {
     return glfwGetClipboardString(this->glfwWindow);
+}
+
+void Window::setGamma(float gamma) {
+    logger->info("Setting Gamma to {}", gamma);
+    glfwSetGamma(this->monitor, gamma);
 }
 
 void APIENTRY glDebugOutput(GLenum source,
