@@ -1,6 +1,6 @@
 window = {
     width=1280,
-    height=1024,
+    height=768,
     vsync=true,
 
     -- -1 == false, 0 == primary
@@ -16,6 +16,6 @@ camera = {
 }
 
 debug = {
-    bullet=true,
+    bullet=false,
     opengl=true
 }

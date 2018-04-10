@@ -7,6 +7,7 @@
 
 #include "Camera.h"
 
+#define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -18,6 +19,9 @@ Camera::Camera(glm::vec3 position, glm::vec3 up, float yaw, float pitch, float f
     this->yaw = yaw;
     this->pitch = pitch;
     this->fov = fov;
+
+    this->zNear = zNear;
+    this->zFar = zFar;
 
     this->projectionMatrix = glm::perspective(glm::radians(fov), width/height, zNear, zFar);
     this->update();
@@ -39,6 +43,7 @@ void Camera::update() {
 
 void Camera::screenSizeChanged(int width, int height) {
     this->projectionMatrix = glm::perspective(glm::radians(this->fov), (float)width/(float)height, zNear, zFar);
+    this->update();
 }
 
 void Camera::processKeyInput(std::chrono::duration<double, std::milli> delta, Camera::Movement movement) {

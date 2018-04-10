@@ -84,8 +84,9 @@ Window::Window(Camera &camera, int width, int height, const std::string &windowN
     }
 
     glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
-    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+    //glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
     glfwWindowHint(GLFW_REFRESH_RATE, refreshRate);
+    glfwWindowHint(GLFW_DECORATED, fullscreen == -1 ? GLFW_TRUE : GLFW_FALSE);
 
     this->glfwWindow = glfwCreateWindow(width, height, windowName.c_str(), monitor, nullptr);
     if (this->glfwWindow == nullptr) {
@@ -168,9 +169,6 @@ void Window::glfwWindowSizeChanged(GLFWwindow* window,int width, int height) {
 
     logger->info("Resizing window to {}x{}", width, height);
 
-    // Resize OpenGL Viewport to new Window Size
-    glViewport(0, 0, width, height);
-
     // Resize Camera and such stuff:
     this->camera.screenSizeChanged(width, height);
     this->widgetProjectionMatrix = glm::ortho(0.0f, (float)width, (float)height, 0.0f);
@@ -179,6 +177,9 @@ void Window::glfwWindowSizeChanged(GLFWwindow* window,int width, int height) {
     for( auto &w : this->widgets) {
         w->resize(width, height);
     }
+
+    // Resize OpenGL Viewport to new Window Size
+    glViewport(0, 0, width, height);
 }
 
 void Window::glfwMouseCallabck(GLFWwindow* window, double xpos, double ypos) {
