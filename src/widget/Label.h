@@ -23,11 +23,10 @@ private:
     std::string text;
     float x,y,scale;
     std::shared_ptr<Font> font;
-
     std::shared_ptr<Shader> shader;
 
 public:
-    Label(std::string &text, std::shared_ptr<Font> font, float x, float y, float scale, glm::vec3 color);
+    Label(std::string text, std::shared_ptr<Font> font, float x, float y, float scale, glm::vec3 color);
     virtual ~Label();
 
     void render(const glm::mat4 &projection) override;
@@ -35,6 +34,7 @@ public:
 
     float getWidth();
     void setPosition(float x, float y);
+    void setText(std::basic_string<char> text);
 
 };
 

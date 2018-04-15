@@ -8,6 +8,7 @@
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 
+#include <memory>
 #include <map>
 
 #include <ft2build.h>
@@ -30,10 +31,13 @@ public:
     void preload(std::string chars);
     void preload(int start, int end);*/
 
-    void setSize(unsigned int size);
+    std::shared_ptr<Font> setSize(unsigned int size);
     Character &get(unsigned long c);
 
+    int getSize() { return s; }
+
 private:
+    int s;
     FT_Face face;
     std::map<unsigned long, Character> characters;
 

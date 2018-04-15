@@ -7,7 +7,7 @@
 
 #include <utility>
 
-Label::Label(std::string &text, std::shared_ptr<Font> font, float x, float y, float scale, glm::vec3 color)
+Label::Label(std::string text, std::shared_ptr<Font> font, float x, float y, float scale, glm::vec3 color)
         : color(color), x(x), y(y), scale(scale), font(std::move(font)), text(text) {
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
@@ -105,3 +105,7 @@ void Label::setPosition(float x, float y) {
 }
 
 void Label::resize(float x, float y) {}
+
+void Label::setText(std::string text) {
+    this->text = text;
+}

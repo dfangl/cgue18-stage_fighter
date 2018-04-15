@@ -4,9 +4,9 @@
 
 #include "Font.h"
 
-Font::Font(FT_Face &_face, unsigned int size) {
+Font::Font(FT_Face &_face, unsigned int size) : s(size) {
     this->face = _face;
-    this->setSize(size);
+    FT_Set_Pixel_Sizes(face, 0, size);
 }
 
 Font::~Font() {
@@ -68,7 +68,6 @@ Font::Character &Font::get(unsigned long c) {
     return (*elem).second;
 }
 
-void Font::setSize(unsigned int size) {
-    FT_Set_Pixel_Sizes(face, 0, size);
-    characters.clear();
+std::shared_ptr<Font> Font::setSize(unsigned int size) {
+    return std::make_shared<Font>(this->face, size);
 }

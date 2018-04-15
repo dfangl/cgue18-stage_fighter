@@ -29,6 +29,7 @@ public:
 
     static std::shared_ptr<Font> load(const std::string &name);
     static void store(const std::string &name, FT_Face &font);
+    static void store(const std::string &name, std::shared_ptr<Font> font);
 };
 
 

@@ -45,3 +45,7 @@ std::shared_ptr<Font> FontManager::load(const std::string &name) {
 void FontManager::store(const std::string &name, FT_Face &font) {
     fonts[name] = std::make_shared<Font>(font);
 }
+
+void FontManager::store(const std::string &name, std::shared_ptr<Font> font) {
+    fonts[name] = font;
+}

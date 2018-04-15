@@ -24,6 +24,7 @@
 #include "widget/Label.h"
 #include "widget/NuklearCtx.h"
 #include "widget/GameMenu.h"
+#include "widget/PlayerHud.h"
 
 #include <kaguya/kaguya.hpp>
 #include <spdlog/spdlog.h>
@@ -84,11 +85,11 @@ int main(int argc, char *argv[]) {
     window->processCameraKeyMovment(false);
     window->hideCursor();
 
-    FontManager::load("Lato-Regular")->setSize(48);
-    auto t = std::string("Stage Figther");
-    auto text = std::make_shared<Label>(t, FontManager::load("Lato-Regular"), 0.0f, 25.0f, 1.0f, glm::vec3(1.0f, 1.0f, 1.0f));
-    text->setPosition(window->getWidth()/2.0f-text->getWidth()/2.0f, 52.0f);
-    window->addWidget(text);
+    auto font = FontManager::load("Lato-Regular")->setSize(24);
+    FontManager::store("Lato-24", font);
+
+    auto hud = std::make_shared<PlayerHud>(font, window->getWidth(), window->getHeight());
+    window->addWidget(hud);
 
     // Nuklear Test:
     auto n = std::make_shared<NuklearContext>(window);
@@ -152,7 +153,6 @@ int main(int argc, char *argv[]) {
 	// Destroy all the Stuff we created:
 	level->destroy();
     window->showCurosor();
-    window->removeWidget(text);
 	delete window;
 
     ShaderManager::destroy();

@@ -74,6 +74,23 @@ void CameraEntity::think(std::chrono::duration<double, std::milli> delta) {
     }
 
     rigidBody->setLinearVelocity(speed.rotate(bulletMovementVector, btRadians(-camera.getYaw())));
+
+    // TODO: maybe use a Ghost Object from Bullet?
+    // Enemy view vector:
+    {
+        auto cFront = camera.getFront();
+        auto end = btVector3(o.x() + cFront.x * 10, o.y() + cFront.y * 10, o.z() + cFront.z * 10);
+        auto &start = o;
+        btCollisionWorld::ClosestRayResultCallback rayCallback(start, end);
+        world->rayTest(start, end, rayCallback);
+
+        if (rayCallback.hasHit()) {
+            auto *obj = static_cast<BulletObject *>(rayCallback.m_collisionObject->getUserPointer());
+
+            if (obj->getKind() != 3)
+                spdlog::get("console")->info("Looking at: {}", obj->getKind());
+        }
+    }
 }
 
 CameraEntity::~CameraEntity() {
