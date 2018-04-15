@@ -25,6 +25,7 @@ private:
 
     glm::mat4 viewMatrix;
     glm::mat4 projectionMatrix;
+    glm::vec4 viewport;
 
     void update();
 
@@ -50,6 +51,8 @@ public:
 
     void update(const glm::vec3 position);
     void lookAt(const glm::vec3 &object);
+
+    glm::vec3 project(const glm::vec3 &object) const;
 
     glm::vec3 getPosition() const { return this->position; }
     glm::vec3 getFront() const { return this->front; }

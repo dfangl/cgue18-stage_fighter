@@ -35,6 +35,10 @@ public:
     virtual void translate(const glm::vec3 &vec);
     virtual void setOrigin(const glm::vec3 &vec);
 
+    glm::mat4 getModelMatrix() const {
+        return this->model;
+    }
+
 };
 
 

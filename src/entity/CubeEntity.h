@@ -22,7 +22,7 @@ public:
 
     void setEntityPosition(const glm::vec3 &vec, const glm::quat &rot) override;
 
-    virtual void render(const Camera &camera);
+    void render(const Camera &camera) override;
 };
 
 

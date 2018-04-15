@@ -24,6 +24,7 @@ Camera::Camera(glm::vec3 position, glm::vec3 up, float yaw, float pitch, float f
     this->zFar = zFar;
 
     this->projectionMatrix = glm::perspective(glm::radians(fov), width/height, zNear, zFar);
+    this->viewport = glm::vec4(0,0, width, height);
     this->update();
 }
 
@@ -43,6 +44,7 @@ void Camera::update() {
 
 void Camera::screenSizeChanged(int width, int height) {
     this->projectionMatrix = glm::perspective(glm::radians(this->fov), (float)width/(float)height, zNear, zFar);
+    this->viewport = glm::vec4(0,0, width, height);
     this->update();
 }
 
@@ -89,4 +91,8 @@ void Camera::lookAt(const glm::vec3 &object) {
 
     this->pitch = static_cast<float>(M_PI * asinf(direction.y));
     this->yaw = static_cast<float>(M_PI * atan2f(direction.x, direction.z));
+}
+
+glm::vec3 Camera::project(const glm::vec3 &obj) const {
+    return glm::project(obj, viewMatrix, projectionMatrix, viewport);
 }

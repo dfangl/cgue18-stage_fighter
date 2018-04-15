@@ -33,6 +33,6 @@ objects = {
 }
 
 entities = {
-    CubeEntity("green.jpg", vec3(0,2,0)),
-    CubeEntity("red.jpg", vec3(2,7,2))
+    CubeEntity("green.jpg", vec3(-1,-47.5088,-1)),
+--    CubeEntity("red.jpg", vec3(2,7,2))
 }

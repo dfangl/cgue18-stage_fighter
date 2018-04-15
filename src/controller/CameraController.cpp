@@ -77,6 +77,7 @@ void CameraEntity::think(std::chrono::duration<double, std::milli> delta) {
 
     // TODO: maybe use a Ghost Object from Bullet?
     // Enemy view vector:
+    /*
     {
         auto cFront = camera.getFront();
         auto end = btVector3(o.x() + cFront.x * 10, o.y() + cFront.y * 10, o.z() + cFront.z * 10);
@@ -91,6 +92,7 @@ void CameraEntity::think(std::chrono::duration<double, std::milli> delta) {
                 spdlog::get("console")->info("Looking at: {}", obj->getKind());
         }
     }
+    */
 }
 
 CameraEntity::~CameraEntity() {
@@ -116,4 +118,10 @@ void CameraEntity::enable() {
 void CameraEntity::disable() {
     this->enabled = false;
     this->camera.enableUpdate = false;
+}
+
+glm::vec3 CameraEntity::isInView(const Entity *object) {
+
+
+    return camera.project(object->getEntityPosition());
 }

@@ -12,10 +12,14 @@
 
 class Entity : public Object3DAbstract {
 
+protected:
+    glm::vec3 position;
+
 public:
     virtual ~Entity() = default;
 
     virtual void setEntityPosition(const glm::vec3 &vec, const glm::quat &rot) = 0;
+    virtual glm::vec3 getEntityPosition() const { return position; }
     virtual void think(std::chrono::duration<double, std::milli> delta) = 0;
 
     virtual void render(const Camera &camera) = 0;

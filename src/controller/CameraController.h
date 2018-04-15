@@ -58,7 +58,9 @@ public:
     void collideWith(BulletObject *other) override;
 
 
-    virtual void render(const Camera &camera){}
+    void render(const Camera &camera) override {}
+
+    glm::vec3 isInView(const Entity *entity);
 
     glm::vec3 getPosition() const {
         return this->camera.getPosition();

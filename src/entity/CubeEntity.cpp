@@ -26,7 +26,8 @@ void CubeEntity::think(std::chrono::duration<double, std::milli> delta) {
     btTransform bT = this->getTransformation();
 
     auto origin = bT.getOrigin();
-    Cube::setOrigin(glm::vec3(origin.x(), origin.y(), origin.z()));
+    this->position = glm::vec3(origin.x(), origin.y(), origin.z());
+    Cube::setOrigin(position);
 
     auto rotation = bT.getRotation();
     Cube::rotate(glm::quat(
@@ -38,6 +39,8 @@ void CubeEntity::think(std::chrono::duration<double, std::milli> delta) {
 }
 
 void CubeEntity::setEntityPosition(const glm::vec3 &vec, const glm::quat &rot) {
+    this->position = vec;
+
     Cube::setOrigin(vec);
     BulletObject::setOrigin(btVector3(vec.x,vec.y,vec.z));
 

@@ -98,6 +98,16 @@ void Level::tick(std::chrono::duration<double, std::milli> delta) {
 
     for (auto &entity : this->entities) {
         entity->think(delta);
+
+        // Only do for hitable enemies:
+        glm::vec3 distance = glm::abs(player->getPosition() - entity->getEntityPosition());
+        if (distance.x+distance.y+distance.z < 25.0f) {
+            auto p = player->isInView(entity.get());
+            if (p.x > 1280/2-1280/4 && p.x < 1280/2+1280/4 &&
+                p.y > 720/2-720/4 && p.y < 720/2+720/4 ) {
+                logger->info("Entity in view: {},{},{}\t{}", p.x, p.y, p.z, distance.x+distance.y+distance.z);
+            }
+        }
     }
 
     player->think(delta);
