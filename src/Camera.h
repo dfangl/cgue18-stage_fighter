@@ -44,6 +44,7 @@ public:
 
     glm::mat4 getViewMatrix() const { return this->viewMatrix; }
     glm::mat4 getProjectionMatrix() const { return this->projectionMatrix; }
+    glm::vec4 getViewPort() const { return this->viewport; }
 
     float mouseSensitivity = 0.1f;
     float keySensitivity = 0.1f;

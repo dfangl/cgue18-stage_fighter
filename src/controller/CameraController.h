@@ -15,7 +15,6 @@
 class CameraEntity : public Entity, public BulletObject {
 
 private:
-    Camera &camera;
     btVector3 speed;
     float height = 0.9f * 2.0f; // Capsule height * 2 [radius]
     const float airTime = 500.0f; // in ms
@@ -34,6 +33,9 @@ private:
 
     static btVector3 bulletMovementVector;
 
+protected:
+    Camera &camera;
+
 public:
     explicit CameraEntity(Camera &camera,
                           std::shared_ptr<BulletUniverse> world,
@@ -49,6 +51,7 @@ public:
     void disable();
 
     void setEntityPosition(const glm::vec3 &vec, const glm::quat &rot) override;
+    glm::vec3 getEntityPosition() const override { return this->camera.getPosition(); }
     void lookAt(const glm::vec3 &obj);
 
     void think(std::chrono::duration<double, std::milli> delta) override;
@@ -62,9 +65,6 @@ public:
 
     glm::vec3 isInView(const Entity *entity);
 
-    glm::vec3 getPosition() const {
-        return this->camera.getPosition();
-    }
 };
 
 

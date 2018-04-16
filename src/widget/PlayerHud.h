@@ -5,6 +5,7 @@
 #ifndef STAGE_FIGHTER_PLAYERHUD_H
 #define STAGE_FIGHTER_PLAYERHUD_H
 
+#include <glm/glm.hpp>
 #include <string>
 #include <memory>
 
@@ -18,12 +19,17 @@ private:
 
     Label hLabel;
     Label sLabel;
+    Label eNameLabel;
 
     //Progressbar or so?
     Label hProgress;
     Label sProgress;
+    Label eHealth;
 
     Label plus;
+
+    int health,shield;
+    float height, width;
 
 public:
     PlayerHud(std::shared_ptr<Font> font, float width, float height);
@@ -33,6 +39,9 @@ public:
 
     void setHealth(int health);
     void setShield(int shield);
+    void setEnemy(std::string &name, int health, int maxHealth);
+
+    bool showEnemy = false;
 
 };
 

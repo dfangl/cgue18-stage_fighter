@@ -14,6 +14,9 @@ CubeEntity::CubeEntity(const glm::vec3 &pos, const std::shared_ptr<Texture> &tex
 
     this->world = world;
     this->kind = BulletObject::ENEMY;
+    this->name = "Cube";
+    this->health = 100;
+    this->maxHealth = 100;
 
     world->addRigidBody(this->getRigidBody());
 }

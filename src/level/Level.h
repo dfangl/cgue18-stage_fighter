@@ -25,6 +25,7 @@
 #include "../manager/ModelManager.h"
 #include "LuaClassWrapper.h"
 #include "../controller/CameraController.h"
+#include "../entity/Player.h"
 
 class Level : public Logger {
 
@@ -38,7 +39,7 @@ private:
     LuaVec3 cameraPos {0.0f, 0.0f, 0.0f};
     LuaVec3 lookAt {0.0f, 0.0f, 0.0f};
 
-    std::shared_ptr<CameraEntity> player;
+    std::shared_ptr<Player> player;
     int playerInputCallbackID;
 
     const std::shared_ptr<BulletUniverse> world;

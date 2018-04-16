@@ -50,6 +50,10 @@ int main(int argc, char *argv[]) {
     FontManager::build("../resources/fonts/");
     ModelManager::build("../resources/");
 
+    // Pre-load fonts
+    auto font = FontManager::load("Lato-Regular")->setSize(24);
+    FontManager::store("Lato-24", font);
+
     // Create Window and Camera system:
     Camera camera(glm::vec3(0.0f, 1.0f, 3.0f), glm::vec3(0.0f, 1.0f, 0.0f),
                   -90.0f, 0.0f,
@@ -85,18 +89,12 @@ int main(int argc, char *argv[]) {
     window->processCameraKeyMovment(false);
     window->hideCursor();
 
-    auto font = FontManager::load("Lato-Regular")->setSize(24);
-    FontManager::store("Lato-24", font);
-
-    auto hud = std::make_shared<PlayerHud>(font, window->getWidth(), window->getHeight());
-    window->addWidget(hud);
 
     // Nuklear Test:
     auto n = std::make_shared<NuklearContext>(window);
     auto gameMenu = std::make_shared<GameMenu>(n);
     n->add(gameMenu);
     window->addWidget(n);
-
 
     // Enter main game Loop:
     auto lastTick = std::chrono::high_resolution_clock::now();

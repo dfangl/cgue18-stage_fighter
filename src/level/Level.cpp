@@ -48,7 +48,7 @@ Level::Level(const std::string &file, const std::shared_ptr<BulletUniverse> &wor
 
 void Level::start(Camera &camera, Window *window) {
     this->window = window;
-    this->player = std::make_shared<CameraEntity>(camera, world);
+    this->player = std::make_shared<Player>(camera, world);
 
     player->entitySpeed = state["player"]["speed"];
     const LuaVec3 *pPosition = state["player"]["position"];
@@ -98,19 +98,10 @@ void Level::tick(std::chrono::duration<double, std::milli> delta) {
 
     for (auto &entity : this->entities) {
         entity->think(delta);
-
-        // Only do for hitable enemies:
-        glm::vec3 distance = glm::abs(player->getPosition() - entity->getEntityPosition());
-        if (distance.x+distance.y+distance.z < 25.0f) {
-            auto p = player->isInView(entity.get());
-            if (p.x > 1280/2-1280/4 && p.x < 1280/2+1280/4 &&
-                p.y > 720/2-720/4 && p.y < 720/2+720/4 ) {
-                logger->info("Entity in view: {},{},{}\t{}", p.x, p.y, p.z, distance.x+distance.y+distance.z);
-            }
-        }
     }
 
     player->think(delta);
+    player->computeEnemyInView(entities);
 }
 
 void Level::resetEnvironment() {
@@ -121,12 +112,16 @@ void Level::hide() {
     pause();
     for (auto &entity : this->entities) this->window->removeObject(entity);
     for (auto &obj    : this->statics ) this->window->removeObject(obj);
+
+    this->window->removeWidget(player->getHud());
 }
 
 void Level::show() {
     resume();
     for (auto &entity : this->entities) this->window->addObject3D(entity);
     for (auto &obj    : this->statics ) this->window->addObject3D(obj);
+
+    this->window->addWidget(player->getHud());
 }
 
 void Level::pause() {
