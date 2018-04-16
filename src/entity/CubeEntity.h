@@ -8,15 +8,20 @@
 #include "../object3d/Cube.h"
 #include "../object3d/BulletObject.h"
 #include "../BulletUniverse.h"
+
 #include "Entity.h"
 
 class CubeEntity : public Entity, public BulletObject, public Cube {
 
     std::shared_ptr<BulletUniverse> world;
+    float spawnSpeed = 2000; //ms
+    double lastSpawnTime = spawnSpeed;
 
 public:
     CubeEntity(const glm::vec3 &pos, const std::shared_ptr<Texture> &texture, std::shared_ptr<BulletUniverse> world);
     virtual ~CubeEntity();
+
+    void think(Level *level, std::chrono::duration<double, std::milli> delta) override;
 
     void think(std::chrono::duration<double, std::milli> delta) override;
 

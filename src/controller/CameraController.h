@@ -5,12 +5,13 @@
 #ifndef STAGE_FIGHTER_CAMERAENTITY_H
 #define STAGE_FIGHTER_CAMERAENTITY_H
 
-#include "../object3d/BulletObject.h"
-#include "../entity/Entity.h"
-#include "../entity/CubeEntity.h"
+#include <functional>
 #include "../Window.h"
 
-#include <functional>
+#include "../object3d/BulletObject.h"
+
+#include "../entity/Entity.h"
+#include "../entity/CubeEntity.h"
 
 class CameraEntity : public Entity, public BulletObject {
 

@@ -16,23 +16,35 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "../helper/Logger.h"
-#include "../entity/Entity.h"
+
 #include "../Camera.h"
 #include "../Window.h"
-#include "../entity/CubeEntity.h"
+
 #include "../manager/TextureManager.h"
-#include "../object3d/Model3DObject.h"
 #include "../manager/ModelManager.h"
-#include "LuaClassWrapper.h"
+
 #include "../controller/CameraController.h"
+
+#include "../entity/Entity.h"
+#include "../entity/CubeEntity.h"
 #include "../entity/Player.h"
 
+#include "../object3d/Model3DObject.h"
+
+#include "LuaClassWrapper.h"
+
 class Level : public Logger {
+
+public:
+    enum LevelState {
+        PLAYING, LOST, WON, PAUSED
+    };
 
 private:
     kaguya::State state;
 
     std::vector<std::shared_ptr<Entity>> entities;
+    std::vector<std::shared_ptr<Entity>> newEntities;
     std::vector<std::shared_ptr<Model3DObject>> statics;
     std::vector<std::shared_ptr<BulletObject>> bullet;
 
@@ -46,6 +58,7 @@ private:
     Window *window;
 
     bool paused = false;
+    LevelState levelState = PAUSED;
 
 public:
     Level(const std::string &file, const std::shared_ptr<BulletUniverse> &world);
@@ -61,6 +74,11 @@ public:
 
     void pause();
     void resume();
+
+    LevelState getLevelState() const { return this->levelState; }
+
+    void spawn(std::shared_ptr<Entity> entity);
+    std::shared_ptr<Player> getPlayer() const { return this->player; }
 };
 
 

@@ -96,16 +96,36 @@ void Level::tick(std::chrono::duration<double, std::milli> delta) {
 
     world->simulate(delta);
 
+    for(auto &n : newEntities) {
+        entities.push_back(n);
+    }
+    newEntities.clear();
+
+    int enemyH = 0;
     for (auto &entity : this->entities) {
-        entity->think(delta);
+        enemyH += entity->getHealth();
+        entity->think(this, delta);
     }
 
     player->think(delta);
     player->computeEnemyInView(entities);
+
+    if (enemyH <= 0) {
+        pause();
+        levelState = WON;
+        logger->info("You won!");
+    }
+
+    if (player->getHealth() < 0) {
+        pause();
+        levelState = LOST;
+        logger->info("You lost!");
+    }
 }
 
 void Level::resetEnvironment() {
     // TODO: reset positons and stuff
+    logger->critical("resetEnvironment is not implemented");
 }
 
 void Level::hide() {
@@ -132,4 +152,9 @@ void Level::pause() {
 void Level::resume() {
     player->enable();
     paused = false;
+}
+
+void Level::spawn(std::shared_ptr<Entity> entity) {
+    this->newEntities.push_back(entity);
+    this->window->addObject3D(entity);
 }

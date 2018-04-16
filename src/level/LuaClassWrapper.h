@@ -8,6 +8,8 @@
 #include <glm/glm.hpp>
 #include <btBulletCollisionCommon.h>
 
+#include "../entity/Entity.h"
+
 // ********************
 // ==== Glm Vectors ===
 // ********************

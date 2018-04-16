@@ -16,6 +16,6 @@ camera = {
 }
 
 debug = {
-    bullet=false,
+    bullet=true,
     opengl=true
 }
