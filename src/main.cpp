@@ -29,10 +29,6 @@
 #include <kaguya/kaguya.hpp>
 #include <spdlog/spdlog.h>
 
-// Needed for one time implementation, do NOT delete
-#define TINYGLTF_IMPLEMENTATION
-#include <tiny_gltf.h>
-
 int main(int argc, char *argv[]) {
     // Setup Logger:
     spdlog::set_async_mode(8192);
@@ -89,12 +85,14 @@ int main(int argc, char *argv[]) {
     window->processCameraKeyMovment(false);
     window->hideCursor();
 
+    auto fpsLabel = std::make_shared<Label>("00.000 FPS", FontManager::load("Lato-Regular"), 3.0f, 15.0f, 0.5f, glm::vec3(0.9f, 0.9f, 0.9f));
 
     // Nuklear Test:
     auto n = std::make_shared<NuklearContext>(window);
     auto gameMenu = std::make_shared<GameMenu>(n);
     n->add(gameMenu);
     window->addWidget(n);
+    window->addWidget(fpsLabel);
 
     // Enter main game Loop:
     auto lastTick = std::chrono::high_resolution_clock::now();
@@ -127,9 +125,10 @@ int main(int argc, char *argv[]) {
         if (bulletDbgFlag) world->drawDebug();
 
         // Process fps counter
-        // TODO: move into window class (?)
-        if ((frameSampleCount+=delta.count()) > 1000.0) {
-            console->info("tick time: {}\t fps: {}", delta.count(), 1000.0/delta.count());
+        if ((frameSampleCount+=delta.count()) > 250.0) {
+            char buffer[16];
+            int len = snprintf(buffer, 16, "%.4f FPS", 1000.0/delta.count());
+            fpsLabel->setText(std::string(buffer, buffer+len));
             frameSampleCount = 0;
         }
 

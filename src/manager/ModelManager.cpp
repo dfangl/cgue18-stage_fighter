@@ -2,9 +2,11 @@
 // Created by raphael on 19.03.18.
 //
 
-#include <tiny_gltf.h>
 #include <spdlog/spdlog.h>
 #include "ModelManager.h"
+
+#define TINYGLTF_IMPLEMENTATION
+#include <tiny_gltf.h>
 
 std::string ModelManager::root;
 std::map<std::string, std::shared_ptr<tinygltf::Model>> ModelManager::models;
