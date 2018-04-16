@@ -37,6 +37,7 @@ public:
     virtual int getHealth() const { return health; }
     virtual int getMaxHealth() const { return maxHealth; }
 
+    bool mustBeKilled = false;
 };
 
 

@@ -21,6 +21,7 @@ CubeEntity::CubeEntity(const glm::vec3 &pos, const std::shared_ptr<Texture> &tex
     this->name = "Cube";
     this->health = 100;
     this->maxHealth = 100;
+    this->mustBeKilled = true;
 
     world->addRigidBody(this->getRigidBody());
 }
@@ -89,7 +90,6 @@ void CubeEntity::think(Level *level, std::chrono::duration<double, std::milli> d
         auto origin = getTransformation().getOrigin();
         auto pPos = level->getPlayer()->getEntityPosition();
 
-        spdlog::get("console")->info("Spawn Bullet Entity");
         level->spawn(std::make_shared<BulletEntity>(origin, btVector3(pPos.x, pPos.y, pPos.z), world));
     }
 

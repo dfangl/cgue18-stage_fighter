@@ -45,6 +45,7 @@ private:
 
     std::vector<std::shared_ptr<Entity>> entities;
     std::vector<std::shared_ptr<Entity>> newEntities;
+    std::vector<Entity *> oldEntities;
     std::vector<std::shared_ptr<Model3DObject>> statics;
     std::vector<std::shared_ptr<BulletObject>> bullet;
 
@@ -78,6 +79,8 @@ public:
     LevelState getLevelState() const { return this->levelState; }
 
     void spawn(std::shared_ptr<Entity> entity);
+    void despawn(Entity *entity);
+
     std::shared_ptr<Player> getPlayer() const { return this->player; }
 };
 

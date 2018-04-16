@@ -96,14 +96,37 @@ void Level::tick(std::chrono::duration<double, std::milli> delta) {
 
     world->simulate(delta);
 
-    for(auto &n : newEntities) {
-        entities.push_back(n);
+    // Add and Remove Entities:
+    {
+        for (auto &entity : this->oldEntities)
+            this->entities.erase(
+                    std::remove_if(
+                            this->entities.begin(),
+                            this->entities.end(),
+                            [entity, this](std::shared_ptr<Entity> current) -> bool {
+                                bool r = current.get() == entity;
+                                if (r)
+                                    window->removeObject(current);
+
+                                return r;
+                            }
+                    ),
+                    this->entities.end()
+            );
+
+        for(auto &n : newEntities)
+            entities.push_back(n);
+
+
+        newEntities.clear();
+        oldEntities.clear();
     }
-    newEntities.clear();
 
     int enemyH = 0;
     for (auto &entity : this->entities) {
-        enemyH += entity->getHealth();
+        if (entity->mustBeKilled)
+            enemyH += entity->getHealth();
+
         entity->think(this, delta);
     }
 
@@ -157,4 +180,8 @@ void Level::resume() {
 void Level::spawn(std::shared_ptr<Entity> entity) {
     this->newEntities.push_back(entity);
     this->window->addObject3D(entity);
+}
+
+void Level::despawn(Entity *entity) {
+    this->oldEntities.push_back(entity);
 }
