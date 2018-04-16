@@ -53,13 +53,12 @@ Model3DObject::Model3DObject(const std::shared_ptr<tinygltf::Model> &model, cons
 
     // Load Textures
     for (auto &texture : gltfModel->textures) {
-        // TODO: Use TextureManager to mange textures smart ...
-        this->textures.emplace_back(gltfModel->images[texture.source], gltfModel->samplers[texture.sampler]);
+        this->textures.push_back(TextureManager::load(gltfModel->images[texture.source], gltfModel->samplers[texture.sampler]));
     }
 
     if (textures.empty()) {
         spdlog::get("console")->critical(".glft Model did not contain any textures, loading fallback one");
-        this->textures.push_back(*TextureManager::load("wall.jpg").get());
+        this->textures.push_back(TextureManager::load("wall.jpg"));
     }
 }
 
@@ -95,8 +94,11 @@ void Model3DObject::drawMesh(const tinygltf::Mesh &mesh) {
         }
 
         // Bind Texture (Error?)
-        auto &texture = this->textures[material.values["baseColorTexture"].TextureIndex()];
-        texture.bind(GL_TEXTURE0);
+        // baseColorTexture is not set every time (exporter fuckup?)
+        //const auto texId = material.values["baseColorTexture"].TextureIndex();
+        auto &texture = this->textures[0];
+        texture->bind(GL_TEXTURE0);
+
         shader->setUniform("texture_0", 0);
 
         glBindVertexArray(this->VAO);

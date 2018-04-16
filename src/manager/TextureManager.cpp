@@ -22,3 +22,11 @@ std::shared_ptr<Texture> TextureManager::load(const std::string &name) {
 
     return textures[name];
 }
+
+std::shared_ptr<Texture> TextureManager::load(const tinygltf::Image &image, const tinygltf::Sampler &sampler) {
+    if(textures.find(image.name) == textures.end()) {
+        textures[image.name] = std::make_shared<Texture>(image, sampler);
+    }
+
+    return textures[image.name];
+}

@@ -7,6 +7,7 @@
 
 #include <vector>
 #include <map>
+#include <memory>
 #include <glm/glm.hpp>
 #include <tiny_gltf.h>
 
@@ -20,9 +21,7 @@ private:
     std::vector<GLuint> vbos;
 
     std::shared_ptr<tinygltf::Model> gltfModel;
-    std::shared_ptr<Texture> texture0;
-
-    std::vector<Texture> textures;
+    std::vector<std::shared_ptr<Texture>> textures;
     std::map<int, glm::mat4> modelMatrix;
 
     glm::vec3 translation;

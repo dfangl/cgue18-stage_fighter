@@ -18,7 +18,7 @@ public:
 class Object3D : public Object3DAbstract {
 
 protected:
-    GLuint VBO, VAO, EBO;
+    GLuint VBO = 0, VAO = 0, EBO = 0;
     std::shared_ptr<Shader> shader;
 
     glm::mat4 model = glm::mat4(1.0f);
