@@ -27,6 +27,8 @@ public:
     void think(std::chrono::duration<double, std::milli> delta) override;
     void computeEnemyInView(std::vector<std::shared_ptr<Entity>> &entities);
 
+    void collideWith(BulletObject *other) override;
+
 };
 
 

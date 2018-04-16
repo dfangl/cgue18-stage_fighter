@@ -23,6 +23,8 @@ public:
     void setEntityPosition(const glm::vec3 &vec, const glm::quat &rot) override;
 
     void render(const Camera &camera) override;
+
+    void collideWith(BulletObject *other) override;
 };
 
 

@@ -30,8 +30,16 @@ void BulletUniverse::addRigidBody(btRigidBody *body) {
 }
 
 void BulletUniverse::simulate(std::chrono::duration<double, std::milli> tick) {
+    internalTick += tick.count();
+    if (internalTick < 1.0f/60.0f)
+        return;
+
+    internalTick = 0;
+
     dynamicsWorld->stepSimulation(static_cast<btScalar>(tick.count() / 1000.f), 10);
     dynamicsWorld->performDiscreteCollisionDetection();
+
+
 
     const int mainfolds = dynamicsWorld->getDispatcher()->getNumManifolds();
     for (int i=0; i < mainfolds; i++) {

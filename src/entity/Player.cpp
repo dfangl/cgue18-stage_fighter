@@ -54,3 +54,11 @@ void Player::computeEnemyInView(std::vector<std::shared_ptr<Entity>> &entities) 
         selectedEnemy.reset();
     }
 }
+
+void Player::collideWith(BulletObject *other) {
+    if (other->getKind() == BulletObject::ENVIRONMENT)
+        return;
+
+    if (other->getKind() == BulletObject::BULLET)
+        this->health -= 5;
+}

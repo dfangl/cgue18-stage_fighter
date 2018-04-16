@@ -10,7 +10,7 @@
 
 CubeEntity::CubeEntity(const glm::vec3 &pos, const std::shared_ptr<Texture> &texture, std::shared_ptr<BulletUniverse> world) :
         Cube(pos, texture),
-        BulletObject(btVector3(pos.x,pos.y,pos.z), btQuaternion(0,0,0,1), new btBoxShape(btVector3(0.5,0.5,0.5))) {
+        BulletObject(btVector3(pos.x,pos.y,pos.z), btQuaternion(0,0,0,1), new btBoxShape(btVector3(0.5,0.5,0.5)), 5.0f) {
 
     this->world = world;
     this->kind = BulletObject::ENEMY;
@@ -39,6 +39,9 @@ void CubeEntity::think(std::chrono::duration<double, std::milli> delta) {
             rotation.y(),
             rotation.z()
     ));
+
+    // underflow (?)
+    lastDmgTime -= delta.count();
 }
 
 void CubeEntity::setEntityPosition(const glm::vec3 &vec, const glm::quat &rot) {
@@ -53,4 +56,18 @@ void CubeEntity::setEntityPosition(const glm::vec3 &vec, const glm::quat &rot) {
 
 void CubeEntity::render(const Camera &camera) {
     Cube::render(camera);
+}
+
+void CubeEntity::collideWith(BulletObject *other) {
+    if (other->getKind() == BulletObject::ENVIRONMENT)
+        return;
+
+    if (lastDmgTime > 0.0f)
+        return;
+
+    // TODO: remove Player
+    if (other->getKind() == BulletObject::PLAYER || other->getKind() == BulletObject::WEAPON) {
+        lastDmgTime = dmgTimeout;
+        this->health -= 1;
+    }
 }

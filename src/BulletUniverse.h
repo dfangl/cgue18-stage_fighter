@@ -22,6 +22,7 @@ private:
     btDiscreteDynamicsWorld* dynamicsWorld;
 
     std::shared_ptr<GLDebugDrawer> debugDrawer;
+    double internalTick;
 
 public:
     explicit BulletUniverse(const btVector3 &gravity);

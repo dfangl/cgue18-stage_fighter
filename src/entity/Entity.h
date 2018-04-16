@@ -16,7 +16,10 @@ class Entity : public Object3DAbstract {
 protected:
     glm::vec3 position;
     std::string name;
+
     int health, maxHealth;
+    double lastDmgTime;
+    double dmgTimeout = 100; // ms
 
 public:
     virtual ~Entity() = default;
