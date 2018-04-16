@@ -9,7 +9,7 @@
 #include "BulletEntity.h"
 
 BulletEntity::BulletEntity(const btVector3 &pos, const btVector3 &target, std::shared_ptr<BulletUniverse> &world) :
-        BulletObject(pos, btQuaternion(0,0,0,1), new btBoxShape(btVector3(0.242388f/2.0f,0.242388f/2.0f,0.242388f/2.0f)), 0.00001),
+        BulletObject(pos, btQuaternion(0,0,0,1), new btBoxShape(btVector3(0.174505f/2,0.286695f/2,0.174505f/2)), 0.00001),
         Model3DObject(ModelManager::load("bullet"), ShaderManager::load("cube")) {
 
     this->health = 1;
@@ -18,7 +18,7 @@ BulletEntity::BulletEntity(const btVector3 &pos, const btVector3 &target, std::s
 
     const glm::vec3 position = glm::vec3(pos.x(), pos.y(), pos.z());
     const glm::vec3 target1 = glm::vec3(target.x(), target.y(), target.z());
-    this->direction = glm::normalize(position - target1);
+    this->direction = glm::normalize(target1 - position);
 
     spdlog::get("console")->info("direction: {},{},{}", position.x, position.y, position.z);
 
@@ -30,12 +30,12 @@ void BulletEntity::think(Level *level, std::chrono::duration<double, std::milli>
     if (this->health == 0)
         return;
 
-    //const auto newPos = position; //+ direction * speed * (float)delta.count();
+    const glm::vec3 vec = direction * speed;
 
-    //spdlog::get("console")->info("Position: {},{},{}", newPos.x, newPos.y, newPos.z);
+    auto bT = BulletObject::getTransformation().getOrigin();
+    Model3DObject::setOrigin(glm::vec3(bT.x(), bT.y(), bT.z()));
 
-    //Model3DObject::setOrigin(newPos);
-    //BulletObject::setOrigin(btVector3(newPos.x, -35.0f, newPos.z), btQuaternion(0,0,0,1));
+    BulletObject::rigidBody->setLinearVelocity(btVector3(vec.x, vec.y, vec.z));
 }
 
 void BulletEntity::collideWith(BulletObject *other) {
