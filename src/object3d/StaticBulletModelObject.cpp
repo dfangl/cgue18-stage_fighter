@@ -23,6 +23,7 @@ StaticBulletModelObject::StaticBulletModelObject(const btVector3 &pos,
     );
 
     world->addCollsionObject(this->rigidBody);
+
     Model3DObject::setOrigin(glm::vec3(pos.x(), pos.y(), pos.z()));
 }
 

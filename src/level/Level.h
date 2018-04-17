@@ -62,7 +62,7 @@ private:
     LevelState levelState = PAUSED;
 
 public:
-    Level(const std::string &file, const std::shared_ptr<BulletUniverse> &world);
+    Level(const std::string &file);
 
     void start(Camera &camera, Window *window);
     void tick(std::chrono::duration<double, std::milli> delta);
@@ -82,6 +82,7 @@ public:
     void despawn(Entity *entity);
 
     std::shared_ptr<Player> getPlayer() const { return this->player; }
+    std::shared_ptr<BulletUniverse> getWorld() const { return this->world; }
 };
 
 

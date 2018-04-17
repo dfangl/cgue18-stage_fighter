@@ -5,6 +5,8 @@
 #include "BulletUniverse.h"
 #include "object3d/BulletObject.h"
 
+bool BulletUniverse::debuggingFlag = false;
+
 BulletUniverse::BulletUniverse(const btVector3 &gravity) {
     this->broadphase = new btDbvtBroadphase();
     this->collisionConfiguration = new btDefaultCollisionConfiguration();
@@ -15,6 +17,7 @@ BulletUniverse::BulletUniverse(const btVector3 &gravity) {
     this->dynamicsWorld->setGravity(gravity);
 
     this->debugDrawer = std::make_shared<GLDebugDrawer>();
+    this->debug = BulletUniverse::debuggingFlag;
 }
 
 BulletUniverse::~BulletUniverse() {

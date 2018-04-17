@@ -8,7 +8,7 @@
 
 #include <glm/gtc/quaternion.hpp>
 
-Level::Level(const std::string &file, const std::shared_ptr<BulletUniverse> &world) : Logger("Level"), world(world) {
+Level::Level(const std::string &file) : Logger("Level"), world(std::make_shared<BulletUniverse>(btVector3(0,-9.81f,0))) {
     logger->info("Loading file {}", file);
 
     // Setup Lua Environment:
@@ -47,9 +47,23 @@ Level::Level(const std::string &file, const std::shared_ptr<BulletUniverse> &wor
 }
 
 void Level::start(Camera &camera, Window *window) {
+    /*
+     * Manipulation internal state since Camera and Window must not be present while loading the Level stuff
+     * (lazy loading or pre-loading)
+     */
     this->window = window;
     this->player = std::make_shared<Player>(camera, world);
 
+    /*
+     * Enable the Debugging Stuff of bullet if debugging is enabled
+     */
+    if (this->world->isDebugging())
+        window->addObject3D(world->getDebugDrawer());
+
+
+    /*
+     * Initialize Player in the Level:
+     */
     player->entitySpeed = state["player"]["speed"];
     const LuaVec3 *pPosition = state["player"]["position"];
     const LuaVec3 *pLookAt = state["player"]["lookAt"];
@@ -94,7 +108,14 @@ void Level::tick(std::chrono::duration<double, std::milli> delta) {
     if (paused)
         return;
 
+    /*
+     * Simulate all the Bullet stuff, Collisions and so on will happen here
+     * If debugging is enabled then we also want to recompute the Bullet debugging
+     * context (all these lines ...)
+     */
     world->simulate(delta);
+    if (world->isDebugging())
+        world->drawDebug();
 
     // Add and Remove Entities:
     {

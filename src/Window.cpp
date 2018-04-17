@@ -27,12 +27,6 @@ Window::Window(Camera &camera, int width, int height, const std::string &windowN
 
     logger->info("Creating Window: {} ({}x{})", windowName, width, height);
 
-    // Init GLFW Library:
-    if(!glfwInit()) {
-        logger->error("Failed to initialize GLFW!");
-        throw std::runtime_error("Unable to init GLFW!");
-    }
-
     { // Register Error Callback of GLFW
         Callback<void(int,const char *)>::func = std::bind(&Window::glfwErrorCallabck, this, std::placeholders::_1, std::placeholders::_2);
         auto errorCallbackFunc = static_cast<error_callback>(Callback<void(int,const char *)>::callback);
@@ -97,7 +91,9 @@ Window::Window(Camera &camera, int width, int height, const std::string &windowN
 
     glfwMakeContextCurrent(this->glfwWindow);
 
+    // ==========================================================================
     // Do some black witchery because C++11 and C don't mix function pointer well
+    // ==========================================================================
     {
         Callback<void(GLFWwindow *, int, int)>::func =
                 std::bind(&Window::glfwWindowSizeChanged, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
@@ -140,6 +136,9 @@ Window::Window(Camera &camera, int width, int height, const std::string &windowN
 
         glfwSetMouseButtonCallback(this->glfwWindow, mBtnCallback);
     }
+    // ==========================================================================
+    //                        End of the Black magic stuff
+    // ==========================================================================
 
     //Load GLAD Stuff:
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
@@ -211,6 +210,9 @@ void Window::render(std::chrono::duration<double, std::milli> delta) {
     glClearColor(0.63f, 0.79f, 0.94f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    /*
+     * Process all callbacks which do want to poll input states such a key states
+     */
     for (auto &callback : this->inputPollCallbacks) {
         callback(this);
     }
@@ -224,6 +226,9 @@ void Window::render(std::chrono::duration<double, std::milli> delta) {
         if(glfwGetKey(this->glfwWindow, GLFW_KEY_D) == GLFW_PRESS) this->camera.processKeyInput(delta, Camera::BACKWARD);
     }
 
+    /*
+     * Process Camera movement for the free camera
+     */
     if(this->cameraMouse) {
         double xPos, yPos;
         glfwGetCursorPos(this->glfwWindow, &xPos, &yPos);
@@ -233,6 +238,7 @@ void Window::render(std::chrono::duration<double, std::milli> delta) {
         oldYCursorPosition = yPos;
     }
 
+    // Enable Depth test for drawing
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
 

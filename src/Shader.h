@@ -5,26 +5,45 @@
 #ifndef STAGE_FIGTHER_SHADER_H
 #define STAGE_FIGTHER_SHADER_H
 
-#include <glad/glad.h>
-#include <glm/glm.hpp>
 #include <string>
 #include <memory>
 #include <map>
+
+#include <glad/glad.h>
+#include <glm/glm.hpp>
+
 #include "helper/Logger.h"
 
-
+/**
+ * This Class does read the .vert and .frag Files from Disk and does load the Shader to the GPU Memory, additionally
+ * it ceeps a mapping between names and positions in the Shader so that setUniform("name", ...) can be called without
+ * querieng the position each frame
+ */
 class Shader : public Logger {
 
 private:
+    // ID of the Shader in OpenGL
     GLuint shaderID;
+
+    // Mapping of uniform locations and their names
     std::map<std::string, GLint> mapping;
 
 public:
+    /*
+     * Create a Shader from a Vertex and a Fragment shader code
+     */
     Shader(const std::string vertexCode,const std::string fragmentCode);
+
+    /*
+     * Load a Shader from a vertex and a fragment shader file
+     */
     static std::shared_ptr<Shader> fromFile(const std::string vertex,const std::string fragment);
 
     ~Shader();
 
+    /*
+     * Enable the Shader for use in OpenGL
+     */
     void use();
 
     GLint getLocation(const std::string &name);

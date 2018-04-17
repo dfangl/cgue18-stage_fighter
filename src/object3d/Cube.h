@@ -5,10 +5,12 @@
 #ifndef STAGE_FIGHTER_CUBE_H
 #define STAGE_FIGHTER_CUBE_H
 
-
 #include "Object3D.h"
 #include "../Texture.h"
 
+/**
+ * This class represents a textured Cube in OpenGL
+ */
 class Cube: public Object3D {
 
 private:

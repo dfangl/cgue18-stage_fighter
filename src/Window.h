@@ -16,6 +16,10 @@
 #include "Camera.h"
 #include "widget/Widget.h"
 
+/**
+ *  Window Class which represents a Window on the Screen, this class does hold all the callbacks and the Camera, besides
+ *  that it also supports a simple free camera control
+ */
 class Window : public Logger {
 
 private:
@@ -49,11 +53,12 @@ protected:
 
 public:
     /**
-    * Create a Window with GLFW with the specific size
+    * Create a Window with GLFW with the specific size, the glfw library must already be initalized!
     * @param width of the window in px
     * @param height height of the window in px
     * @param windowName the name of the window
-    * @param fullscreen true if fullscreen mode is desired
+    * @param fullscreen -1 if windowed mode, otherwise the monitor index on which fullscreen is requested
+    * @param refreshRate either GLFW_DONT_CARE or the refresh rate which should be used in fullscreen
     */
     Window(Camera &camera, int width, int height, const std::string &windowName, int fullscreen = -1, int refreshRate = GLFW_DONT_CARE);
     ~Window();

@@ -8,13 +8,23 @@
 #include <vector>
 #include <map>
 #include <memory>
-#include <glm/glm.hpp>
+
 #include <tiny_gltf.h>
+
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/transform.hpp>
+#include <glm/gtc/quaternion.hpp>
+#include <glm/gtx/quaternion.hpp>
 
 #include "Object3D.h"
 #include "../Texture.h"
 #include "../helper/Logger.h"
 
+/**
+ * With this class a GLTF Model can be drawn in OpenGL
+ */
 class Model3DObject : public Object3D, Logger {
 
 private:
@@ -25,7 +35,7 @@ private:
     std::map<int, glm::mat4> modelMatrix;
 
     glm::vec3 translation;
-    //glm::quat rotation;
+    glm::quat rotation;
 
     void prepareModelMatrices();
     void drawNode(const int idx, const tinygltf::Node &node);
@@ -37,6 +47,9 @@ public:
     void draw() override;
 
     void setOrigin(const glm::vec3 &vec) override;
+    void setRotation(const glm::quat &rot);
+
+    void updateModelMatrix() { this->prepareModelMatrices(); }
 };
 
 

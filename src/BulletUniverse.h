@@ -12,6 +12,10 @@
 
 #include "bullet/GLDebugDrawer.h"
 
+/**
+ * A Simple Wrapper Class for the Bullet World which does the heavy lifting for the initalization and the
+ * Debug Context handling ...
+ */
 class BulletUniverse {
 
 private:
@@ -21,6 +25,7 @@ private:
     btSequentialImpulseConstraintSolver* solver;
     btDiscreteDynamicsWorld* dynamicsWorld;
 
+    bool debug = false;
     std::shared_ptr<GLDebugDrawer> debugDrawer;
     double internalTick;
 
@@ -38,9 +43,15 @@ public:
 
     std::shared_ptr<GLDebugDrawer> getDebugDrawer() { return this->debugDrawer; }
     void enableDebugging();
+    bool isDebugging() const { return debug; }
 
     void drawDebug();
     void rayTest(const btVector3 &start, const btVector3 &end, btCollisionWorld::ClosestRayResultCallback &rayCallback);
+
+    /*
+     * Flag is only applied to new instances, use enableDebugging on existing instances to start debugging
+     */
+    static bool debuggingFlag;
 
 };
 

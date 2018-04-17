@@ -5,11 +5,17 @@
 #ifndef STAGE_FIGHTER_CAMERA_H
 #define STAGE_FIGHTER_CAMERA_H
 
-#include <glm/glm.hpp>
 #include <functional>
 #include <chrono>
+
+#include <glm/glm.hpp>
+
 #include "helper/Logger.h"
 
+/**
+ * Basic Camera class which does contain the viewMatrix, projectionMatrix and the viewport size
+ * It also supports movement with the functions processKeyInput and processMouseInput
+ */
 class Camera /*: public Logger*/ {
 
 private:
@@ -34,7 +40,6 @@ public:
         FORWARD, BACKWARD, LEFT, RIGHT
     };
 
-    Camera() = default;
     Camera(glm::vec3 position, glm::vec3 up, float yaw, float pitch, float fov, float width, float height, float zNear = 0.1f, float zFar = 100.0f);
 
     void processKeyInput(std::chrono::duration<double, std::milli> delta, Movement movement);
@@ -51,6 +56,8 @@ public:
     bool enableUpdate = true;
 
     void update(const glm::vec3 position);
+
+    // TODO: borket ...
     void lookAt(const glm::vec3 &object);
 
     glm::vec3 project(const glm::vec3 &object) const;

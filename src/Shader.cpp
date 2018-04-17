@@ -9,13 +9,22 @@
 #include <iostream>
 
 Shader::Shader(const std::string vertexCode, const std::string fragmentCode) : Logger("Shader"){
+    /*
+     * Convert from C++ string to C string
+     */
     GLuint vertex, fragment;
     const char *vShaderCode = vertexCode.c_str();
     const char *fShaderCode = fragmentCode.c_str();
 
+    /*
+     * It's needed fo some error handling
+     */
     int success;
     char infoLog[512];
 
+    /*
+     * Compile Vertex and Fragment Shaders:
+     */
     vertex = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vertex, 1, &vShaderCode, nullptr);
     glCompileShader(vertex);
@@ -34,6 +43,9 @@ Shader::Shader(const std::string vertexCode, const std::string fragmentCode) : L
         logger->error("Fragment Shader compilation failed:\n{}", infoLog);
     }
 
+    /*
+     * Link the Shader and Attach the fragment and vertex shader code
+     */
     this->shaderID = glCreateProgram();
     glAttachShader(this->shaderID, vertex);
     glAttachShader(this->shaderID, fragment);
@@ -45,6 +57,9 @@ Shader::Shader(const std::string vertexCode, const std::string fragmentCode) : L
         logger->error("Shader linking failed:\n{}", infoLog);
     }
 
+    /*
+     * Vertex and Fragment Shader Codes can be deleted since they are in the Program
+     */
     glDeleteShader(vertex);
     glDeleteShader(fragment);
 }

@@ -5,20 +5,37 @@
 #ifndef STAGE_FIGTHER_TEXTURE_H
 #define STAGE_FIGTHER_TEXTURE_H
 
-#include <glad/glad.h>
 #include <string>
 
+#include <glad/glad.h>
+
 #include <tiny_gltf.h>
+
 #include "helper/Logger.h"
 
+/**
+ * This class represents a Texture which is Stored on the GPU Memory, with
+ * bind(...) the texture can be bound to a texture unit for use
+ *
+ * sbt_image is used to load the Texture from Disk
+ */
 class Texture : Logger {
 
 private:
     GLuint textureID;
 
 public:
+    /**
+     * Creates a Texture from a
+     * @param path
+     */
     explicit Texture(const std::string &path);
-    explicit Texture(const tinygltf::Image &image, const tinygltf::Sampler &sampler);
+    /**
+     *
+     * @param image
+     * @param sampler
+     */
+    Texture(const tinygltf::Image &image, const tinygltf::Sampler &sampler);
 
     ~Texture();
 

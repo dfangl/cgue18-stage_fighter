@@ -7,14 +7,17 @@
 
 #include <memory>
 #include <vector>
+
 #include <btBulletDynamicsCommon.h>
 
 #include "BulletObject.h"
 #include "Model3DObject.h"
 #include "../BulletUniverse.h"
 
-
-// Something is fucked up, don't use ...
+/**
+ * This class can construct a Bullet Shape from a given 3D Model, but it doesn't work for now, so don't use it until
+ * it is magically fixed ...
+ */
 class StaticBulletModelObject : public BulletObject, public Model3DObject {
 
 private:

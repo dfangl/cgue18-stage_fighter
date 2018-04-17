@@ -7,13 +7,6 @@
 #include <glad/glad.h>
 #include <tiny_gltf.h>
 
-#define GLM_ENABLE_EXPERIMENTAL
-#include <glm/glm.hpp>
-#include <glm/gtc/type_ptr.hpp>
-#include <glm/gtx/transform.hpp>
-#include <glm/gtc/quaternion.hpp>
-#include <glm/gtx/quaternion.hpp>
-
 #include "Model3DObject.h"
 #include "../manager/TextureManager.h"
 
@@ -47,6 +40,8 @@ Model3DObject::Model3DObject(const std::shared_ptr<tinygltf::Model> &model, cons
 
         this->vbos.push_back(vbo);
     }
+
+    rotation = glm::quat(0.0f,0.0f,0.0f,0.0f);
 
     // Prepare Static Node matrices:
     prepareModelMatrices();
@@ -164,7 +159,7 @@ void Model3DObject::drawMesh(const tinygltf::Mesh &mesh) {
 
 void Model3DObject::setOrigin(const glm::vec3 &vec) {
     this->translation = vec;
-    prepareModelMatrices();
+    updateModelMatrix();
 }
 
 void Model3DObject::prepareModelMatrices() {
@@ -177,6 +172,7 @@ void Model3DObject::prepareModelMatrices() {
 
         // TODO: support Object Scaling
         // TODO: support Object rotation
+        //modelMatrix = modelMatrix * glm::toMat4(rotation);
         modelMatrix = glm::translate(modelMatrix, this->translation);
 
         // Gltf World:
@@ -208,4 +204,8 @@ void Model3DObject::prepareModelMatrices() {
 
         this->modelMatrix[nodeIndex] = modelMatrix;
     }
+}
+
+void Model3DObject::setRotation(const glm::quat &rot) {
+    this->rotation = rot;
 }
