@@ -41,7 +41,7 @@ Model3DObject::Model3DObject(const std::shared_ptr<tinygltf::Model> &model, cons
         this->vbos.push_back(vbo);
     }
 
-    rotation = glm::quat(0.0f,0.0f,0.0f,0.0f);
+    rotation = glm::quat(1.0f,0.0f,0.0f,0.0f);
 
     // Prepare Static Node matrices:
     prepareModelMatrices();
@@ -172,8 +172,7 @@ void Model3DObject::prepareModelMatrices() {
 
         // TODO: support Object Scaling
         // TODO: support Object rotation
-        //modelMatrix = modelMatrix * glm::toMat4(rotation);
-        modelMatrix = glm::translate(modelMatrix, this->translation);
+        modelMatrix = glm::translate(modelMatrix, this->translation) * glm::toMat4(rotation);
 
         // Gltf World:
         if(node.matrix.size() == 16)

@@ -18,6 +18,9 @@ BulletUniverse::BulletUniverse(const btVector3 &gravity) {
 
     this->debugDrawer = std::make_shared<GLDebugDrawer>();
     this->debug = BulletUniverse::debuggingFlag;
+
+    if (this->debug)
+        this->enableDebugging();
 }
 
 BulletUniverse::~BulletUniverse() {
@@ -33,17 +36,25 @@ void BulletUniverse::addRigidBody(btRigidBody *body) {
 }
 
 void BulletUniverse::simulate(std::chrono::duration<double, std::milli> tick) {
+    /*
+     * Limit updates to ~ 16,6666 ms to preserve numeric stability and reduce
+     * load for more FPS
+     */
     internalTick += tick.count();
     if (internalTick < 1.0f/60.0f)
         return;
 
     internalTick = 0;
 
+    /*
+     * Simulate the actual world
+     */
     dynamicsWorld->stepSimulation(static_cast<btScalar>(tick.count() / 1000.f), 10);
     dynamicsWorld->performDiscreteCollisionDetection();
 
-
-
+    /*
+     * Get all the collisions of the world and call the objects to invoke the logic
+     */
     const int mainfolds = dynamicsWorld->getDispatcher()->getNumManifolds();
     for (int i=0; i < mainfolds; i++) {
         btPersistentManifold* contactManifold = dynamicsWorld->getDispatcher()->getManifoldByIndexInternal(i);

@@ -56,8 +56,15 @@ int main(int argc, char *argv[]) {
      */
     console->info("Loading ../config.lua");
 	kaguya::State config;
-    config.dofile("../config.lua");
+
+	//TODO: Try + typecheck
+	config.dofile("../config.lua");
+
     bool openGlDbgFlag = config["debug"]["opengl"];
+    BulletUniverse::debuggingFlag = config["debug"]["bullet"];
+
+    if (openGlDbgFlag)                  console->info("Enabling OpenGL debugging");
+    if (BulletUniverse::debuggingFlag)  console->info("Enabling Bullet DebugContext");
 
     /*
      * Initialize the "Manager" infrastructure which do load the resource once when requested and keep them in

@@ -1,8 +1,9 @@
 -- Test Level File --
--- TODO: Make it possible to call functions by named parameters
+
+-- TODO: make use of /objects/index.lua and use these objects
 
 player = {}
-player.position = vec3(1, -47.5088, 1)
+player.position = vec3(-50.188, -47.5088, 0)
 player.lookAt   = vec3(0, 7, 0)
 player.speed    = 7.0
 
@@ -29,10 +30,16 @@ objects = {
             BoxShape(vec3( 29.0218,-20.3659, 13.3486), vec4(0,-0.754691,0, 0.65608 ), 0, vec3(35.8593/2, 45.0000/2, 24.1294/2)),
             BoxShape(vec3( 21.7294,-20.3659, 38.8318), vec4(0,-0.870369,0, 0.4924  ), 0, vec3(32.5442/2, 45.0000/2, 24.0786/2)),
         }
-    )
+    ),
+    StaticObject("wall", "cube", vec3(-42.8338, -42.5088, 0      ), { BoxShape(vec3(-42.8338, -42.5088+2.14664/2, 0      ), vec4(0,0,0,1), 0, vec3(0.576059/2, 2.14664/2, 5.96413/2)), }),
+    StaticObject("wall", "cube", vec3(-57.9427, -42.5088, 0      ), { BoxShape(vec3(-57.9427, -42.5088+2.14664/2, 0      ), vec4(0,0,0,1), 0, vec3(0.576059/2, 2.14664/2, 5.96413/2)), }),
+
+    -- TODO: needs rotation support
+    StaticObject("wall", "cube", vec3(-50.08  , -42.5088, 8.18353), { BoxShape(vec3(-50.08  , -42.5088+2.14664/2, 8.18353), vec4(0.707107,0,0.707107,0), 0, vec3(0.576059/2, 2.14664/2, 5.96413/2)), }),
+    StaticObject("wall", "cube", vec3(-50.08  , -42.5088, -8.18353), { BoxShape(vec3(-50.08  , -42.5088+2.14664/2, -8.18353), vec4(0.707107,0,0.707107,0), 0, vec3(0.576059/2, 2.14664/2, 5.96413/2)), }),
 }
 
 entities = {
-    CubeEntity("green.jpg", vec3(-1,-47.5088,-1)),
-    CubeEntity("red.jpg", vec3(2,-47.5088,2))
+    CubeEntity("green.jpg", vec3(-24.7897,-47.5088,1.65117)),
+    CubeEntity("green.jpg", vec3(-78.3989,-47.5088,1.65117))
 }
