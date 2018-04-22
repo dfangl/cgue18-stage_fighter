@@ -25,6 +25,7 @@
 #include "widget/NuklearCtx.h"
 #include "widget/GameMenu.h"
 #include "widget/PlayerHud.h"
+#include "widget/DebugTextHud.h"
 
 #include <kaguya/kaguya.hpp>
 #include <spdlog/spdlog.h>
@@ -143,12 +144,7 @@ int main(int argc, char *argv[]) {
      * Create a Label which displays the FPS counter on the Screen, better than just spamming the console with
      * such a output
      */
-    auto fpsLabel = std::make_shared<Label>("00.000 FPS",
-                                            FontManager::load("Lato-Regular"), // Font
-                                            3.0f, 15.0f,                       // X, Y Coordinates on the Screen
-                                            0.5f,                              // Font scaling
-                                            glm::vec3(0.9f, 0.9f, 0.9f)        // Color RGB values between 0.0 and 1.0
-    );
+    auto debugTextHud = std::make_shared<DebugTextHud>();
 
     /*
      * Initilaze the GUI System "Nuklear" and the GameMenu which is displayed when pressing ESC
@@ -178,11 +174,11 @@ int main(int argc, char *argv[]) {
 
 
     /*
-     * Add Nuklear and the FPSLabel to the Window so they are drawn each Frame
+     * Add Nuklear and the Debug HUD to the Window so they are drawn each Frame
      */
     window->addWidget(nuklear);
-    window->addWidget(fpsLabel);
-
+    window->addWidget(debugTextHud);
+    window->registerKeyCallback(debugTextHud->getKeyCallback());
 
     /*
      * ======= MAIN GAME LOOP =======
@@ -210,15 +206,9 @@ int main(int argc, char *argv[]) {
         level->tick(delta);
 
         /*
-         * Process FPS Counter update, but only if 250ms since the last update
-         * have been passed (updating every frame is a waste of performance)
+         * Update Debug HUD information:
          */
-        if ((frameSampleCount+=delta.count()) > 250.0) {
-            char buffer[16];
-            int len = snprintf(buffer, 16, "%.4f FPS", 1000.0/delta.count());
-            fpsLabel->setText(std::string(buffer, buffer+len));
-            frameSampleCount = 0;
-        }
+        debugTextHud->update(delta);
 
         /*
          * Process nuklear frame
@@ -250,8 +240,9 @@ int main(int argc, char *argv[]) {
 	 */
 	level->destroy();
     window->showCurosor();
+    //TODO: remove keyCallback of DebugHUD
 
-    fpsLabel.reset();
+    debugTextHud.reset();
     nuklear.reset();
 	delete window;
 

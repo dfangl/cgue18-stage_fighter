@@ -14,6 +14,7 @@ void Object3D::render(const Camera &camera) {
     this->shader->setUniform("model", this->model);
     this->shader->setUniform("view", camera.getViewMatrix());
     this->shader->setUniform("projection", camera.getProjectionMatrix());
+    this->shader->setUniformIfNeeded("camera_position", camera.getPosition());
 
     this->draw();
 }

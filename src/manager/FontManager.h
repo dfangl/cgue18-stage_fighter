@@ -5,14 +5,16 @@
 #ifndef STAGE_FIGHTER_FONTMANAGER_H
 #define STAGE_FIGHTER_FONTMANAGER_H
 
-#include <ft2build.h>
-#include FT_FREETYPE_H
-#include "../helper/Font.h"
-
 #include <memory>
 #include <string>
 #include <map>
+
 #include <spdlog/spdlog.h>
+
+#include <ft2build.h>
+#include FT_FREETYPE_H
+
+#include "../helper/Font.h"
 
 class FontManager {
 private:

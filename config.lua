@@ -35,6 +35,6 @@ camera = {
 -- Set Debug properties, should be disabled if not debugging one of these subsystems:
 --      true to enable debugging or false to disable debuggiing
 debug = {
-    bullet=true,        -- Create a Bullet Debug Context and draw all the Bounding Boxes as Lines to the screen
-    opengl=true         -- Debug OpenGL Context and enable error outputs for OpenGL
+    bullet=false,        -- Create a Bullet Debug Context and draw all the Bounding Boxes as Lines to the screen
+    opengl=true          -- Debug OpenGL Context and enable error outputs for OpenGL
 }
