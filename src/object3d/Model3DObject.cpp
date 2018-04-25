@@ -103,7 +103,7 @@ void Model3DObject::drawMesh(const tinygltf::Mesh &mesh) {
         const glm::vec3 mat_specular = glm::vec3(emissiveFactor[0],emissiveFactor[1],emissiveFactor[2]);
         shader->setUniform("material.ambient", mat_ambient);
         shader->setUniform("material.specular", mat_specular);
-        shader->setUniform("material.diffuse", glm::vec3(0.0f,0.0f,0.0f));
+        shader->setUniform("material.diffuse", glm::vec3(1.0f,1.0f,1.0f));
         shader->setUniform("material.shininess", (float)metallicFactor);
 
         // Bind Texture (Error?)

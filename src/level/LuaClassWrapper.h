@@ -109,6 +109,7 @@ public:
     std::shared_ptr<Model3DObject> toModel() const {
         auto ret = std::make_shared<Model3DObject>(ModelManager::load(model), ShaderManager::load(shader));
         ret->setOrigin(position.pos);
+        ret->updateModelMatrix();
 
         return ret;
     }

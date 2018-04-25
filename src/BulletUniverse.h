@@ -27,7 +27,7 @@ private:
 
     bool debug = false;
     std::shared_ptr<GLDebugDrawer> debugDrawer;
-    double internalTick;
+    double internalTick = 0.0;
 
 public:
     explicit BulletUniverse(const btVector3 &gravity);
@@ -52,7 +52,6 @@ public:
      * Flag is only applied to new instances, use enableDebugging on existing instances to start debugging
      */
     static bool debuggingFlag;
-
 };
 
 

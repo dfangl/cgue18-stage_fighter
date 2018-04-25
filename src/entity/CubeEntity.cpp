@@ -22,6 +22,7 @@ CubeEntity::CubeEntity(const glm::vec3 &pos, const std::shared_ptr<Texture> &tex
     this->health = 100;
     this->maxHealth = 100;
     this->mustBeKilled = true;
+    this->lastDmgTime = 0.0;
 
     world->addRigidBody(this->getRigidBody());
 }

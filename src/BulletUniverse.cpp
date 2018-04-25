@@ -44,13 +44,13 @@ void BulletUniverse::simulate(std::chrono::duration<double, std::milli> tick) {
     if (internalTick < 1.0f/60.0f)
         return;
 
-    internalTick = 0;
-
     /*
      * Simulate the actual world
      */
-    dynamicsWorld->stepSimulation(static_cast<btScalar>(tick.count() / 1000.f), 10);
+    dynamicsWorld->stepSimulation(static_cast<btScalar>(internalTick / 1000.f), 4);
     dynamicsWorld->performDiscreteCollisionDetection();
+
+    internalTick = 0;
 
     /*
      * Get all the collisions of the world and call the objects to invoke the logic
