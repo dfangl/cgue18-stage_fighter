@@ -39,18 +39,22 @@ void BulletUniverse::simulate(std::chrono::duration<double, std::milli> tick) {
     /*
      * Limit updates to ~ 16,6666 ms to preserve numeric stability and reduce
      * load for more FPS
+     *
+     * TODO: Why does glitching occur if limited?
+     *  (Limit maybe to 500fps or so?)
      */
-    internalTick += tick.count();
-    if (internalTick < 1.0f/60.0f)
-        return;
+    //internalTick += tick.count();
+    //if (internalTick < 1.0f/60.0f)
+    //    return;
 
     /*
      * Simulate the actual world
+     *  (time elapsed in world, max steps, fixed step size ~1/60 fps)
      */
-    dynamicsWorld->stepSimulation(static_cast<btScalar>(internalTick / 1000.f), 4);
+    dynamicsWorld->stepSimulation(static_cast<btScalar>(tick.count() / 1000.f), 100, 1.0f / 60.0f);
     dynamicsWorld->performDiscreteCollisionDetection();
 
-    internalTick = 0;
+    //internalTick = 0;
 
     /*
      * Get all the collisions of the world and call the objects to invoke the logic

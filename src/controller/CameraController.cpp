@@ -43,7 +43,7 @@ void CameraEntity::think(std::chrono::duration<double, std::milli> delta) {
 
     auto bT = this->getTransformation();
     auto o = bT.getOrigin();
-    this->camera.update(glm::vec3(o.x(), o.y()+0.5, o.z()));
+    this->camera.update(glm::vec3(o.x(), o.y(), o.z()));
 
     float zVelocity = 0.0f;
     float xVelocity = 0.0f;
@@ -53,10 +53,11 @@ void CameraEntity::think(std::chrono::duration<double, std::milli> delta) {
     if (this->leftPressed)     zVelocity = -this->entitySpeed;
     if (this->rightPressed)    zVelocity =  this->entitySpeed;
 
+    rigidBody->applyGravity();
+
     speed.setZ(zVelocity);
     speed.setX(xVelocity);
     speed.setY(0.0f);
-
     {
         auto end = btVector3(o.x(), o.y()-height, o.z());
         auto &start = o;
@@ -68,7 +69,7 @@ void CameraEntity::think(std::chrono::duration<double, std::milli> delta) {
         if (jump > 0.0f){
             speed.setY(this->jumpSpeed);
             jump -= delta.count();
-        } else {
+        } else if(!canJump){
             speed.setY(-9.81f);
         }
     }
