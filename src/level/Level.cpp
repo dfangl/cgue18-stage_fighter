@@ -31,6 +31,10 @@ Level::Level(const std::string &file) : Logger("Level"), world(std::make_shared<
             kaguya::UserdataMetatable<LuaCubeEntity, LuaEntity>()
                 .setConstructors<LuaCubeEntity(std::string, LuaVec3)>()
     );
+    state["EnemyEntity"].setClass(
+            kaguya::UserdataMetatable<LuaEnemyEntity, LuaEntity>()
+                    .setConstructors<LuaEnemyEntity(std::string, int, int, const LuaVec3, const LuaVec4 &, std::string, float, const LuaBtCollisionShape &)>()
+    );
 
     state["btCollisionShape"].setClass(kaguya::UserdataMetatable<LuaBtCollisionShape>());
     state["SphereShape"].setClass(
@@ -39,7 +43,7 @@ Level::Level(const std::string &file) : Logger("Level"), world(std::make_shared<
     );
     state["BoxShape"].setClass(
             kaguya::UserdataMetatable<LuaBtBox, LuaBtCollisionShape>()
-                    .setConstructors<LuaBtSphere(LuaVec3 const&, LuaVec4 const&, double, LuaVec3 const&)>()
+                    .setConstructors<LuaBtBox(LuaVec3 const&, LuaVec4 const&, double, LuaVec3 const&)>()
     );
 
     // Finally load file

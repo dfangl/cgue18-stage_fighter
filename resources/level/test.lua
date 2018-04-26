@@ -43,6 +43,7 @@ objects = {
 }
 
 entities = {
-    CubeEntity("green.jpg", vec3(-24.7897,-47.5088,1.65117)),
-    CubeEntity("green.jpg", vec3(-78.3989,-47.5088,1.65117))
+    EnemyEntity("Enemy #1", 1000, 5000, vec3(-24.7897,-47.5088,1.65117), vec4(0,0,0,1), "enemy_1", 300.0, BoxShape(vec3(-24.7897,-47.5088,1.65117), vec4(0,0,0,1), 0, vec3(0.845577/2, 0.832462/2, 0.899386/2)))
+--    CubeEntity("green.jpg", vec3(-24.7897,-47.5088,1.65117)),
+--    CubeEntity("green.jpg", vec3(-78.3989,-47.5088,1.65117))
 }

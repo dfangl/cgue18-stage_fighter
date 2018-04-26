@@ -15,7 +15,7 @@
 
 BulletEntity::BulletEntity(const btVector3 &pos, const btVector3 &target, std::shared_ptr<BulletUniverse> &world) :
         BulletObject(pos, btQuaternion(0,0,0,1), new btBoxShape(btVector3(0.174505f/2,0.174505f/2,0.286695f/2)), 0.00001),
-        Model3DObject(ModelManager::load("bullet"), ShaderManager::load("cube")) {
+        Model3DObject(ModelManager::load("bullet"), ShaderManager::load("standard")) {
 
     this->health = 1;
     this->maxHealth = 0;

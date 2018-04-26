@@ -8,7 +8,11 @@
 #include <glm/glm.hpp>
 #include <btBulletCollisionCommon.h>
 
+#include "../object3d/BulletObject.h"
+
 #include "../entity/Entity.h"
+#include "../entity/EnemyEntity.h"
+#include "../entity/BulletEntity.h"
 
 // ********************
 // ==== Glm Vectors ===
@@ -55,11 +59,11 @@ protected:
     const LuaVec4 rotation;
     const double mass;
 
-    virtual btCollisionShape *generateShape() const = 0;
-
 public:
     LuaBtCollisionShape(LuaVec3 const &pos, LuaVec4 const &rot, const double mass) :
             position(pos), rotation(rot), mass(mass) {}
+
+    virtual btCollisionShape *generateShape() const = 0;
 
     std::shared_ptr<BulletObject> toCollisionShape() const {
         return std::make_shared<BulletObject>(position.toVector3(), rotation.toQuat(), generateShape(), mass);
@@ -149,6 +153,31 @@ public:
     std::shared_ptr<Entity> toEntity3D(const std::shared_ptr<BulletUniverse> &world) const override {
         return std::make_shared<CubeEntity>(position.pos, TextureManager::load(texture), world);
     }
+};
+
+class LuaEnemyEntity : public LuaEntity {
+
+protected:
+    std::string name;
+    int health;
+    int spawnTime;
+    LuaVec4 rot;
+    std::string model;
+    float mass;
+    btCollisionShape *hitbox;
+
+public:
+    LuaEnemyEntity(std::string name, int health, int spawnTime, const LuaVec3 pos, const LuaVec4 &rot, std::string model, float mass, const LuaBtCollisionShape &hitbox) :
+            LuaEntity(pos), name(name), health(health), spawnTime(spawnTime), rot(rot), model(model), mass(mass) {
+        this->hitbox = hitbox.generateShape();
+    }
+
+    std::shared_ptr<Entity> toEntity3D(const std::shared_ptr<BulletUniverse> &world) const override {
+        //std::string &name, int health, int spawnTime, const btVector3 &pos, const btQuaternion &rot, std::string &model, float mass,
+        //                btCollisionShape *hitbox, std::shared_ptr<BulletUniverse> &world
+        return std::make_shared<EnemyEntity>(name, health, spawnTime, position.toVector3(), rot.toQuat(), model, mass, hitbox, world);
+    }
+
 };
 
 #endif //STAGE_FIGHTER_LUACLASSWRAPPER_H
