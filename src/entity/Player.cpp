@@ -14,6 +14,9 @@ Player::Player(Camera &camera, const std::shared_ptr<BulletUniverse> &world) :
 
     this->health = 100;
     this->shield = 100;
+
+    BulletObject::rigidBody->setCcdMotionThreshold(1.0f);
+    BulletObject::rigidBody->setCcdSweptSphereRadius(0.2f);
 }
 
 void Player::think(std::chrono::duration<double, std::milli> delta) {

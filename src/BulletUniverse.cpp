@@ -51,7 +51,7 @@ void BulletUniverse::simulate(std::chrono::duration<double, std::milli> tick) {
      * Simulate the actual world
      *  (time elapsed in world, max steps, fixed step size ~1/60 fps)
      */
-    dynamicsWorld->stepSimulation(static_cast<btScalar>(internalTick / 1000.f), (int)glm::ceil((float)internalTick / (1.0f/60.0f)), 1.0f / 60.0f);
+    dynamicsWorld->stepSimulation(static_cast<btScalar>(internalTick / 1000.f), (int)glm::ceil((float)internalTick / (1.0f/60.0f) + 1), 1.0f / 60.0f);
     dynamicsWorld->performDiscreteCollisionDetection();
 
     internalTick = 0;

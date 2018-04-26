@@ -57,6 +57,9 @@ void CameraEntity::think(std::chrono::duration<double, std::milli> delta) {
     speed.setZ(zVelocity);
     speed.setX(xVelocity);
     speed.setY(0.0f);
+
+    rigidBody->clearForces();
+
     {
         auto end = btVector3(o.x(), o.y()-height, o.z());
         auto end2 = btVector3(o.x(), o.y()-height/2, o.z());
