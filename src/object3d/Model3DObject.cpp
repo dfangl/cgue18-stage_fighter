@@ -71,6 +71,7 @@ void Model3DObject::drawNode(const int idx, const tinygltf::Node &node) {
         auto &mesh = this->gltfModel->meshes[node.mesh];
 
         shader->setUniform("model", this->modelMatrix[idx]);
+        shader->setUniform("nModel", this->normalMatrix[idx]);
         this->drawMesh(mesh);
     }
 }
@@ -220,7 +221,11 @@ void Model3DObject::prepareModelMatrices() {
             }
         }
 
+
+        glm::mat4 normalMatrix = glm::transpose(glm::inverse(modelMatrix));
+
         this->modelMatrix[nodeIndex] = modelMatrix;
+        this->normalMatrix[nodeIndex] = normalMatrix;
     }
 }
 

@@ -33,6 +33,7 @@ private:
     std::shared_ptr<tinygltf::Model> gltfModel;
     std::vector<std::shared_ptr<Texture>> textures;
     std::map<int, glm::mat4> modelMatrix;
+    std::map<int, glm::mat4> normalMatrix;
 
     glm::vec3 translation;
     glm::quat rotation;
