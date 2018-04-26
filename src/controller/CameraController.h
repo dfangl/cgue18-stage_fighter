@@ -17,7 +17,7 @@ class CameraEntity : public Entity, public BulletObject {
 
 private:
     btVector3 speed;
-    float height = 0.7009f * 2.0f; // Capsule height * 2 [radius]
+    float height = 0.700000009f; // Capsule height * 2 [radius]
     const float airTime = 500.0f; // in ms
 
     bool forewardPressed = false;
@@ -40,7 +40,7 @@ protected:
 public:
     explicit CameraEntity(Camera &camera,
                           std::shared_ptr<BulletUniverse> world,
-                          btCollisionShape *bulletShape = new btSphereShape(0.7f),
+                          btCollisionShape *bulletShape = new btBoxShape(btVector3(0.7f, 0.7, 0.7f)),
                           btScalar mass = 1.0f);
 
     virtual ~CameraEntity();

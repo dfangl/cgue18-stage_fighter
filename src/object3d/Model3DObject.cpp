@@ -195,13 +195,14 @@ void Model3DObject::prepareModelMatrices() {
         modelMatrix = glm::translate(modelMatrix, this->translation) * glm::toMat4(rotation);
 
         // Gltf World:
-        if(node.matrix.size() == 16)
-            modelMatrix = glm::make_mat4(node.matrix.data());
-        else {
+        if(node.matrix.size() == 16) {
+            glm::mat4 dataMat = glm::make_mat4(node.matrix.data());
+            modelMatrix = modelMatrix * dataMat;
+        } else {
 
-            if(node.scale.size() == 3) {
-                const glm::vec3 &s = glm::make_vec3(node.scale.data());
-                modelMatrix = glm::scale(modelMatrix, s);
+            if(node.translation.size() == 3) {
+                const glm::vec3 &t = glm::make_vec3(node.translation.data());
+                modelMatrix = glm::translate(modelMatrix, t);
             }
 
             if(node.rotation.size() == 4) {
@@ -215,9 +216,9 @@ void Model3DObject::prepareModelMatrices() {
                 modelMatrix = modelMatrix * glm::toMat4(q);
             }
 
-            if(node.translation.size() == 3) {
-                const glm::vec3 &t = glm::make_vec3(node.translation.data());
-                modelMatrix = glm::translate(modelMatrix, t);
+            if(node.scale.size() == 3) {
+                const glm::vec3 &s = glm::make_vec3(node.scale.data());
+                modelMatrix = glm::scale(modelMatrix, s);
             }
         }
 

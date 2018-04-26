@@ -29,6 +29,7 @@ CameraEntity::CameraEntity(Camera &camera, std::shared_ptr<BulletUniverse> world
     rigidBody->setRestitution(0.1f);
     this->kind = BulletObject::PLAYER;
 
+    rigidBody->setDamping(0, 200);
     world->addRigidBody(rigidBody);
 }
 
@@ -53,16 +54,17 @@ void CameraEntity::think(std::chrono::duration<double, std::milli> delta) {
     if (this->leftPressed)     zVelocity = -this->entitySpeed;
     if (this->rightPressed)    zVelocity =  this->entitySpeed;
 
-    rigidBody->applyGravity();
-
     speed.setZ(zVelocity);
     speed.setX(xVelocity);
     speed.setY(0.0f);
     {
         auto end = btVector3(o.x(), o.y()-height, o.z());
+        auto end2 = btVector3(o.x(), o.y()-height/2, o.z());
         auto &start = o;
         btCollisionWorld::ClosestRayResultCallback rayCallback(start, end);
+        btCollisionWorld::ClosestRayResultCallback glitchingCallback(start, end2);
         world->rayTest(start, end, rayCallback);
+        world->rayTest(start, end2, glitchingCallback);
 
         canJump = rayCallback.hasHit();
 
@@ -72,9 +74,16 @@ void CameraEntity::think(std::chrono::duration<double, std::milli> delta) {
         } else if(!canJump){
             speed.setY(-9.81f);
         }
+
+        if (glitchingCallback.hasHit()) {
+           speed.setY(0.00001f);
+           BulletObject::setOrigin(btVector3(o.x(), o.y()+height/2+0.0001f, o.z()));
+        }
     }
 
     rigidBody->setLinearVelocity(speed.rotate(bulletMovementVector, btRadians(-camera.getYaw())));
+    rigidBody->setAngularFactor(btVector3(0,1,0));
+    rigidBody->setAngularVelocity(btVector3(0.0f, 0.0f, 0.0f));
 }
 
 CameraEntity::~CameraEntity() {
