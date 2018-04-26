@@ -91,20 +91,21 @@ void Model3DObject::drawMesh(const tinygltf::Mesh &mesh) {
         auto emissiveFactor = material.values["emissiveFactor"].number_array;
         auto baseColorFactor = material.values["baseColorFactor"].number_array;
         auto metallicFactor = material.values["metallicFactor"].Factor();
-        auto roughnessFactor = material.values["roughnessFactor"];
+        auto roughnessFactor = material.values["roughnessFactor"].Factor();
 
+        /*
         if (emissiveFactor.empty()) {
             emissiveFactor.push_back(0.0f);
             emissiveFactor.push_back(0.0f);
             emissiveFactor.push_back(0.0f);
         }
+         */
 
-        const glm::vec3 mat_ambient = glm::vec3(baseColorFactor[0],baseColorFactor[1],baseColorFactor[2]);
-        const glm::vec3 mat_specular = glm::vec3(emissiveFactor[0],emissiveFactor[1],emissiveFactor[2]);
-        shader->setUniform("material.ambient", mat_ambient);
-        shader->setUniform("material.specular", mat_specular);
-        shader->setUniform("material.diffuse", glm::vec3(1.0f,1.0f,1.0f));
-        shader->setUniform("material.shininess", (float)metallicFactor);
+        const glm::vec3 baseColor = glm::vec3(baseColorFactor[0],baseColorFactor[1],baseColorFactor[2]);
+
+        shader->setUniform("material.baseColor", baseColor);
+        shader->setUniform("material.metallic", (float)metallicFactor);
+        shader->setUniform("material.roughness", (float)roughnessFactor);
 
         // Bind Texture (Error?)
         // baseColorTexture is not set every time (exporter fuckup?)

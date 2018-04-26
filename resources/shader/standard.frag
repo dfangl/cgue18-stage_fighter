@@ -1,12 +1,12 @@
 #version 450 core
 
-struct Material {
-    vec3 ambient;
-    vec3 diffuse;
-    // vec3 diffuse == textue_0
-    vec3 specular;
+#define PI 3.1415926535897932384626433832795
+#define DielectricSpecular vec3(0.4, 0.4, 0.4)
 
-    float shininess;
+struct Material {
+    vec3 baseColor;
+    float metallic;
+    float roughness;
 };
 
 struct Light {
@@ -32,28 +32,25 @@ uniform Material material;
 // TODO: move to program
 Light light = Light(
     vec3(-50.188, -21.7844, 0.0),
-    vec3(0.4, 0.4, 0.4),
+    vec3(0.3, 0.3, 0.3),
     vec3(0.5, 0.5, 0.5),
-    vec3(0.8, 0.1, 0.1)
+    vec3(0.8, 0.8, 0.8)
 );
 
 void main() {
-    // Diffuse
-    vec3 norm = normalize(fs_in.normal_0);
-    vec3 lightDir = normalize(light.position - fs_in.FragPos);
-    float diff = max(dot(norm, lightDir), 0.0);
+    vec3 n = normalize(fs_in.normal_0);
+    vec3 v = normalize(camera_position - fs_in.FragPos);
+    vec3 s = normalize(light.position - fs_in.FragPos);
+    vec3 r = -normalize(reflect(v, n));
 
-
-    // Specular
-    vec3 viewDir = normalize(camera_position - fs_in.FragPos);
-    vec3 reflectDir = reflect(-lightDir, norm);
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess + 100);
-
+    float sDotN = max( dot(s,n), 0.0 );
+    float rDotV = max( dot(r,v), 0.0 );
+    float spec  = pow( rDotV, material.roughness);
 
     // Calculate acctual light values from diffuse / specular maps
-    vec3 ambient = light.ambient * vec3(texture(texture_0, fs_in.texcoord_0));
-    vec3 diffuse = light.diffuse * diff * vec3(texture(texture_0, fs_in.texcoord_0));
-    vec3 specular = light.specular * spec *  vec3(texture(texture_0, fs_in.texcoord_0));
+    vec3 ambient  = light.ambient  * vec3(texture(texture_0, fs_in.texcoord_0));
+    vec3 diffuse  = light.diffuse  * vec3(texture(texture_0, fs_in.texcoord_0)) * sDotN;
+    vec3 specular = light.specular * vec3(texture(texture_0, fs_in.texcoord_0)) * spec;
 
-    FragColor = vec4(ambient + diffuse + specular, 1.0);// * texture(texture_0, fs_in.texcoord_0);
+    FragColor = vec4(ambient + diffuse + specular, 1.0);
 }

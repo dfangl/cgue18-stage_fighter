@@ -1,7 +1,7 @@
 #version 450 core
 layout (location = 0) in vec3 position;
 in vec2 texcoord_0;
-in vec3 normal_0;
+in vec3 normal;
 
 out VS_OUT {
     vec2 texcoord_0;
@@ -16,7 +16,7 @@ uniform mat4 projection;
 void main() {
    gl_Position =  projection * view  * model * vec4(position, 1.0);
 
-   vs_out.FragPos = vec3(model * vec4(position, 1.0));
+   vs_out.FragPos    = vec3(model * vec4(position, 1.0));
    vs_out.texcoord_0 = texcoord_0;
-   vs_out.normal_0   = normal_0  ;
+   vs_out.normal_0   = mat3(transpose(inverse(model))) * normal;
 }
