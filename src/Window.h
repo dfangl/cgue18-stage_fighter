@@ -31,6 +31,7 @@ private:
     std::vector<std::function<void(int, int, int, int)>> keyInputCallbacks;
     std::vector<std::function<void(Window const *)>> inputPollCallbacks;
 
+    std::vector<std::shared_ptr<Light>> lights;
     std::vector<std::shared_ptr<Object3DAbstract>> objects;
     std::vector<std::shared_ptr<Widget>> widgets;
 
@@ -75,6 +76,8 @@ public:
     
     void addWidget(const std::shared_ptr<Widget> &widget);
     void removeWidget(const std::shared_ptr<Widget> &widget);
+
+    void addLight(const std::shared_ptr<Light> &light);
 
     int registerMouseCallback(std::function<void(double,double)> callback);
     int registerKeyCallback(std::function<void(int, int, int, int)> callback);

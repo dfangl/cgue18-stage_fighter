@@ -5,12 +5,17 @@
 #ifndef STAGE_FIGTHER_OBJECT3D_H
 #define STAGE_FIGTHER_OBJECT3D_H
 
+#include <vector>
+#include <memory>
+
 #include <glad/glad.h>
 
 #include <glm/glm.hpp>
 
 #include "../Shader.h"
 #include "../Camera.h"
+
+#include "Light.h"
 
 /**
  * This Interface represents all Objects which can be drawn with a Camera into something
@@ -38,7 +43,7 @@ public:
      * This function does apply all the matries to the shader
      * @param camera
      */
-    virtual void render(const Camera &camera);
+    virtual void render(const Camera &camera, const std::vector<std::shared_ptr<Light>> &lights);
 
     /**
      * This function should implement the drawing logic of the Object

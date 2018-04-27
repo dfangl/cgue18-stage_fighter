@@ -347,6 +347,10 @@ void Window::setGamma(float gamma) {
     glfwSetGamma(this->monitor, gamma);
 }
 
+void Window::addLight(const std::shared_ptr<Light> &light) {
+    this->lights.push_back(light);
+}
+
 void APIENTRY glDebugOutput(GLenum source,
                             GLenum type,
                             GLuint id,
