@@ -82,7 +82,7 @@ void BulletEntity::think(Level *level, std::chrono::duration<double, std::milli>
     auto o = bT.getOrigin();
     auto r = bT.getRotation();
 
-    //Model3DObject::setRotation(glm::quat(r.w(), r.x(), r.y(), r.z()));
+    Model3DObject::setRotation(glm::quat(r.w(), r.x(), r.y(), r.z()));
     Model3DObject::setOrigin(glm::vec3(o.x(), o.y(), o.z()));
 
     BulletObject::rigidBody->setLinearVelocity(btVector3(vec.x, vec.y, vec.z));

@@ -46,7 +46,7 @@ public:
     virtual ~CameraEntity();
 
     float entitySpeed = 7.0f;
-    float jumpSpeed = 14.0f;
+    float jumpSpeed = 1.7f;
 
     void enable();
     void disable();

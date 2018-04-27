@@ -13,10 +13,15 @@ Player::Player(Camera &camera, const std::shared_ptr<BulletUniverse> &world) :
         Logger("Player") {
 
     this->health = 100;
-    this->shield = 100;
+    this->maxHealth = 100;
 
-    BulletObject::rigidBody->setCcdMotionThreshold(1.0f);
-    BulletObject::rigidBody->setCcdSweptSphereRadius(0.2f);
+    this->shield = 0;
+    this->maxShield = 100;
+
+    this->entitySpeed = 5.5f;
+
+    BulletObject::rigidBody->setCcdMotionThreshold(7.0f);
+    BulletObject::rigidBody->setCcdSweptSphereRadius(0.5f);
 }
 
 void Player::think(std::chrono::duration<double, std::milli> delta) {

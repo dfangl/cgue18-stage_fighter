@@ -47,7 +47,7 @@ void EnemyEntity::think(Level *level, std::chrono::duration<double, std::milli> 
     auto r = bT.getRotation();
 
     this->position = glm::vec3(o.x(), o.y(), o.z());
-    //Model3DObject::setRotation(glm::quat(r.w(), r.x(), r.y(), r.z()));
+    Model3DObject::setRotation(glm::quat(r.w(), r.x(), r.y(), r.z()));
     Model3DObject::setOrigin(glm::vec3(o.x(), o.y(), o.z()));
 
     lastSpawnTime -= delta.count();

@@ -186,13 +186,14 @@ void Model3DObject::prepareModelMatrices() {
     const tinygltf::Scene &scene = this->gltfModel->scenes[gltfModel->defaultScene];
     for (auto &nodeIndex : scene.nodes) {
         auto &node = gltfModel->nodes[nodeIndex];
-        glm::mat4 modelMatrix(1.0);
+        glm::mat4 worldMatrix(1.0f);
 
         // Local Modifications:
-
         // TODO: support Object Scaling
-        // TODO: support Object rotation
-        modelMatrix = glm::translate(modelMatrix, this->translation) * glm::toMat4(rotation);
+        worldMatrix = glm::translate(worldMatrix, this->translation);
+        worldMatrix = worldMatrix * glm::toMat4(rotation);
+
+        glm::mat4 modelMatrix(1.0f);
 
         // Gltf World:
         if(node.matrix.size() == 16) {
@@ -222,7 +223,8 @@ void Model3DObject::prepareModelMatrices() {
             }
         }
 
-
+        // model matrix = world matrix * gltf modelmatrix
+        modelMatrix = worldMatrix * modelMatrix;
         glm::mat4 normalMatrix = glm::transpose(glm::inverse(modelMatrix));
 
         this->modelMatrix[nodeIndex] = modelMatrix;

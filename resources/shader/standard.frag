@@ -32,9 +32,9 @@ uniform Material material;
 // TODO: move to program
 Light light = Light(
     vec3(-50.188, -21.7844, 0.0),
-    vec3(0.3, 0.3, 0.3),
+    vec3(0.8, 0.8, 0.8),
     vec3(0.5, 0.5, 0.5),
-    vec3(0.8, 0.8, 0.8)
+    vec3(0.2, 0.2, 0.2)
 );
 
 void main() {

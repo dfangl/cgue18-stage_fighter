@@ -23,7 +23,7 @@ Level::Level(const std::string &file) : Logger("Level"), world(std::make_shared<
 
     state["StaticObject"].setClass(
             kaguya::UserdataMetatable<LuaStaticObject>()
-                .setConstructors<LuaStaticObject(std::string,std::string,LuaVec3,kaguya::LuaTable)>()
+                .setConstructors<LuaStaticObject(std::string,std::string,LuaVec3,LuaVec4,kaguya::LuaTable)>()
     );
 
     state["Entity"].setClass(kaguya::UserdataMetatable<LuaEntity>());

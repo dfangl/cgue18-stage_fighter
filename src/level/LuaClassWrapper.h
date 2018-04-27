@@ -104,14 +104,18 @@ class LuaStaticObject {
 private:
     const std::string model, shader;
     const LuaVec3 position;
+    const LuaVec4 rotation;
     const kaguya::LuaTable bullet;
 
 public:
     LuaStaticObject(const std::string model, const std::string shader, const LuaVec3 position, const kaguya::LuaTable bullet)
-            : position(position), model(model), shader(shader), bullet(bullet) {}
+            : position(position), model(model), shader(shader), bullet(bullet), rotation(LuaVec4(0,0,0,1)) {}
+    LuaStaticObject(const std::string model, const std::string shader, const LuaVec3 position, const LuaVec4 rotation, const kaguya::LuaTable bullet)
+            : position(position), model(model), shader(shader), bullet(bullet), rotation(rotation) {}
 
     std::shared_ptr<Model3DObject> toModel() const {
         auto ret = std::make_shared<Model3DObject>(ModelManager::load(model), ShaderManager::load(shader));
+        ret->setRotation(glm::quat(rotation.pos.w, rotation.pos.x, rotation.pos.y, rotation.pos.z));
         ret->setOrigin(position.pos);
         ret->updateModelMatrix();
 
