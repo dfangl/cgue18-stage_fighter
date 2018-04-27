@@ -3,10 +3,14 @@
 //
 
 #include "Level.h"
-#include "../entity/CubeEntity.h"
-#include "../manager/TextureManager.h"
 
 #include <glm/gtc/quaternion.hpp>
+
+#include "../entity/CubeEntity.h"
+
+#include "../manager/TextureManager.h"
+
+#include "../object3d/Light.h"
 
 Level::Level(const std::string &file) : Logger("Level"), world(std::make_shared<BulletUniverse>(btVector3(0,-9.81f,0))) {
     logger->info("Loading file {}", file);
@@ -46,6 +50,11 @@ Level::Level(const std::string &file) : Logger("Level"), world(std::make_shared<
                     .setConstructors<LuaBtBox(LuaVec3 const&, LuaVec4 const&, double, LuaVec3 const&)>()
     );
 
+    state["PointLight"].setClass(
+            kaguya::UserdataMetatable<LuaLight>()
+                    .setConstructors<LuaLight(LuaVec3&,LuaVec3&,LuaVec3&,LuaVec3&)>()
+    );
+
     // Finally load file
     state.dofile(file);
 }
@@ -77,9 +86,11 @@ void Level::start(Camera &camera, Window *window) {
 
     playerInputCallbackID = window->registerKeyPollingCallback(player->getKeyboardCallback());
 
-    for (auto &entity : state["entities"].map<int, LuaEntity *>()) {
+    for (auto &entity : state["entities"].map<int, LuaEntity *>())
         this->entities.push_back(entity.second->toEntity3D(this->world));
-    }
+
+    for (auto &light : state["lights"].map<int, LuaLight*>())
+        this->lights.push_back(light.second->toLight());
 
     for (auto &obj : state["objects"].map<int, LuaStaticObject *>()) {
         this->statics.push_back(obj.second->toModel());
@@ -96,6 +107,7 @@ void Level::start(Camera &camera, Window *window) {
     this->logger->info("Loaded {} entities", entities.size());
     this->logger->info("Loaded {} objects", statics.size());
     this->logger->info("Loaded {} collision primitives", bullet.size());
+    this->logger->info("Loaded {} light sources", lights.size());
 
     this->show();
 }
@@ -180,6 +192,7 @@ void Level::hide() {
     pause();
     for (auto &entity : this->entities) this->window->removeObject(entity);
     for (auto &obj    : this->statics ) this->window->removeObject(obj);
+    for (auto &light  : this->lights  ) this->window->removeLight(light);
 
     this->window->removeWidget(player->getHud());
 }
@@ -188,6 +201,7 @@ void Level::show() {
     resume();
     for (auto &entity : this->entities) this->window->addObject3D(entity);
     for (auto &obj    : this->statics ) this->window->addObject3D(obj);
+    for (auto &light  : this->lights  ) this->window->addLight(light);
 
     this->window->addWidget(player->getHud());
 }

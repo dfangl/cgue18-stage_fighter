@@ -22,7 +22,7 @@
  */
 class Object3DAbstract {
 public:
-    virtual void render(const Camera &camera) = 0;
+    virtual void render(const Camera &camera, const std::vector<std::shared_ptr<Light>> &lights) = 0;
 };
 
 /**
@@ -43,7 +43,7 @@ public:
      * This function does apply all the matries to the shader
      * @param camera
      */
-    virtual void render(const Camera &camera, const std::vector<std::shared_ptr<Light>> &lights);
+    void render(const Camera &camera, const std::vector<std::shared_ptr<Light>> &lights) override;
 
     /**
      * This function should implement the drawing logic of the Object

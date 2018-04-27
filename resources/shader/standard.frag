@@ -29,8 +29,8 @@ uniform vec3 camera_position;
 uniform sampler2D texture_0;
 uniform Material material;
 
-// TODO: move to program
-Light light = Light(
+// TODO: Remove default light if everything works
+uniform Light light = Light(
     vec3(-50.188, -21.7844, 0.0),
     vec3(0.8, 0.8, 0.8),
     vec3(0.5, 0.5, 0.5),
@@ -40,7 +40,7 @@ Light light = Light(
 void main() {
     vec3 n = normalize(fs_in.normal_0);
     vec3 v = normalize(camera_position - fs_in.FragPos);
-    vec3 s = normalize(light.position - fs_in.FragPos);
+    vec3 s = normalize(-light.position + fs_in.FragPos);
     vec3 r = -normalize(reflect(v, n));
 
     float sDotN = max( dot(s,n), 0.0 );

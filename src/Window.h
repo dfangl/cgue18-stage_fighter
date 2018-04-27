@@ -78,6 +78,7 @@ public:
     void removeWidget(const std::shared_ptr<Widget> &widget);
 
     void addLight(const std::shared_ptr<Light> &light);
+    void removeLight(const std::shared_ptr<Light> &light);
 
     int registerMouseCallback(std::function<void(double,double)> callback);
     int registerKeyCallback(std::function<void(int, int, int, int)> callback);

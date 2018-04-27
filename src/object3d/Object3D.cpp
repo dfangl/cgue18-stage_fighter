@@ -9,6 +9,7 @@
 #include <glm/gtx/quaternion.hpp>
 
 #include <iostream>
+
 void Object3D::render(const Camera &camera, const std::vector<std::shared_ptr<Light>> &lights) {
     this->shader->use();
     this->shader->setUniform("model", this->model);
@@ -16,7 +17,7 @@ void Object3D::render(const Camera &camera, const std::vector<std::shared_ptr<Li
     this->shader->setUniform("projection", camera.getProjectionMatrix());
     this->shader->setUniformIfNeeded("camera_position", camera.getPosition());
 
-    // TODO: support multiple lights with #DEFINE_LIGHTS
+    // TODO: support multiple lights with #DEFINE_MAX_LIGHTS
     if (!lights.empty()) {
         glm::vec3 lPos = glm::vec4(lights[0]->getPosition(), 0) * camera.getViewMatrix();
 

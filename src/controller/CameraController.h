@@ -62,7 +62,7 @@ public:
     void collideWith(BulletObject *other) override;
 
 
-    void render(const Camera &camera) override {}
+    void render(const Camera &camera, const std::vector<std::shared_ptr<Light>> &lights) override {}
 
     glm::vec3 isInView(const Entity *entity);
 

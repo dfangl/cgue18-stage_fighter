@@ -244,7 +244,7 @@ void Window::render(std::chrono::duration<double, std::milli> delta) {
 
     // Render all Objects to the Window
     for(auto &obj : this->objects) {
-        obj->render(this->camera);
+        obj->render(this->camera, this->lights);
     }
 
     // Models don't disable backface culling if they enabled it
@@ -349,6 +349,19 @@ void Window::setGamma(float gamma) {
 
 void Window::addLight(const std::shared_ptr<Light> &light) {
     this->lights.push_back(light);
+}
+
+void Window::removeLight(const std::shared_ptr<Light> &light) {
+    this->lights.erase(
+            std::remove_if(
+                    this->lights.begin(),
+                    this->lights.end(),
+                    [light](std::shared_ptr<Light> current) -> bool {
+                        return current == light;
+                    }
+            ),
+            this->lights.end()
+    );
 }
 
 void APIENTRY glDebugOutput(GLenum source,

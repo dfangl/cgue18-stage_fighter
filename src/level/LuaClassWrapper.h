@@ -184,4 +184,26 @@ public:
 
 };
 
+class LuaLight {
+protected:
+    LuaVec3 position;
+    LuaVec3 diffuse;
+    LuaVec3 specular;
+    LuaVec3 ambient;
+
+public:
+    LuaLight(LuaVec3 &pos,LuaVec3 &dif,LuaVec3 &spec,LuaVec3 &amb) :
+            position(pos), diffuse(dif), specular(spec), ambient(amb) {}
+
+    std::shared_ptr<Light> toLight() {
+        return std::make_shared<Light>(
+                    position.pos,
+                    diffuse.pos,
+                    specular.pos,
+                    ambient.pos
+                );
+    }
+
+};
+
 #endif //STAGE_FIGHTER_LUACLASSWRAPPER_H

@@ -29,6 +29,7 @@
 #include "../entity/CubeEntity.h"
 #include "../entity/Player.h"
 
+class Light;
 #include "../object3d/Model3DObject.h"
 
 #include "LuaClassWrapper.h"
@@ -48,6 +49,7 @@ private:
     std::vector<Entity *> oldEntities;
     std::vector<std::shared_ptr<Model3DObject>> statics;
     std::vector<std::shared_ptr<BulletObject>> bullet;
+    std::vector<std::shared_ptr<Light>> lights;
 
     LuaVec3 cameraPos {0.0f, 0.0f, 0.0f};
     LuaVec3 lookAt {0.0f, 0.0f, 0.0f};

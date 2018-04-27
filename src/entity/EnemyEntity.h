@@ -35,7 +35,7 @@ public:
 
     void think(std::chrono::duration<double, std::milli> delta) override;
 
-    void render(const Camera &camera) override;
+    void render(const Camera &camera, const std::vector<std::shared_ptr<Light>> &lights) override;
 };
 
 
