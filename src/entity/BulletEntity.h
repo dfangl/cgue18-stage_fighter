@@ -16,8 +16,10 @@ class BulletEntity : public Entity, public BulletObject, public Model3DObject {
 
 private:
     std::shared_ptr<BulletUniverse> world;
-    float speed = 5.0f;
     glm::vec3 direction;
+
+    float speed = 5.0f;
+    float maxLifeTime = 10000.0f; // 10 sec
 
 public:
     BulletEntity(const btVector3 &pos, const btVector3 &target, std::shared_ptr<BulletUniverse> &world);

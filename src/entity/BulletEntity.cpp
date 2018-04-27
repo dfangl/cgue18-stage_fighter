@@ -71,6 +71,10 @@ BulletEntity::BulletEntity(const btVector3 &pos, const btVector3 &target, std::s
 }
 
 void BulletEntity::think(Level *level, std::chrono::duration<double, std::milli> delta) {
+    this->maxLifeTime -= delta.count();
+    if (maxLifeTime <= 0.0)
+        this->health = 0;
+
     if (this->health == 0) {
         level->despawn(this);
         return;

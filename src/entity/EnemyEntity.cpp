@@ -60,7 +60,7 @@ void EnemyEntity::think(Level *level, std::chrono::duration<double, std::milli> 
         level->spawn(std::make_shared<BulletEntity>(origin, btVector3(pPos.x, pPos.y, pPos.z), world));
     }
 
-    if (lastDmgTime > 0.0f)
+    if (lastDmgTime > 0.0)
         lastDmgTime -= delta.count();
 }
 
@@ -71,6 +71,10 @@ void EnemyEntity::setEntityPosition(const glm::vec3 &vec, const glm::quat &rot) 
 }
 
 void EnemyEntity::collideWith(BulletObject *other) {
+    // Health loss calculation:
+    if (lastDmgTime > 0.0)
+        return;
+
     if (other->getKind() == BulletObject::WEAPON || other->getKind() == BulletObject::PLAYER) {
         lastDmgTime = dmgTimeout;
         this->health -= 1;

@@ -20,9 +20,9 @@ CameraEntity::CameraEntity(Camera &camera, std::shared_ptr<BulletUniverse> world
         this->backwardPressed  = window->getKey(GLFW_KEY_S) != GLFW_RELEASE;
         this->rightPressed     = window->getKey(GLFW_KEY_D) != GLFW_RELEASE;
 
-        if (canJump && window->getKey(GLFW_KEY_SPACE) != GLFW_RELEASE) {
+        if (canJump && jump <= 0 && window->getKey(GLFW_KEY_SPACE) != GLFW_RELEASE) {
             rigidBody->applyCentralImpulse(btVector3(0,this->jumpSpeed,0));
-            canJump = false;
+            jump = airTime;
         }
     };
 
@@ -66,20 +66,25 @@ void CameraEntity::think(std::chrono::duration<double, std::milli> delta) {
     rigidBody->setLinearVelocity(speed.rotate(bulletMovementVector, btRadians(-camera.getYaw())));
 
     {
-        auto end = btVector3(o.x(), o.y()-height*2, o.z());
-        auto end2 = btVector3(o.x(), o.y()-height/2, o.z());
+        auto end = btVector3(o.x(), o.y()-height, o.z());
+        //auto end2 = btVector3(o.x(), o.y()-height/2, o.z());
         auto &start = o;
         btCollisionWorld::ClosestRayResultCallback rayCallback(start, end);
-        btCollisionWorld::ClosestRayResultCallback glitchingCallback(start, end2);
+        //btCollisionWorld::ClosestRayResultCallback glitchingCallback(start, end2);
         world->rayTest(start, end, rayCallback);
-        world->rayTest(start, end2, glitchingCallback);
+        //world->rayTest(start, end2, glitchingCallback);
 
         canJump = rayCallback.hasHit();
+        if (canJump && jump > 0) {
+            jump -= delta.count();
+        }
 
+        /*
         if (glitchingCallback.hasHit()) {
            speed.setY(0.00001f);
            BulletObject::setOrigin(btVector3(o.x(), o.y()+height/2+0.0001f, o.z()));
         }
+         */
     }
 
 

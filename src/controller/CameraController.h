@@ -17,8 +17,8 @@ class CameraEntity : public Entity, public BulletObject {
 
 private:
     btVector3 speed;
-    float height = 0.700000009f; // Capsule height * 2 [radius]
-    const float airTime = 500.0f; // in ms
+    float height = 0.7f; // Capsule height * 2 [radius]
+    const float airTime = 50.0f; // in ms
 
     bool forewardPressed = false;
     bool backwardPressed = false;
@@ -46,7 +46,7 @@ public:
     virtual ~CameraEntity();
 
     float entitySpeed = 7.0f;
-    float jumpSpeed = 1.7f;
+    float jumpSpeed = 14.0f;
 
     void enable();
     void disable();
