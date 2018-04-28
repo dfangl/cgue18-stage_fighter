@@ -10,7 +10,7 @@ player.speed    = 7.0
 objects = {
     StaticObject(
         "coliseum",     -- Model File
-        "standard",         -- Shader
+        "standard",     -- Shader
         vec3(0,0,0),    -- Position
         vec4(0,0,0,1),  -- Rotation
         {               -- List of Bullet primitives
@@ -38,7 +38,7 @@ objects = {
     StaticObject("wall", "standard", vec3(-50.08  , -42.5088, -8.18353), vec4(0,0.707107,0,0.707107), { BoxShape(vec3(-50.08  , -42.5088+2.14664/2, -8.18353), vec4(0.707107,0,0.707107,0), 0, vec3(0.576059/2, 2.14664/2, 5.96413/2)), }),
 
     -- Light Cube:
-    StaticObject("cube", "light", vec3(-50.188 , -40 , 0.0),  vec4(0,0,0,1), { BoxShape(vec3(0,0,0), vec4(0,0,0,1), 0, vec3(0.1/2, 0.1/2, 0.1/2)), }),
+    StaticObject("cube", "light", vec3(-50.188 , -35 , 0.0),  vec4(0,0,0,1), { BoxShape(vec3(0,0,0), vec4(0,0,0,1), 0, vec3(0.1/2, 0.1/2, 0.1/2)), }),
 }
 
 entities = {
@@ -49,9 +49,9 @@ entities = {
 
 lights = {
     PointLight(
-        vec3(-50.188 , -40 , 0.0), -- Position
-        vec3(0.2,0.2,0.2), -- Ambient
-        vec3(0.2,0.2,0.2), -- Diffuse
-        vec3(0.8,0.8,0.8)  -- Specular
+        vec3(-50.188 , -35 , 0.0), -- Position
+        vec3(0.4,0.4,0.4), -- Ambient
+        vec3(0.7,0.7,0.7), -- Diffuse
+        vec3(0.5,0.5,0.5)  -- Specular
     )
 }
