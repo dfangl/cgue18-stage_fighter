@@ -19,9 +19,7 @@ void Object3D::render(const Camera &camera, const std::vector<std::shared_ptr<Li
 
     // TODO: support multiple lights with #DEFINE_MAX_LIGHTS
     if (!lights.empty()) {
-        glm::vec3 lPos = glm::vec4(lights[0]->getPosition(), 0) * camera.getViewMatrix();
-
-        this->shader->setUniform("light.position", lPos);
+        this->shader->setUniform("light.position", lights[0]->getPosition());
         this->shader->setUniform("light.diffuse", lights[0]->getDiffuse());
         this->shader->setUniform("light.ambient", lights[0]->getAmbient());
         this->shader->setUniform("light.specular", lights[0]->getSpecular());
