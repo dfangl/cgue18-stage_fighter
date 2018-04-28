@@ -26,26 +26,26 @@ void FontManager::destroy() {
     FT_Done_FreeType(ft);
 }
 
-std::shared_ptr<Font> FontManager::load(const std::string &name) {
+std::shared_ptr<Font> FontManager::load(const std::string &file, const std::string &name, int size) {
     if(fonts.find(name) == fonts.end()) {
         FT_Face face;
-        if (FT_New_Face(ft, (root + name + ".ttf").c_str(), 0, &face)){
-            logger->error("Unable to load font file: {}.ttf",root + name);
+        if (FT_New_Face(ft, (root + file + ".ttf").c_str(), 0, &face)){
+            logger->error("Unable to load font file: {}.ttf",root + file);
             logger->flush();
 
-            throw std::runtime_error("Unable to load font file: " + root + name + ".ttf");
+            throw std::runtime_error("Unable to load font file: " + root + file + ".ttf");
         }
 
-        fonts[name] = std::make_shared<Font>(face);
+        fonts[name] = std::make_shared<Font>(face, size);
     }
 
     return fonts[name];
 }
 
-void FontManager::store(const std::string &name, FT_Face &font) {
-    fonts[name] = std::make_shared<Font>(font);
+void FontManager::store(const std::string &name, std::shared_ptr<Font> &font) {
+    fonts[name] = font;
 }
 
-void FontManager::store(const std::string &name, std::shared_ptr<Font> font) {
-    fonts[name] = font;
+std::shared_ptr<Font> FontManager::get(const std::string &name) {
+    return fonts[name];
 }

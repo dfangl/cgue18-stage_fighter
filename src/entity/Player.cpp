@@ -9,7 +9,7 @@
 
 Player::Player(Camera &camera, const std::shared_ptr<BulletUniverse> &world) :
         CameraEntity(camera, world, new btSphereShape(0.7f), 1.0f),
-        hud(std::make_shared<PlayerHud>(FontManager::load("Lato-24"), camera.getViewPort().z, camera.getViewPort().w)),
+        hud(std::make_shared<PlayerHud>(FontManager::get("Lato-24"), camera.getViewPort().z, camera.getViewPort().w)),
         Logger("Player") {
 
     this->health = 100;

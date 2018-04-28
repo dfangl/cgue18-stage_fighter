@@ -11,9 +11,9 @@
 
 DebugTextHud::DebugTextHud() : Logger("DebugHUD") {
     this->fpsLabel = std::make_shared<Label>("FPS: 000.0 (00.0000 ms | 00.0000 ms highest)",
-                                            FontManager::load("Lato-Regular"), // Font
+                                            FontManager::get("Lato-12"),       // Font
                                             3.0f, 15.0f,                       // X, Y Coordinates on the Screen
-                                            0.5f,                              // Font scaling
+                                            1.0f,                              // Font scaling
                                             glm::vec3(0.9f, 0.9f, 0.9f)        // Color RGB values between 0.0 and 1.0
     );
 

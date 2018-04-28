@@ -8,11 +8,16 @@
 
 #include "../entity/CubeEntity.h"
 
+#include "../manager/FontManager.h"
 #include "../manager/TextureManager.h"
 
 #include "../object3d/Light.h"
 
 Level::Level(const std::string &file) : Logger("Level"), world(std::make_shared<BulletUniverse>(btVector3(0,-9.81f,0))) {
+    winLoseLabel = std::make_shared<Label>("",
+                                           FontManager::get("Lato-64"),
+                                           0, 0, 1.2f, glm::vec3(1.0f, 1.0f, 1.0f));
+
     logger->info("Loading file {}", file);
 
     // Setup Lua Environment:
@@ -121,7 +126,7 @@ void Level::destroy() {
 }
 
 void Level::tick(std::chrono::duration<double, std::milli> delta) {
-    if (paused)
+    if (levelState != PLAYING)
         return;
 
     /*
@@ -173,12 +178,14 @@ void Level::tick(std::chrono::duration<double, std::milli> delta) {
     if (enemyH <= 0) {
         pause();
         levelState = WON;
+        this->setLabel("You won!");
         logger->info("You won!");
     }
 
     if (player->getHealth() < 0) {
         pause();
         levelState = LOST;
+        this->setLabel("You lost");
         logger->info("You lost!");
     }
 }
@@ -186,6 +193,11 @@ void Level::tick(std::chrono::duration<double, std::milli> delta) {
 void Level::resetEnvironment() {
     // TODO: reset positons and stuff
     logger->critical("resetEnvironment is not implemented");
+
+    if (levelState != PLAYING) {
+        window->removeWidget(winLoseLabel);
+    }
+
 }
 
 void Level::hide() {
@@ -208,12 +220,14 @@ void Level::show() {
 
 void Level::pause() {
     player->disable();
-    paused = true;
+    levelState = PAUSED;
+    setLabel("Paused");
 }
 
 void Level::resume() {
     player->enable();
-    paused = false;
+    levelState = PLAYING;
+    window->removeWidget(winLoseLabel);
 }
 
 void Level::spawn(std::shared_ptr<Entity> entity) {
@@ -223,4 +237,13 @@ void Level::spawn(std::shared_ptr<Entity> entity) {
 
 void Level::despawn(Entity *entity) {
     this->oldEntities.push_back(entity);
+}
+
+void Level::setLabel(const std::string text) {
+    winLoseLabel->setText(text);
+    winLoseLabel->setPosition(window->getWidth()/2-winLoseLabel->getWidth()/2, window->getHeight()/4 - 64/2);
+
+    if (levelState != PLAYING) {
+        window->addWidget(winLoseLabel);
+    }
 }

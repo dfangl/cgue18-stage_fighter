@@ -29,6 +29,8 @@
 #include "../entity/CubeEntity.h"
 #include "../entity/Player.h"
 
+#include "../widget/Label.h"
+
 class Light;
 #include "../object3d/Model3DObject.h"
 
@@ -60,8 +62,12 @@ private:
     const std::shared_ptr<BulletUniverse> world;
     Window *window;
 
-    bool paused = false;
     LevelState levelState = PAUSED;
+
+    std::shared_ptr<Label> winLoseLabel;
+
+protected:
+    void setLabel(const std::string text);
 
 public:
     Level(const std::string &file);

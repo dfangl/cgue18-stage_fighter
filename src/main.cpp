@@ -83,9 +83,9 @@ int main(int argc, char *argv[]) {
      * common chars like a,b,c and so on, but the Font class supports on demand fetching and stores it afterwards.
      * The Font class represents also a Font Atlas with a fixed size
      */
-    auto defaultFont = FontManager::load("Lato-Regular");
-    FontManager::store("Lato-24", defaultFont->setSize(24));    // Store bigger font in FontManager for later use
-
+    FontManager::load("Lato-Regular", "Lato-12", 12);
+    FontManager::load("Lato-Regular", "Lato-24", 24);
+    FontManager::load("Lato-Regular", "Lato-64", 64);
     /*
      * At this state a default Camera with settings from the configuration file is created and a window with the
      * given settings:
