@@ -70,9 +70,10 @@ protected:
     void setLabel(const std::string text);
 
 public:
-    Level(const std::string &file);
+    explicit Level(const std::string &file);
+    ~Level();
 
-    void start(Camera &camera, Window *window);
+    void start(Window *window);
     void tick(std::chrono::duration<double, std::milli> delta);
 
     void destroy();

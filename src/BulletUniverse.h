@@ -39,7 +39,19 @@ public:
     void addCollsionObject(btCollisionObject *body);
     void removeCollsipnObject(btCollisionObject *body);
 
+    /**
+     * Simulate the Bullet World, tick is the time in ms which passed since the last
+     * call of this function
+     *
+     * @param tick Delta T
+     */
     void simulate(std::chrono::duration<double, std::milli> tick);
+    /**
+     * DO NOT USE THIS FUNCTION IN THE GAME LOOP!
+     *  (Only exists to step into the simulation so that first step isn't invalid)
+     *
+     * @param d some delta
+     */
     void __simulate_fixed_step__(float d);
 
     std::shared_ptr<GLDebugDrawer> getDebugDrawer() { return this->debugDrawer; }

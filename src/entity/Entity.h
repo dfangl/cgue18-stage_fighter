@@ -30,7 +30,7 @@ public:
     virtual void think(Level *level, std::chrono::duration<double, std::milli> delta) { think(delta); }
     virtual void think(std::chrono::duration<double, std::milli> delta) = 0;
 
-    virtual void render(const Camera &camera, const std::vector<std::shared_ptr<Light>> &lights) = 0;
+    virtual void render(Scene *scene) = 0;
 
     virtual glm::vec3 getEntityPosition() const { return position; }
     virtual std::string getName() const { return name; }

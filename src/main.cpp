@@ -111,8 +111,16 @@ int main(int argc, char *argv[]) {
 	 * Additionally we want to set other Window properties like vsync or gamma if we run in Fullscreen mode
 	 */
     window->setVSync(config["window"]["vsync"]);
-    if (window->canSetGamma())                              window->setGamma(config["window"]["gamma"]);
-    else if (config["window"]["gamma"].get<float>() != 1.0) console->critical("Can not set gamma value in windowed mode!");
+    if (config["window"]["useShaderGamma"].get<bool>()) {
+        window->setScreenGamma(config["window"]["gamma"]);
+    } else {
+        if (window->canSetGamma()) window->setGamma(config["window"]["gamma"]);
+        else if (config["window"]["gamma"].get<float>() != 1.0) {
+            console->critical("Can not set gamma value in windowed mode!");
+            console->info("Function setScreenGamma will be used!");
+            window->setScreenGamma(config["window"]["gamma"]);
+        }
+    }
 
     /*
      * Configure Global Bullet debugging Mode: (Drawing Bullet primitives and such onto the Screen)
@@ -129,7 +137,7 @@ int main(int argc, char *argv[]) {
      * Load and start Test level so we can do something
      */
     auto level = std::make_shared<Level>("../resources/level/test.lua");
-    level->start(camera, window);
+    level->start(window);
 
     /*
      * For development purposes the Window can also handle direct camera movement aka "flying camera", we don't want
@@ -152,6 +160,8 @@ int main(int argc, char *argv[]) {
     auto nuklear = std::make_shared<NuklearContext>(window);
     auto gameMenu = std::make_shared<GameMenu>(nuklear);
     nuklear->add(gameMenu);
+
+    gameMenu->gamma = config["window"]["gamma"];
 
     /*
      * Disable the nuklear GUI, so it's invisible and does not capture events

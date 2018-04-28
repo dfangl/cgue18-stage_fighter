@@ -64,20 +64,19 @@ Level::Level(const std::string &file) : Logger("Level"), world(std::make_shared<
     state.dofile(file);
 }
 
-void Level::start(Camera &camera, Window *window) {
+void Level::start(Window *window) {
     /*
      * Manipulation internal state since Camera and Window must not be present while loading the Level stuff
      * (lazy loading or pre-loading)
      */
     this->window = window;
-    this->player = std::make_shared<Player>(camera, world);
+    this->player = std::make_shared<Player>(window->getScene()->getCamera(), world);
 
     /*
      * Enable the Debugging Stuff of bullet if debugging is enabled
      */
     if (this->world->isDebugging())
-        window->addObject3D(world->getDebugDrawer());
-
+        window->getScene()->bulletDebugDrawer = world->getDebugDrawer();
 
     /*
      * Initialize Player in the Level:
@@ -118,7 +117,11 @@ void Level::start(Camera &camera, Window *window) {
     this->logger->info("Player.position={},{},{}", player->getEntityPosition().x, player->getEntityPosition().y, player->getEntityPosition().z);
 
     this->show();
-    world->__simulate_fixed_step__(1.0f/60.0f);
+
+    /**
+     * Step through the world to "warm it up"
+     */
+    world->__simulate_fixed_step__(1.0f/10.0f);
 }
 
 void Level::destroy() {
@@ -152,7 +155,7 @@ void Level::tick(std::chrono::duration<double, std::milli> delta) {
                             [entity, this](std::shared_ptr<Entity> current) -> bool {
                                 bool r = current.get() == entity;
                                 if (r)
-                                    window->removeObject(current);
+                                    window->getScene()->removeObject(current);
 
                                 return r;
                             }
@@ -195,31 +198,40 @@ void Level::tick(std::chrono::duration<double, std::milli> delta) {
 }
 
 void Level::resetEnvironment() {
-    // TODO: reset positons and stuff
-    logger->critical("resetEnvironment is not implemented");
+    this->hide();
 
-    if (levelState != PLAYING) {
-        window->removeWidget(winLoseLabel);
-    }
+    // Clear generated Level
+    this->entities.clear();
+    this->oldEntities.clear();
+    this->bullet.clear();
+    this->lights.clear();
 
+    this->window->removeKeyPollingCallback(playerInputCallbackID);
+
+    // Re-Load from Lua Environment
+    this->start(this->window);
 }
 
 void Level::hide() {
     pause();
-    for (auto &entity : this->entities) this->window->removeObject(entity);
-    for (auto &obj    : this->statics ) this->window->removeObject(obj);
-    for (auto &light  : this->lights  ) this->window->removeLight(light);
+    for (auto &entity : this->entities) this->window->getScene()->removeObject(entity);
+    for (auto &obj    : this->statics ) this->window->getScene()->removeObject(obj);
+    for (auto &light  : this->lights  ) this->window->getScene()->removeLight(light);
 
     this->window->removeWidget(player->getHud());
+    this->window->removeWidget(winLoseLabel);
 }
 
 void Level::show() {
     resume();
-    for (auto &entity : this->entities) this->window->addObject3D(entity);
-    for (auto &obj    : this->statics ) this->window->addObject3D(obj);
-    for (auto &light  : this->lights  ) this->window->addLight(light);
+    for (auto &entity : this->entities) this->window->getScene()->addObject(entity);
+    for (auto &obj    : this->statics ) this->window->getScene()->addObject(obj);
+    for (auto &light  : this->lights  ) this->window->getScene()->addLight(light);
 
     this->window->addWidget(player->getHud());
+    if (levelState != PLAYING) {
+        this->window->addWidget(winLoseLabel);
+    }
 }
 
 void Level::pause() {
@@ -236,7 +248,7 @@ void Level::resume() {
 
 void Level::spawn(std::shared_ptr<Entity> entity) {
     this->newEntities.push_back(entity);
-    this->window->addObject3D(entity);
+    this->window->getScene()->addObject(entity);
 }
 
 void Level::despawn(Entity *entity) {
@@ -245,9 +257,15 @@ void Level::despawn(Entity *entity) {
 
 void Level::setLabel(const std::string text) {
     winLoseLabel->setText(text);
-    winLoseLabel->setPosition(window->getWidth()/2-winLoseLabel->getWidth()/2, window->getHeight()/4 - 64/2);
+    winLoseLabel->setPosition(window->getWidth()/2.0f-winLoseLabel->getWidth()/2.0f, window->getHeight()/4.0f - 64.0f/2.0f);
 
     if (levelState != PLAYING) {
         window->addWidget(winLoseLabel);
     }
+}
+
+Level::~Level() {
+    this->player->disable();
+    this->hide();
+    this->window->removeKeyPollingCallback(playerInputCallbackID);
 }

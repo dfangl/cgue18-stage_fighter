@@ -10,19 +10,22 @@
 
 #include <iostream>
 
-void Object3D::render(const Camera &camera, const std::vector<std::shared_ptr<Light>> &lights) {
+void Object3D::render(Scene *scene) {
     this->shader->use();
     this->shader->setUniform("model", this->model);
-    this->shader->setUniform("view", camera.getViewMatrix());
-    this->shader->setUniform("projection", camera.getProjectionMatrix());
-    this->shader->setUniformIfNeeded("camera_position", camera.getPosition());
+    this->shader->setUniform("view", scene->getCamera().getViewMatrix());
+    this->shader->setUniform("projection", scene->getCamera().getProjectionMatrix());
+
+    this->shader->setUniformIfNeeded("camera_position", scene->getCamera().getPosition());
+    this->shader->setUniformIfNeeded("screenGamma", scene->gamma);
 
     // TODO: support multiple lights with #DEFINE_MAX_LIGHTS
-    if (!lights.empty()) {
-        this->shader->setUniform("light.position", lights[0]->getPosition());
-        this->shader->setUniform("light.diffuse", lights[0]->getDiffuse());
-        this->shader->setUniform("light.ambient", lights[0]->getAmbient());
-        this->shader->setUniform("light.specular", lights[0]->getSpecular());
+    if (!scene->getLights().empty()) {
+        this->shader->setUniform("light.position", scene->getLights()[0]->position);
+        this->shader->setUniform("light.diffuse", scene->getLights()[0]->diffuse);
+        this->shader->setUniform("light.ambient", scene->getLights()[0]->ambient);
+        this->shader->setUniform("light.specular", scene->getLights()[0]->specular);
+        this->shader->setUniform("light.power", scene->getLights()[0]->power);
     }
 
     this->draw();

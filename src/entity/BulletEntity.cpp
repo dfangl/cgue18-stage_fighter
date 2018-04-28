@@ -112,6 +112,6 @@ void BulletEntity::setEntityPosition(const glm::vec3 &vec, const glm::quat &rot)
 // Never called
 void BulletEntity::think(std::chrono::duration<double, std::milli> delta) {}
 
-void BulletEntity::render(const Camera &camera, const std::vector<std::shared_ptr<Light>> &lights) {
-    Model3DObject::render(camera, lights);
+void BulletEntity::render(Scene *scene) {
+    Model3DObject::render(scene);
 }

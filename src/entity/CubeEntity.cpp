@@ -60,8 +60,8 @@ void CubeEntity::setEntityPosition(const glm::vec3 &vec, const glm::quat &rot) {
     this->getRigidBody()->activate(true);
 }
 
-void CubeEntity::render(const Camera &camera, const std::vector<std::shared_ptr<Light>> &lights) {
-    Cube::render(camera, lights);
+void CubeEntity::render(Scene *scene) {
+    Cube::render(scene);
 }
 
 void CubeEntity::collideWith(BulletObject *other) {

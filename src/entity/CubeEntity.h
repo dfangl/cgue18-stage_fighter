@@ -7,7 +7,9 @@
 
 #include "../object3d/Cube.h"
 #include "../object3d/BulletObject.h"
+
 #include "../BulletUniverse.h"
+#include "../Scene.h"
 
 #include "Entity.h"
 
@@ -27,7 +29,7 @@ public:
 
     void setEntityPosition(const glm::vec3 &vec, const glm::quat &rot) override;
 
-    void render(const Camera &camera, const std::vector<std::shared_ptr<Light>> &lights) override;
+    void render(Scene *scene) override;
 
     void collideWith(BulletObject *other) override;
 };

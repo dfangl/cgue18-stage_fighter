@@ -83,6 +83,6 @@ void EnemyEntity::collideWith(BulletObject *other) {
 
 void EnemyEntity::think(std::chrono::duration<double, std::milli> delta) {}
 
-void EnemyEntity::render(const Camera &camera, const std::vector<std::shared_ptr<Light>> &lights) {
-    Model3DObject::render(camera, lights);
+void EnemyEntity::render(Scene *scene) {
+    Model3DObject::render(scene);
 }

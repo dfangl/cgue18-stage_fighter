@@ -28,6 +28,14 @@ public:
     void show();
     void hide();
 
+    float gamma;
+
+    // light stuff:
+    float ambient;
+    float diffuse;
+    float specular;
+    float power;
+
 };
 
 

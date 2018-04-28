@@ -12,6 +12,8 @@ struct Light {
     vec3 ambient;
     vec3 diffuse;
     vec3 specular;
+
+    float power;
 };
 
 out vec4 FragColor;
@@ -24,13 +26,11 @@ in VS_OUT {
 
 uniform vec3 camera_position;
 uniform sampler2D texture_0;
-uniform Material material;
 
-// TODO: Remove default light if everything works
-const float lightPower = 40.0f;
+uniform Material material;
 uniform Light light;
 
-const float screenGamma = 1.0f;
+uniform float screenGamma = 1.0f;
 
 void main() {
     vec3 n = normalize(fs_in.normal_0);
@@ -47,8 +47,8 @@ void main() {
     float spec  = pow( rDotV, 32);          // TODO: How to get this from a PBR Shader Model?
 
     // Calculate acctual light values from diffuse / specular maps
-    vec3 diffuseLight  = light.diffuse  * lightPower / lDist;
-    vec3 specularLight = light.specular * lightPower / lDist;
+    vec3 diffuseLight  = light.diffuse  * light.power / lDist;
+    vec3 specularLight = light.specular * light.power / lDist;
 
     vec3 ambient  = light.ambient * vec3(texture(texture_0, fs_in.texcoord_0));
     vec3 diffuse  = diffuseLight  * vec3(texture(texture_0, fs_in.texcoord_0)) * sDotN;

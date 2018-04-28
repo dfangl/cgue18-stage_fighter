@@ -12,8 +12,10 @@
 #include <functional>
 #include <memory>
 
-#include "object3d/Object3D.h"
 #include "Camera.h"
+#include "Scene.h"
+
+#include "object3d/Object3D.h"
 #include "widget/Widget.h"
 
 /**
@@ -31,11 +33,9 @@ private:
     std::vector<std::function<void(int, int, int, int)>> keyInputCallbacks;
     std::vector<std::function<void(Window const *)>> inputPollCallbacks;
 
-    std::vector<std::shared_ptr<Light>> lights;
-    std::vector<std::shared_ptr<Object3DAbstract>> objects;
+    std::shared_ptr<Scene> scene;
     std::vector<std::shared_ptr<Widget>> widgets;
 
-    Camera &camera;
     glm::mat4 widgetProjectionMatrix;
 
     double oldXCursorPosition = 0.0;
@@ -43,6 +43,8 @@ private:
 
     bool cameraMouse = false;
     bool cameraKey = false;
+
+    float screenGamma = 1.0f;
 
 protected:
     void glfwWindowSizeChanged(GLFWwindow* window,int width, int height);
@@ -71,14 +73,11 @@ public:
 
     void render(std::chrono::duration<double, std::milli> delta);
 
-    void addObject3D(const std::shared_ptr<Object3DAbstract> &object3D);
-    void removeObject(const std::shared_ptr<Object3DAbstract> &object3D);
-    
+    void setScene(std::shared_ptr<Scene> &scene);
+    std::shared_ptr<Scene> getScene() { return this->scene; }
+
     void addWidget(const std::shared_ptr<Widget> &widget);
     void removeWidget(const std::shared_ptr<Widget> &widget);
-
-    void addLight(const std::shared_ptr<Light> &light);
-    void removeLight(const std::shared_ptr<Light> &light);
 
     int registerMouseCallback(std::function<void(double,double)> callback);
     int registerKeyCallback(std::function<void(int, int, int, int)> callback);
@@ -97,15 +96,25 @@ public:
 
     inline int getKey(int keycode) const { return glfwGetKey(this->glfwWindow, keycode); }
     inline int getMouseButton(int btn) const { return glfwGetMouseButton(this->glfwWindow, btn); }
-    inline Camera &getCamera() const { return this->camera; }
-
     inline GLFWwindow *getGlfwWindow() const { return this->glfwWindow; }
 
     void setClipboardString(const char *text) const;
     const char *getClipboardString() const;
 
+    /**
+     * Gamma value should only be set if canSetGamma is true, this
+     * function uses glfw in the background.
+     *
+     * @param gamma between 0.0 and + infinity
+     */
     void setGamma(float gamma);
     bool canSetGamma() const { return monitor != nullptr; }
+
+    /**
+     * Sets gamma correction but needs Shader support instead of GLFW support
+     * @param gamma between 0.0 and + infinity
+     */
+    void setScreenGamma(float gamma);
 };
 
 

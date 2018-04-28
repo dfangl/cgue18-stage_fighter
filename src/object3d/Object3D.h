@@ -13,6 +13,7 @@
 #include <glm/glm.hpp>
 
 #include "../Shader.h"
+#include "../Scene.h"
 #include "../Camera.h"
 
 #include "Light.h"
@@ -22,7 +23,7 @@
  */
 class Object3DAbstract {
 public:
-    virtual void render(const Camera &camera, const std::vector<std::shared_ptr<Light>> &lights) = 0;
+    virtual void render(Scene *scene) = 0;
 };
 
 /**
@@ -43,7 +44,7 @@ public:
      * This function does apply all the matries to the shader
      * @param camera
      */
-    void render(const Camera &camera, const std::vector<std::shared_ptr<Light>> &lights) override;
+    void render(Scene *scene) override;
 
     /**
      * This function should implement the drawing logic of the Object

@@ -20,10 +20,10 @@ void APIENTRY glDebugOutput(GLenum source, GLenum type, GLuint id, GLenum severi
                             GLsizei length, const GLchar *message, const void *userParam);
 
 Window::Window(Camera &camera, int width, int height, const std::string &windowName, int fullscreen, int refreshRate)
-        : Logger("Window"), camera(camera) {
+        : Logger("Window") {
     this->height = height;
     this->width = width;
-    //this->camera = camera;
+    this->scene = std::make_shared<Scene>(camera);
 
     logger->info("Creating Window: {} ({}x{})", windowName, width, height);
 
@@ -169,7 +169,7 @@ void Window::glfwWindowSizeChanged(GLFWwindow* window,int width, int height) {
     logger->info("Resizing window to {}x{}", width, height);
 
     // Resize Camera and such stuff:
-    this->camera.screenSizeChanged(width, height);
+    this->scene->getCamera().screenSizeChanged(width, height);
     this->widgetProjectionMatrix = glm::ortho(0.0f, (float)width, (float)height, 0.0f);
 
     // Resize widgets
@@ -218,12 +218,13 @@ void Window::render(std::chrono::duration<double, std::milli> delta) {
     }
 
     // Process Camera
-    // TODO: User should be able to modify input keys:
     if(this->cameraKey) {
-        if(glfwGetKey(this->glfwWindow, GLFW_KEY_W) == GLFW_PRESS) this->camera.processKeyInput(delta, Camera::FORWARD);
-        if(glfwGetKey(this->glfwWindow, GLFW_KEY_A) == GLFW_PRESS) this->camera.processKeyInput(delta, Camera::LEFT);
-        if(glfwGetKey(this->glfwWindow, GLFW_KEY_S) == GLFW_PRESS) this->camera.processKeyInput(delta, Camera::RIGHT);
-        if(glfwGetKey(this->glfwWindow, GLFW_KEY_D) == GLFW_PRESS) this->camera.processKeyInput(delta, Camera::BACKWARD);
+        auto camera = this->scene->getCamera();
+
+        if(glfwGetKey(this->glfwWindow, GLFW_KEY_W) == GLFW_PRESS) camera.processKeyInput(delta, Camera::FORWARD);
+        if(glfwGetKey(this->glfwWindow, GLFW_KEY_A) == GLFW_PRESS) camera.processKeyInput(delta, Camera::LEFT);
+        if(glfwGetKey(this->glfwWindow, GLFW_KEY_S) == GLFW_PRESS) camera.processKeyInput(delta, Camera::RIGHT);
+        if(glfwGetKey(this->glfwWindow, GLFW_KEY_D) == GLFW_PRESS) camera.processKeyInput(delta, Camera::BACKWARD);
     }
 
     /*
@@ -233,7 +234,7 @@ void Window::render(std::chrono::duration<double, std::milli> delta) {
         double xPos, yPos;
         glfwGetCursorPos(this->glfwWindow, &xPos, &yPos);
 
-        this->camera.processMouseInput(delta, xPos-oldXCursorPosition, yPos-oldYCursorPosition);
+        this->scene->getCamera().processMouseInput(delta, xPos-oldXCursorPosition, yPos-oldYCursorPosition);
         oldXCursorPosition = xPos;
         oldYCursorPosition = yPos;
     }
@@ -243,9 +244,7 @@ void Window::render(std::chrono::duration<double, std::milli> delta) {
     glDepthFunc(GL_LESS);
 
     // Render all Objects to the Window
-    for(auto &obj : this->objects) {
-        obj->render(this->camera, this->lights);
-    }
+    this->scene->render();
 
     // Models don't disable backface culling if they enabled it
     glDisable(GL_CULL_FACE);
@@ -258,23 +257,6 @@ void Window::render(std::chrono::duration<double, std::milli> delta) {
     // Swap Buffers and listen to events (as GLFW suggests)
     glfwSwapBuffers(this->glfwWindow);
     glfwPollEvents();
-}
-
-void Window::addObject3D(const std::shared_ptr<Object3DAbstract> &object3D) {
-    this->objects.push_back(object3D);
-}
-
-void Window::removeObject(const std::shared_ptr<Object3DAbstract> &object3D) {
-    this->objects.erase(
-            std::remove_if(
-                    this->objects.begin(),
-                    this->objects.end(),
-                    [object3D](std::shared_ptr<Object3DAbstract> current) -> bool {
-                        return current == object3D;
-                    }
-            ),
-            this->objects.end()
-    );
 }
 
 void Window::glfwErrorCallabck(int code, const char *text) {
@@ -347,22 +329,16 @@ void Window::setGamma(float gamma) {
     glfwSetGamma(this->monitor, gamma);
 }
 
-void Window::addLight(const std::shared_ptr<Light> &light) {
-    this->lights.push_back(light);
+void Window::setScene(std::shared_ptr<Scene> &scene) {
+    this->scene = scene;
+    this->scene->gamma = this->screenGamma;
 }
 
-void Window::removeLight(const std::shared_ptr<Light> &light) {
-    this->lights.erase(
-            std::remove_if(
-                    this->lights.begin(),
-                    this->lights.end(),
-                    [light](std::shared_ptr<Light> current) -> bool {
-                        return current == light;
-                    }
-            ),
-            this->lights.end()
-    );
+void Window::setScreenGamma(float gamma) {
+    this->screenGamma = gamma;
+    this->scene->gamma = screenGamma;
 }
+
 
 void APIENTRY glDebugOutput(GLenum source,
                             GLenum type,
