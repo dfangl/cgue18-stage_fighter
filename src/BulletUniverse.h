@@ -40,6 +40,7 @@ public:
     void removeCollsipnObject(btCollisionObject *body);
 
     void simulate(std::chrono::duration<double, std::milli> tick);
+    void __simulate_fixed_step__(float d);
 
     std::shared_ptr<GLDebugDrawer> getDebugDrawer() { return this->debugDrawer; }
     void enableDebugging();

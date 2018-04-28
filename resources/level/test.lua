@@ -50,8 +50,8 @@ entities = {
 lights = {
     PointLight(
         vec3(-50.188 , -40 , 0.0), -- Position
-        vec3(0.7,0.7,0.7), -- Ambient
+        vec3(0.6,0.6,0.6), -- Ambient
         vec3(0.4,0.4,0.4), -- Diffuse
-        vec3(0.1,0.1,0.1)  -- Specular
+        vec3(0.4,0.4,0.4)  -- Specular
     )
 }

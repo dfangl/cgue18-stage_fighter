@@ -190,6 +190,7 @@ int main(int argc, char *argv[]) {
 
     /*
      * While the window is open we want to render stuff ...
+     * TODO: First delta might be way too small for some simulation stuff
      */
 	while (window->isOpen()) {
 	    /*

@@ -114,7 +114,11 @@ void Level::start(Camera &camera, Window *window) {
     this->logger->info("Loaded {} collision primitives", bullet.size());
     this->logger->info("Loaded {} light sources", lights.size());
 
+    this->logger->info("Entity[0].position={},{},{}", entities[0]->getEntityPosition().x, entities[0]->getEntityPosition().y, entities[0]->getEntityPosition().z);
+    this->logger->info("Player.position={},{},{}", player->getEntityPosition().x, player->getEntityPosition().y, player->getEntityPosition().z);
+
     this->show();
+    world->__simulate_fixed_step__(1.0f/60.0f);
 }
 
 void Level::destroy() {

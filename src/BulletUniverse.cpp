@@ -102,3 +102,7 @@ void BulletUniverse::rayTest(const btVector3 &start, const btVector3 &end,
     this->dynamicsWorld->rayTest(start, end, rayCallback);
 }
 
+void BulletUniverse::__simulate_fixed_step__(float d) {
+    dynamicsWorld->stepSimulation(d / 1000.0f, 1, 1.0f / 60.0f);
+}
+
