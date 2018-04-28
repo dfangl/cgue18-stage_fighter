@@ -187,7 +187,6 @@ int main(int argc, char *argv[]) {
      * to limit the number of frames in which the fps llabelwill be redrawn ...
      */
     auto lastTick = std::chrono::high_resolution_clock::now();
-    double frameSampleCount = 0.0;
 
     /*
      * While the window is open we want to render stuff ...

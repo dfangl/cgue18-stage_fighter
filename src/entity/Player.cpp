@@ -48,7 +48,7 @@ void Player::computeEnemyInView(std::vector<std::shared_ptr<Entity>> &entities) 
             auto p = isInView(entity.get());
             if (p.x > width/2-width/5 && p.x < width/2+width/5 &&
                 p.y > height/2-height/5 && p.y < height/2+height/5 &&
-                targetDist > distance) {
+                targetDist > distance && p.z < 1.0) {
                 selectedEnemy = entity;
             }
         }

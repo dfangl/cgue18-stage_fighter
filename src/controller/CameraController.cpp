@@ -37,6 +37,7 @@ CameraEntity::CameraEntity(Camera &camera, std::shared_ptr<BulletUniverse> world
 
 void CameraEntity::setEntityPosition(const glm::vec3 &vec, const glm::quat &rot) {
     this->camera.update(vec);
+    this->position = vec;
     BulletObject::setOrigin(btVector3(vec.x,vec.y,vec.z), btQuaternion(rot.x, rot.y, rot.z, rot.w));
 }
 
@@ -67,29 +68,15 @@ void CameraEntity::think(std::chrono::duration<double, std::milli> delta) {
 
     {
         auto end = btVector3(o.x(), o.y()-height, o.z());
-        //auto end2 = btVector3(o.x(), o.y()-height/2, o.z());
         auto &start = o;
         btCollisionWorld::ClosestRayResultCallback rayCallback(start, end);
-        //btCollisionWorld::ClosestRayResultCallback glitchingCallback(start, end2);
         world->rayTest(start, end, rayCallback);
-        //world->rayTest(start, end2, glitchingCallback);
 
         canJump = rayCallback.hasHit();
         if (canJump && jump > 0) {
             jump -= delta.count();
         }
-
-        /*
-        if (glitchingCallback.hasHit()) {
-           speed.setY(0.00001f);
-           BulletObject::setOrigin(btVector3(o.x(), o.y()+height/2+0.0001f, o.z()));
-        }
-         */
     }
-
-
-    //rigidBody->setAngularFactor(btVector3(0,1,0));
-    //rigidBody->setAngularVelocity(btVector3(0.0f, 0.0f, 0.0f));
 }
 
 CameraEntity::~CameraEntity() {
