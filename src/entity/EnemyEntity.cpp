@@ -77,6 +77,7 @@ void EnemyEntity::collideWith(BulletObject *other) {
 
     if (other->getKind() == BulletObject::WEAPON || other->getKind() == BulletObject::PLAYER) {
         lastDmgTime = dmgTimeout;
+        spdlog::get("console")->info("{} got hit by {}", name, (void*)other);
         this->health -= 1;
     }
 }

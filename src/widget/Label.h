@@ -21,7 +21,7 @@ private:
     GLuint VAO, VBO;
     glm::vec3 color;
     std::string text;
-    float x,y,scale;
+    float x,y,scale,w;
     std::shared_ptr<Font> font;
     std::shared_ptr<Shader> shader;
 

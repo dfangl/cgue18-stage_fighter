@@ -12,6 +12,19 @@ Label::Label(std::string text, std::shared_ptr<Font> font, float x, float y, flo
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
 
+    // Create a valid .data() pointer
+    this->vboData.emplace_back();
+    this->vboData.clear();
+
+    glBindVertexArray(VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), nullptr);
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+
     this->shader = ShaderManager::load("font");
     buildVBO();
 }
@@ -29,54 +42,49 @@ void Label::render(const glm::mat4 &projection) {
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    glActiveTexture(GL_TEXTURE0);
     glBindVertexArray(VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
     // Bind Texture atlas
+    glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, font->getAtlasTexID());
-
-    // Update content of VBO memory
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
     // Render quads
     glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(vboData.size() * 6));
 
-    glBindVertexArray(0);
     glBindTexture(GL_TEXTURE_2D, 0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
 
     glDisable(GL_BLEND);
 }
 
 float Label::getWidth() {
-    float width = 0.0f;
-
-    std::string::const_iterator c;
-    for (c = text.begin(); c != text.end(); c++) {
-        Font::Character ch = font->get((unsigned long) *c);
-        width += (ch.advance >> 6) * scale;
-    }
-
-    return width;
+    return w;
 }
 
 void Label::setPosition(float x, float y) {
-    this->x = x;
-    this->y = y;
+    if (this->x != x || this->y != y) {
+        this->x = x;
+        this->y = y;
+
+        buildVBO();
+    }
 }
 
 void Label::resize(float x, float y) {}
 
 void Label::setText(std::string text) {
-    this->text = text;
-    buildVBO();
+    if (this->text != text) {
+        this->text = text;
+        buildVBO();
+    }
 }
 
 void Label::buildVBO() {
-    glBindVertexArray(VAO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-
     float x = this->x;
     float y = this->y;
+    this->w = 0;
 
     vboData.clear();
     for (auto &c : this->text) {
@@ -105,10 +113,16 @@ void Label::buildVBO() {
         x += (ch.advance >> 6) * scale; // Bitshift by 6 to get value in pixels (2^6 = 64)
     }
 
-    glBufferData(GL_ARRAY_BUFFER, vboData.size() * sizeof(Quad), vboData.empty() ? nullptr : &vboData.at(0), GL_DYNAMIC_DRAW);
+    w = x - this->x;
 
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), nullptr);
+    glBindVertexArray(VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+
+    glBufferData(GL_ARRAY_BUFFER,
+                 vboData.size() * sizeof(Quad),
+                 vboData.data(),
+                 GL_DYNAMIC_DRAW
+    );
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
