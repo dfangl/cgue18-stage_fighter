@@ -24,10 +24,17 @@ Level::Level(const std::string &file) : Logger("Level"), world(std::make_shared<
     state["vec3"].setClass(
             kaguya::UserdataMetatable<LuaVec3>()
                     .setConstructors<LuaVec3(double, double, double)>()
+                    .addFunction("x", &LuaVec3::x)
+                    .addFunction("y", &LuaVec3::y)
+                    .addFunction("z", &LuaVec3::z)
     );
     state["vec4"].setClass(
             kaguya::UserdataMetatable<LuaVec4>()
                     .setConstructors<LuaVec4(double, double, double, double)>()
+                    .addFunction("x", &LuaVec4::x)
+                    .addFunction("y", &LuaVec4::y)
+                    .addFunction("z", &LuaVec4::z)
+                    .addFunction("w", &LuaVec4::w)
     );
 
     state["StaticObject"].setClass(

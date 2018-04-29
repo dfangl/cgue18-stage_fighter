@@ -30,6 +30,10 @@ public:
     btVector3 toVector3() const {
         return {pos.x, pos.y, pos.z};
     }
+
+    double x() { return pos.x; }
+    double y() { return pos.y; }
+    double z() { return pos.z; }
 };
 
 class LuaVec4 {
@@ -47,6 +51,11 @@ public:
     btQuaternion toQuat() const {
         return {pos.x, pos.y, pos.z, pos.w};
     }
+
+    double x() { return pos.x; }
+    double y() { return pos.y; }
+    double z() { return pos.z; }
+    double w() { return pos.w; }
 };
 
 // *******************************
