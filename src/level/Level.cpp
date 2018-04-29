@@ -113,17 +113,13 @@ void Level::start(Window *window) {
     this->logger->info("Loaded {} collision primitives", bullet.size());
     this->logger->info("Loaded {} light sources", lights.size());
 
-    this->logger->info("Entity[0].position={},{},{}", entities[0]->getEntityPosition().x, entities[0]->getEntityPosition().y, entities[0]->getEntityPosition().z);
-    this->logger->info("Player.position={},{},{}", player->getEntityPosition().x, player->getEntityPosition().y, player->getEntityPosition().z);
-    this->logger->info("Player.addr={}", (void*)player.get());
-
     this->show();
 
     /**
      * Step through the world to "warm it up"
      */
     this->player->getRigidBody()->applyCentralForce(btVector3(0.0f, -0.1f, 0.0f));
-    world->__simulate_fixed_step__(1.0f/10.0f);
+    world->__simulate_fixed_step__(1.0f/120.0f);
 }
 
 void Level::destroy() {

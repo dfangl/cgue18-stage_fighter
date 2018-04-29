@@ -57,7 +57,21 @@ void EnemyEntity::think(Level *level, std::chrono::duration<double, std::milli> 
         auto origin = getTransformation().getOrigin();
         auto pPos = level->getPlayer()->getEntityPosition();
 
-        level->spawn(std::make_shared<BulletEntity>(origin, btVector3(pPos.x, pPos.y, pPos.z), world));
+        // Spawn Projectile outside of HitBox:
+        {
+            btVector3 center;
+            float radius;
+            BulletObject::fallShape->getBoundingSphere(center, radius);
+            glm::vec3 direction = glm::normalize(pPos - position);
+
+            level->spawn(
+                    std::make_shared<BulletEntity>(
+                            btVector3(origin.x() + direction.x * radius, origin.y() + direction.y * radius, origin.z() + direction.z * radius),
+                            btVector3(pPos.x, pPos.y, pPos.z),
+                            world
+                    )
+            );
+        }
     }
 
     if (lastDmgTime > 0.0)
