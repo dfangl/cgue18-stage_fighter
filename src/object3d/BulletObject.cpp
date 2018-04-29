@@ -24,6 +24,7 @@ BulletObject::BulletObject(const btVector3 &pos, const btQuaternion &rotation, b
     }
 
     this->rigidBody->setUserPointer(this);
+    //spdlog::get("console")->info("BulletObject={}", (void*)this);
 }
 
 BulletObject::~BulletObject() {

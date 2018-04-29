@@ -6,6 +6,7 @@
 #include "object3d/BulletObject.h"
 
 bool BulletUniverse::debuggingFlag = false;
+void simulationTickCallback(btDynamicsWorld *dynamicsWorld, btScalar timeStep);
 
 BulletUniverse::BulletUniverse(const btVector3 &gravity) {
     this->broadphase = new btDbvtBroadphase();
@@ -21,6 +22,8 @@ BulletUniverse::BulletUniverse(const btVector3 &gravity) {
 
     if (this->debug)
         this->enableDebugging();
+
+    dynamicsWorld->setInternalTickCallback(simulationTickCallback);
 }
 
 BulletUniverse::~BulletUniverse() {
@@ -35,33 +38,16 @@ void BulletUniverse::addRigidBody(btRigidBody *body) {
     this->dynamicsWorld->addRigidBody(body);
 }
 
-void BulletUniverse::simulate(std::chrono::duration<double, std::milli> tick) {
-    /*
-     * Limit updates to ~ 16,6666 ms to preserve numeric stability and reduce
-     * load for more FPS
-     *
-     * TODO: Why does glitching occur if limited?
-     *  (Limit maybe to 500fps or so?)
-     */
-    internalTick += tick.count();
-    if (internalTick < 1.0/60.0)
-        return;
-
-    /*
-     * Simulate the actual world
-     *  (time elapsed in world, max steps, fixed step size ~1/60 fps)
-     */
-    dynamicsWorld->stepSimulation(static_cast<btScalar>(internalTick / 1000.f), (int)glm::ceil((float)internalTick / (1.0f/60.0f) + 1), 1.0f / 60.0f);
-    dynamicsWorld->performDiscreteCollisionDetection();
-
-    internalTick = 0;
-
+void simulationTickCallback(btDynamicsWorld *dynamicsWorld, btScalar timeStep) {
     /*
      * Get all the collisions of the world and call the objects to invoke the logic
      */
     const int mainfolds = dynamicsWorld->getDispatcher()->getNumManifolds();
     for (int i=0; i < mainfolds; i++) {
         btPersistentManifold* contactManifold = dynamicsWorld->getDispatcher()->getManifoldByIndexInternal(i);
+        if (contactManifold->getNumContacts() == 0)
+            continue;
+
         const btCollisionObject* obA = const_cast<btCollisionObject*>(contactManifold->getBody0());
         const btCollisionObject* obB = const_cast<btCollisionObject*>(contactManifold->getBody1());
 
@@ -75,6 +61,30 @@ void BulletUniverse::simulate(std::chrono::duration<double, std::milli> tick) {
         bB->collideWith(bA);
     }
 }
+
+void BulletUniverse::simulate(std::chrono::duration<double, std::milli> tick) {
+    /*
+     * Limit updates to ~ 16,6666 ms to preserve numeric stability and reduce
+     * load for more FPS
+     */
+    internalTick += tick.count();
+    if (internalTick < 1.0/60.0)
+        return;
+
+    /*
+     * Simulate the actual world
+     *  (time elapsed in world, max steps, fixed step size ~1/60 fps)
+     */
+    dynamicsWorld->stepSimulation(
+            static_cast<btScalar>(internalTick / 1000.f),
+            (int)glm::ceil((float)internalTick / (1.0f/60.0f) + 1),
+            1.0f / 60.0f
+    );
+    dynamicsWorld->performDiscreteCollisionDetection();
+
+    internalTick = 0;
+}
+
 
 void BulletUniverse::removeRigidBody(btRigidBody *body) {
     this->dynamicsWorld->removeRigidBody(body);

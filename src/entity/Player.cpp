@@ -20,8 +20,8 @@ Player::Player(Camera &camera, const std::shared_ptr<BulletUniverse> &world) :
 
     this->entitySpeed = 5.5f;
 
-    BulletObject::rigidBody->setCcdMotionThreshold(7.0f);
-    BulletObject::rigidBody->setCcdSweptSphereRadius(0.5f);
+    //BulletObject::rigidBody->setCcdMotionThreshold(7.0f);
+    //BulletObject::rigidBody->setCcdSweptSphereRadius(0.5f);
 }
 
 void Player::think(std::chrono::duration<double, std::milli> delta) {

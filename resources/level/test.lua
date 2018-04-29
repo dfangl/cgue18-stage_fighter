@@ -3,7 +3,7 @@
 -- TODO: make use of /objects/index.lua and use these objects
 
 player = {}
-player.position = vec3(-50.188, -47.5088, 0)
+player.position = vec3(-50.188, -42.5088, 0)
 player.lookAt   = vec3(0, 7, 0)
 player.speed    = 7.0
 
@@ -42,7 +42,7 @@ objects = {
 }
 
 entities = {
-    EnemyEntity("Enemy #1", 50, 5000, vec3(-24.7897,-47.5088,1.65117), vec4(0,0,0,1), "enemy_1", 30.0, BoxShape(vec3(0,0,0), vec4(0,0,0,1), 0, vec3(1.87421/2, 2.04659/2, 1.87421/2)))
+    EnemyEntity("Enemy #1", 50, 5000, vec3(-24.7897,-42.5088,1.65117), vec4(0,0,0,1), "enemy_1", 30.0, BoxShape(vec3(0,0,0), vec4(0,0,0,1), 0, vec3(1.87421/2, 2.04659/2, 1.87421/2)))
 --    CubeEntity("green.jpg", vec3(-24.7897,-47.5088,1.65117)),
 --    CubeEntity("green.jpg", vec3(-78.3989,-47.5088,1.65117))
 }

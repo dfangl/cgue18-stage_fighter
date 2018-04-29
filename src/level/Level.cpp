@@ -113,13 +113,9 @@ void Level::start(Window *window) {
     this->logger->info("Loaded {} collision primitives", bullet.size());
     this->logger->info("Loaded {} light sources", lights.size());
 
-    this->show();
+    //this->logger->info("Player.add={}", (void*)player.get());
 
-    /**
-     * Step through the world to "warm it up"
-     */
-    this->player->getRigidBody()->applyCentralForce(btVector3(0.0f, -0.1f, 0.0f));
-    world->__simulate_fixed_step__(1.0f/120.0f);
+    this->show();
 }
 
 void Level::destroy() {

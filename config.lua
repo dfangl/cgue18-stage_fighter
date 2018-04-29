@@ -7,7 +7,7 @@
 window = {
     width=1280,         -- Width  of Window in px
     height=768,         -- Height of Window in px
-    vsync=true,         -- true to enable vsync false to disable
+    vsync=false,         -- true to enable vsync false to disable
 
     -- Set Fullscreen Mode:
     --      -2      Windowed Fullscreen (Experimental)
@@ -24,7 +24,11 @@ window = {
     -- Set Gamma value of Monitor (Only works in Fullscreen Mode)
     --  It uses the glfwSetGamma function which does rely on WinAPI or X11 functions to set Gamma
     --  Must be a float value > 0.0, otherwise values might be ignored or App might crash
-    gamma=1.0
+    gamma=1.0,
+
+    -- True     The shader will correct the Gamma value
+    -- False    Use the glfwSetGamma function, which will only work in fullscreen mode
+    useShaderGamma=true
 }
 
 -- Set Camera properties:
@@ -35,6 +39,6 @@ camera = {
 -- Set Debug properties, should be disabled if not debugging one of these subsystems:
 --      true to enable debugging or false to disable debuggiing
 debug = {
-    bullet=false,        -- Create a Bullet Debug Context and draw all the Bounding Boxes as Lines to the screen
+    bullet=true,        -- Create a Bullet Debug Context and draw all the Bounding Boxes as Lines to the screen
     opengl=false          -- Debug OpenGL Context and enable error outputs for OpenGL
 }
