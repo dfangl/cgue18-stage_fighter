@@ -257,7 +257,10 @@ void Level::despawn(Entity *entity) {
 
 void Level::setLabel(const std::string text) {
     winLoseLabel->setText(text);
-    winLoseLabel->setPosition(window->getWidth()/2.0f-winLoseLabel->getWidth()/2.0f, window->getHeight()/4.0f - 64.0f/2.0f);
+    winLoseLabel->setPosition(
+            window->getWidth()  / 2.0f - winLoseLabel->getWidth() / 2.0f,
+            window->getHeight() / 4.0f - 64.0f/2.0f
+    );
 
     if (levelState != PLAYING) {
         window->addWidget(winLoseLabel);

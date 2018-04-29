@@ -56,7 +56,7 @@ void DebugTextHud::update(std::chrono::duration<double, std::milli> delta) {
      * Process FPS Counter update, but only if 250ms since the last update
      * have been passed (updating every frame is a waste of performance)
      */
-    if ((refreshTimer) > 250.0) {
+    if (showFrameTime && (refreshTimer) > 250.0) {
         const double fps = 1000.0/delta.count();
         const int len = snprintf(this->fpsBuffer, 64, "FPS: %3.1f (%2.4f ms | %2.4f ms highest)", fps, delta.count(), highestDelta);
         fpsLabel->setText(std::string(fpsBuffer, fpsBuffer+len));

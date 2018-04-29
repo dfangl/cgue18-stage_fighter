@@ -32,6 +32,8 @@ public:
     static std::shared_ptr<Font> load(const std::string &file, const std::string &name, int size);
     static void store(const std::string &name, std::shared_ptr<Font> &font);
     static std::shared_ptr<Font> get(const std::string &name);
+
+    static void preloadCharset(const std::string chars);
 };
 
 

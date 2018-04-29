@@ -25,6 +25,13 @@ private:
     std::shared_ptr<Font> font;
     std::shared_ptr<Shader> shader;
 
+
+    struct Quad {
+        GLfloat vertices[6][4];
+    };
+    std::vector<Quad> vboData;
+    void buildVBO();
+
 public:
     Label(std::string text, std::shared_ptr<Font> font, float x, float y, float scale, glm::vec3 color);
     virtual ~Label();

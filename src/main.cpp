@@ -79,14 +79,6 @@ int main(int argc, char *argv[]) {
     ModelManager::build("../resources/");
 
     /*
-     * Prepare the fonts which are used by the Program (pre-loading), normally a charset should also be pre-loaded with
-     * common chars like a,b,c and so on, but the Font class supports on demand fetching and stores it afterwards.
-     * The Font class represents also a Font Atlas with a fixed size
-     */
-    FontManager::load("Lato-Regular", "Lato-12", 12);
-    FontManager::load("Lato-Regular", "Lato-24", 24);
-    FontManager::load("Lato-Regular", "Lato-64", 64);
-    /*
      * At this state a default Camera with settings from the configuration file is created and a window with the
      * given settings:
      * (The window class will ignore invalid settings, but parsing will fail if the type is not correct)
@@ -106,6 +98,21 @@ int main(int argc, char *argv[]) {
                               config["window"]["fullscreen"],
                               config["window"]["refreshRate"]
     );
+
+    /*
+     * Prepare the fonts which are used by the Program (pre-loading) and load a charset so the font texture has not
+     * to be rec
+     */
+    FontManager::load("Lato-Regular", "Lato-12", 12);
+    FontManager::load("Lato-Regular", "Lato-24", 24);
+    FontManager::load("Lato-Regular", "Lato-64", 64);
+    FontManager::preloadCharset(
+            "abcdefghijklmnopqrstuvwxyz"
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+            "1234567890"
+            "!\"§$%&/\\[]()=?;:_,.-+|<>#~'*ß{}^°"
+            " "
+            );
 
 	/*
 	 * Additionally we want to set other Window properties like vsync or gamma if we run in Fullscreen mode

@@ -49,3 +49,8 @@ void FontManager::store(const std::string &name, std::shared_ptr<Font> &font) {
 std::shared_ptr<Font> FontManager::get(const std::string &name) {
     return fonts[name];
 }
+
+void FontManager::preloadCharset(const std::string chars) {
+    for (auto &font : fonts)
+        font.second->preload(chars);
+}
