@@ -97,7 +97,7 @@ void Label::buildVBO() {
         const GLfloat h = ch.size.y * scale;
 
         const Quad q {
-            .vertices = {
+            {
                 { xpos,     ypos - h,   ch.tx                 , 0.0           },
                 { xpos,     ypos,       ch.tx                 , ch.texCoord.y },
                 { xpos + w, ypos,       ch.tx + ch.texCoord.x , ch.texCoord.y },
