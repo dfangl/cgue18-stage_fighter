@@ -6,11 +6,14 @@
 
 #include "Player.h"
 #include "../manager/FontManager.h"
+#include "EnemyEntity.h"
 
-Player::Player(Camera &camera, const std::shared_ptr<BulletUniverse> &world) :
+Player::Player(Camera &camera, Window *window, const std::shared_ptr<BulletUniverse> &world) :
         CameraEntity(camera, world, new btSphereShape(0.7f), 1.0f),
         hud(std::make_shared<PlayerHud>(FontManager::get("Lato-24"), camera.getViewPort().z, camera.getViewPort().w)),
         Logger("Player") {
+
+    this->window = window;
 
     this->health = 100;
     this->maxHealth = 100;
@@ -66,6 +69,15 @@ void Player::computeEnemyInView(std::vector<std::shared_ptr<Entity>> &entities) 
 void Player::collideWith(BulletObject *other) {
     if (other->getKind() == BulletObject::ENVIRONMENT)
         return;
+
+    if (other->getKind() == BulletObject::ENEMY) {
+        logger->info("{} Collided with Enemy ({})!", (void*)this, (void*)other);
+
+        if (window->getMouseButton(GLFW_MOUSE_BUTTON_1)) {
+            auto *enemy = (EnemyEntity*)other;
+            enemy->receiveDamage(1);
+        }
+    }
 
     if (other->getKind() == BulletObject::BULLET)
         this->health -= 5;

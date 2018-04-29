@@ -152,7 +152,7 @@ int main(int argc, char *argv[]) {
      * Disabling the Cursor is important so the Game does not loose the focus in window mode
      */
     window->processCameraMouseMovement(true);
-    window->processCameraKeyMovment(false);
+    window->processCameraKeyMovement(false);
     window->hideCursor();
 
     /*
@@ -256,7 +256,7 @@ int main(int argc, char *argv[]) {
 	 * After closing the Window we have to delete all the Resources and such ...
 	 */
 	level->destroy();
-    window->showCurosor();
+    window->showCursor();
     //TODO: remove keyCallback of DebugHUD
 
     debugTextHud.reset();

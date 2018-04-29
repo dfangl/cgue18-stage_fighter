@@ -89,10 +89,10 @@ public:
     void close();
 
     void hideCursor();
-    void showCurosor();
+    void showCursor();
 
     void processCameraMouseMovement(bool locked) { this->cameraMouse = locked; }
-    void processCameraKeyMovment(bool locked) { this->cameraKey = locked; }
+    void processCameraKeyMovement(bool locked) { this->cameraKey = locked; }
 
     inline int getKey(int keycode) const { return glfwGetKey(this->glfwWindow, keycode); }
     inline int getMouseButton(int btn) const { return glfwGetMouseButton(this->glfwWindow, btn); }

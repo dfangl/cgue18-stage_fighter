@@ -37,7 +37,7 @@ EnemyEntity::~EnemyEntity() {
 }
 
 void EnemyEntity::think(Level *level, std::chrono::duration<double, std::milli> delta) {
-    if (this->health == 0) {
+    if (this->health <= 0) {
         level->despawn(this);
         return;
     }
@@ -89,8 +89,8 @@ void EnemyEntity::collideWith(BulletObject *other) {
     if (lastDmgTime > 0.0)
         return;
 
+    /*
     if (other->getKind() == BulletObject::WEAPON || other->getKind() == BulletObject::PLAYER) {
-        /* Debugging stuff:
         spdlog::get("console")->info("{} got hit by {}", name, (void*)other);
         auto *player = (Player*)other;
         auto &t = player->getTransformation().getOrigin();
@@ -100,15 +100,19 @@ void EnemyEntity::collideWith(BulletObject *other) {
         t = this->getTransformation().getOrigin();
         spdlog::get("console")->info("this Transform  : {},{},{}", t.x(), t.y(), t.z());
         spdlog::get("console")->info("this Position   : {},{},{}", this->position.x, this->position.y, this->position.z);
-        */
 
         lastDmgTime = dmgTimeout;
         this->health -= 1;
     }
+    */
 }
 
 void EnemyEntity::think(std::chrono::duration<double, std::milli> delta) {}
 
 void EnemyEntity::render(Scene *scene) {
     Model3DObject::render(scene);
+}
+
+void EnemyEntity::receiveDamage(int points) {
+    this->health -= points;
 }

@@ -273,7 +273,7 @@ void Window::hideCursor() {
     glfwSetInputMode(this->glfwWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 }
 
-void Window::showCurosor() {
+void Window::showCursor() {
     glfwSetInputMode(this->glfwWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 }
 

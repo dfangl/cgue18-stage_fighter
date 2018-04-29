@@ -7,7 +7,7 @@
 window = {
     width=1280,         -- Width  of Window in px
     height=768,         -- Height of Window in px
-    vsync=false,         -- true to enable vsync false to disable
+    vsync=true,         -- true to enable vsync false to disable
 
     -- Set Fullscreen Mode:
     --      -2      Windowed Fullscreen (Experimental)
@@ -39,6 +39,6 @@ camera = {
 -- Set Debug properties, should be disabled if not debugging one of these subsystems:
 --      true to enable debugging or false to disable debuggiing
 debug = {
-    bullet=true,        -- Create a Bullet Debug Context and draw all the Bounding Boxes as Lines to the screen
-    opengl=false          -- Debug OpenGL Context and enable error outputs for OpenGL
+    bullet=false,        -- Create a Bullet Debug Context and draw all the Bounding Boxes as Lines to the screen
+    opengl=false         -- Debug OpenGL Context and enable error outputs for OpenGL
 }

@@ -70,7 +70,7 @@ void Level::start(Window *window) {
      * (lazy loading or pre-loading)
      */
     this->window = window;
-    this->player = std::make_shared<Player>(window->getScene()->getCamera(), world);
+    this->player = std::make_shared<Player>(window->getScene()->getCamera(), window, world);
 
     /*
      * Enable the Debugging Stuff of bullet if debugging is enabled

@@ -62,7 +62,7 @@ void GameMenu::show() {
     power = l->power;
 
     visible = true;
-    ctx->window()->showCurosor();
+    ctx->window()->showCursor();
 }
 
 void GameMenu::hide() {

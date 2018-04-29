@@ -18,9 +18,10 @@ private:
     std::shared_ptr<PlayerHud> hud;
 
     std::shared_ptr<Entity> selectedEnemy = nullptr;
+    Window *window;
 
 public:
-    Player(Camera &camera, const std::shared_ptr<BulletUniverse> &world);
+    Player(Camera &camera, Window *window, const std::shared_ptr<BulletUniverse> &world);
 
     std::shared_ptr<PlayerHud> &getHud() { return this->hud; }
 
