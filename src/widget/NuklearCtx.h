@@ -30,9 +30,16 @@
 #define MAX_ELEMENT_BUFFER (128 * 1024)
 
 class NuklearWidget {
+protected:
+    bool visible = false;
+
 public:
     virtual void render() = 0;
     virtual void resize(float x, float y) = 0;
+    virtual void show() = 0;
+    virtual void hide() = 0;
+
+    bool isVisible() { return visible; }
 };
 
 class NuklearContext : public Widget {
@@ -76,6 +83,8 @@ public:
 
     struct nk_context *context() { return &this->ctx; }
     Window *window() { return this->win; }
+
+    void hideAll();
 
     bool enabled = true;
 };

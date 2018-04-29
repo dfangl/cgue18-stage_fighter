@@ -13,11 +13,10 @@ class GameMenu : public NuklearWidget {
 
 private:
     const std::shared_ptr<NuklearContext> ctx;
-    const int HEIGHT = 250;
+    const int HEIGHT = 325;
     const int WIDTH  = 250;
 
     int x,y;
-    bool visible = false;
 
 public:
     explicit GameMenu(const std::shared_ptr<NuklearContext> &ctx);
@@ -25,8 +24,8 @@ public:
     void render() override;
     void resize(float x, float y) override;
 
-    void show();
-    void hide();
+    void show() override;
+    void hide() override;
 
     float gamma;
 

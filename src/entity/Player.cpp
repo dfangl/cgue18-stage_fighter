@@ -71,9 +71,9 @@ void Player::collideWith(BulletObject *other) {
         return;
 
     if (other->getKind() == BulletObject::ENEMY) {
-        logger->info("{} Collided with Enemy ({})!", (void*)this, (void*)other);
+        if (window->getMouseButton(GLFW_MOUSE_BUTTON_LEFT)) {
+            logger->info("Hit with Enemy ({})!", (void*)other);
 
-        if (window->getMouseButton(GLFW_MOUSE_BUTTON_1)) {
             auto *enemy = (EnemyEntity*)other;
             enemy->receiveDamage(1);
         }

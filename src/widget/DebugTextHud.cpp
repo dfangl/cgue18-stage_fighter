@@ -20,7 +20,6 @@ DebugTextHud::DebugTextHud() : Logger("DebugHUD") {
     keyCallback = [this](int key, int scancode, int action, int mods){
         if(action == GLFW_RELEASE)
             switch(key) {
-                case GLFW_KEY_F1: logger->info("Help functionality is not implemented!"); break;
                 case GLFW_KEY_F2: showFrameTime = !showFrameTime; break;
                 case GLFW_KEY_F3: wireFrameMode = !wireFrameMode; break;
                 case GLFW_KEY_F4: toggleEffect(0); break;

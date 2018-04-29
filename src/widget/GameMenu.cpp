@@ -61,6 +61,8 @@ void GameMenu::show() {
     diffuse = l->diffuse.x;
     power = l->power;
 
+    this->ctx->hideAll();
+
     visible = true;
     ctx->window()->showCursor();
 }

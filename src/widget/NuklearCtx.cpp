@@ -229,3 +229,8 @@ void NuklearContext::newFrame() {
 void NuklearContext::add(std::shared_ptr<NuklearWidget> widget) {
     widgets.push_back(widget);
 }
+
+void NuklearContext::hideAll() {
+    for (auto &w : this->widgets)
+        w->hide();
+}

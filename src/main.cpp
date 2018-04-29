@@ -26,6 +26,7 @@
 #include "widget/GameMenu.h"
 #include "widget/PlayerHud.h"
 #include "widget/DebugTextHud.h"
+#include "widget/HelpMenu.h"
 
 #include <kaguya/kaguya.hpp>
 #include <spdlog/spdlog.h>
@@ -166,7 +167,9 @@ int main(int argc, char *argv[]) {
      */
     auto nuklear = std::make_shared<NuklearContext>(window);
     auto gameMenu = std::make_shared<GameMenu>(nuklear);
+    auto helpMenu = std::make_shared<HelpMenu>(nuklear);
     nuklear->add(gameMenu);
+    nuklear->add(helpMenu);
 
     gameMenu->gamma = config["window"]["gamma"];
 
@@ -175,16 +178,28 @@ int main(int argc, char *argv[]) {
      * Add a Key Callback to the window so the GUI can be shown & hidden by the ESC key
      */
     nuklear->enabled = false;
-    window->registerKeyCallback([nuklear, level, gameMenu, window](int key, int scancode, int action, int mods){
-        if(key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
-            nuklear->enabled = !nuklear->enabled;
-
-            if (nuklear->enabled) {
-                level->pause();
-                gameMenu->show();
-            } else {
+    window->registerKeyCallback([nuklear, helpMenu, level, gameMenu, window](int key, int scancode, int action, int mods){
+        if(key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE) {
+            if (gameMenu->isVisible()){
+                nuklear->enabled = false;
                 gameMenu->hide();
                 level->resume();
+            } else {
+                level->pause();
+                nuklear->enabled = true;
+                gameMenu->show();
+            }
+        }
+
+        if(key == GLFW_KEY_F1 && action == GLFW_RELEASE) {
+            if (helpMenu->isVisible()) {
+                nuklear->enabled = false;
+                helpMenu->hide();
+                level->resume();
+            } else {
+                level->pause();
+                nuklear->enabled = true;
+                helpMenu->show();
             }
         }
     });
