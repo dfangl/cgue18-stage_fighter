@@ -64,11 +64,12 @@ public:
 
 class LuaBtCollisionShape {
 protected:
-    const LuaVec3 position;
-    const LuaVec4 rotation;
     const double mass;
 
 public:
+    const LuaVec3 position;
+    const LuaVec4 rotation;
+
     LuaBtCollisionShape(LuaVec3 const &pos, LuaVec4 const &rot, const double mass) :
             position(pos), rotation(rot), mass(mass) {}
 
@@ -178,17 +179,18 @@ protected:
     std::string model;
     float mass;
     btCollisionShape *hitbox;
+    LuaVec3 hitBoxOffset;
 
 public:
     LuaEnemyEntity(std::string name, int health, int spawnTime, const LuaVec3 pos, const LuaVec4 &rot, std::string model, float mass, const LuaBtCollisionShape &hitbox) :
-            LuaEntity(pos), name(name), health(health), spawnTime(spawnTime), rot(rot), model(model), mass(mass) {
+            LuaEntity(pos), name(name), health(health), spawnTime(spawnTime), rot(rot), model(model), mass(mass), hitBoxOffset(hitbox.position) {
         this->hitbox = hitbox.generateShape();
     }
 
     std::shared_ptr<Entity> toEntity3D(const std::shared_ptr<BulletUniverse> &world) const override {
         //std::string &name, int health, int spawnTime, const btVector3 &pos, const btQuaternion &rot, std::string &model, float mass,
         //                btCollisionShape *hitbox, std::shared_ptr<BulletUniverse> &world
-        return std::make_shared<EnemyEntity>(name, health, spawnTime, position.toVector3(), rot.toQuat(), model, mass, hitbox, world);
+        return std::make_shared<EnemyEntity>(name, health, spawnTime, position.toVector3(), rot.toQuat(), model, mass, hitBoxOffset.pos, hitbox, world);
     }
 
 };

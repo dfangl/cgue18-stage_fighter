@@ -22,9 +22,11 @@ private:
     double lastSpawnTime;
     double spawnSpeed;
 
+    glm::vec3 collisionOffset;
+
 public:
     EnemyEntity(std::string name, int health, int spawnTime, const btVector3 &pos, const btQuaternion &rot, std::string model, float mass,
-                btCollisionShape *hitbox, const std::shared_ptr<BulletUniverse> &world);
+                glm::vec3 collisionOffset, btCollisionShape *hitbox, const std::shared_ptr<BulletUniverse> &world);
     ~EnemyEntity();
 
     void receiveDamage(int points);

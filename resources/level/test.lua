@@ -22,7 +22,9 @@ objects = {
 }
 
 entities = {
-    dynamics.enemy1("Enemy #1", 1, 3000,  vec3(-24.7897,-42.5088,1.65117), vec4(0,0,0,1))
+    dynamics.turrent("Turrent #1", 1, 3000,  vec3(-24.7897,-42.5088,1.65117), vec4(0,0,0,1)),
+    dynamics.turrent("Turrent #2", 1, 3000,  vec3(-50.2492,-42.5088,-25.1359), vec4(0,0.707107,0,0.707107)),
+    dynamics.turrent("Turrent #4", 5, 300000,  vec3(-50.2492,-32.5088,5), vec4(0.707107/2,0.707107/2,0,0.707107))
 }
 
 lights = {

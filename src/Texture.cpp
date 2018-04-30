@@ -44,7 +44,7 @@ Texture::Texture(const tinygltf::Image &image, const tinygltf::Sampler &sampler)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, sampler.magFilter);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, sampler.magFilter);
 
-    logger->debug("Loading Texture from gltf model: {}", image.name);
+    logger->info("Loading Texture from gltf model: {}", image.name);
     GLuint imgType = sampler.name.c_str()[0] == '0' ? GL_RGB : GL_RGBA;
 
     glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB, image.width, image.height, 0, imgType, GL_UNSIGNED_BYTE,

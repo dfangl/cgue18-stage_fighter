@@ -10,7 +10,7 @@
 #include "BulletEntity.h"
 
 EnemyEntity::EnemyEntity(std::string name, int health, int spawnTime, const btVector3 &pos, const btQuaternion &rot, std::string model,
-                         float mass, btCollisionShape* hitbox, const std::shared_ptr<BulletUniverse> &world) :
+                         float mass, glm::vec3 collisionOffset, btCollisionShape* hitbox, const std::shared_ptr<BulletUniverse> &world) :
         BulletObject(pos, rot, hitbox, mass),
         Model3DObject(ModelManager::load(model), ShaderManager::load("standard")){
 
@@ -20,14 +20,15 @@ EnemyEntity::EnemyEntity(std::string name, int health, int spawnTime, const btVe
     this->name = name;
     this->mustBeKilled = true;
     this->kind = BulletObject::ENEMY;
+    this->collisionOffset = collisionOffset;
 
     this->world = world;
     this->spawnSpeed = spawnTime;
     this->lastSpawnTime = this->spawnSpeed * 2;
 
-    this->position = glm::vec3(pos.x(), pos.y(), pos.z());
+    this->position = glm::vec3(pos.x(), pos.y(), pos.z()) + collisionOffset;
     Model3DObject::setRotation(glm::quat(rot.w(), rot.x(), rot.y(), rot.z()));
-    Model3DObject::setOrigin(glm::vec3(pos.x(), pos.y(), pos.z()));
+    Model3DObject::setOrigin(position);
 
     world->addRigidBody(BulletObject::rigidBody);
 }
@@ -46,9 +47,9 @@ void EnemyEntity::think(Level *level, std::chrono::duration<double, std::milli> 
     auto o = bT.getOrigin();
     auto r = bT.getRotation();
 
-    this->position = glm::vec3(o.x(), o.y(), o.z());
+    this->position = glm::vec3(o.x(), o.y(), o.z()) + collisionOffset;
     Model3DObject::setRotation(glm::quat(r.w(), r.x(), r.y(), r.z()));
-    Model3DObject::setOrigin(glm::vec3(o.x(), o.y(), o.z()));
+    Model3DObject::setOrigin(position);
 
     lastSpawnTime -= delta.count();
     if (lastSpawnTime < 0.0f) {
