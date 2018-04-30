@@ -4,7 +4,7 @@
 
 #include "GameMenu.h"
 
-GameMenu::GameMenu(const std::shared_ptr<NuklearContext> &ctx) : ctx(ctx) {
+GameMenu::GameMenu(const std::shared_ptr<NuklearContext> &ctx, const std::shared_ptr<Level> &level) : ctx(ctx), level(level) {
     this->resize(ctx->window()->getWidth(), ctx->window()->getHeight());
 }
 
@@ -36,6 +36,13 @@ void GameMenu::render() {
         nk_layout_row_dynamic(ctx->context(), 25, 1);
         if (nk_button_label(ctx->context(), "Exit Game")) {
             ctx->window()->close();
+        }
+        nk_layout_row_dynamic(ctx->context(), 25, 1);
+        nk_layout_row_dynamic(ctx->context(), 25, 1);
+        if (nk_button_label(ctx->context(), "Exit Menu")) {
+            ctx->enabled = false;
+            this->hide();
+            level->resume();
         }
     }
 

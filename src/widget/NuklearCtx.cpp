@@ -14,7 +14,7 @@ NuklearContext::NuklearContext(Window *window) {
     this->win = window;
     this->shader = ShaderManager::load("nuklear");
 
-    // TODO: window->registerScrollcallback
+    // TODO: window->registerScrollCallback
     // TODO: window->registerCharCallback
     // TODO: window->registerMouseBtnCallback
 

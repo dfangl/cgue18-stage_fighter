@@ -166,7 +166,7 @@ int main(int argc, char *argv[]) {
      * Initilaze the GUI System "Nuklear" and the GameMenu which is displayed when pressing ESC
      */
     auto nuklear = std::make_shared<NuklearContext>(window);
-    auto gameMenu = std::make_shared<GameMenu>(nuklear);
+    auto gameMenu = std::make_shared<GameMenu>(nuklear, level);
     auto helpMenu = std::make_shared<HelpMenu>(nuklear);
     nuklear->add(gameMenu);
     nuklear->add(helpMenu);

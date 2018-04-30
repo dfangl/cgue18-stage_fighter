@@ -8,18 +8,20 @@
 #include <memory>
 
 #include "NuklearCtx.h"
+#include "../level/Level.h"
 
 class GameMenu : public NuklearWidget {
 
 private:
     const std::shared_ptr<NuklearContext> ctx;
-    const int HEIGHT = 325;
+    const std::shared_ptr<Level> level;
+    const int HEIGHT = 380;
     const int WIDTH  = 250;
 
     int x,y;
 
 public:
-    explicit GameMenu(const std::shared_ptr<NuklearContext> &ctx);
+    explicit GameMenu(const std::shared_ptr<NuklearContext> &ctx, const std::shared_ptr<Level> &level);
 
     void render() override;
     void resize(float x, float y) override;
