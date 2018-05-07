@@ -2,6 +2,8 @@
 // Created by raphael on 15.03.18.
 //
 
+#include <algorithm>
+
 #define _USE_MATH_DEFINES
 #include <cmath>
 
@@ -11,6 +13,9 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/gtc/constants.hpp>
+
+#include "helper/QuatUtils.h"
 
 
 Camera::Camera(glm::vec3 position, glm::vec3 up, float yaw, float pitch, float fov, float width, float height, float zNear, float zFar) {
@@ -67,30 +72,39 @@ void Camera::processMouseInput(std::chrono::duration<double, std::milli> delta, 
     if (!enableUpdate)
         return;
 
+    if (xDelta > 100 && yDelta > 100) {
+        spdlog::get("console")->critical("Mouse moved too fast, discarding events!");
+        return;
+    }
+
     this->yaw   += xDelta * mouseSensitivity;
     this->pitch -= yDelta * mouseSensitivity;
 
     if(this->pitch >  89.0f) this->pitch =  89.0f;
     if(this->pitch < -89.0f) this->pitch = -89.0f;
-
     this->update();
 }
 
 void Camera::update(const glm::vec3 position) {
-    //this->logger->info("{}\tupdate({},{},{});", static_cast<void*>(this), position.x, position.y, position.z);
     this->position = position;
     this->update();
 }
 
 void Camera::lookAt(const glm::vec3 &object) {
-    //TODO: This doesn't work ...
+    const auto direction = object - position;
+    const auto q = Quat::rotateTo(direction);
 
-    const auto &direction = glm::normalize(
-            glm::vec3(position.x - object.x, position.y - object.y, position.z - object.z)
-    );
+    glm::vec3 newUp = q * glm::vec3(0.0f, 1.0f, 0.0f);
+    const auto rot2 = Quat::rotation(newUp, this->up);
 
-    this->pitch = static_cast<float>(M_PI * asinf(direction.y));
-    this->yaw = static_cast<float>(M_PI * atan2f(direction.x, direction.z));
+    const auto rotation = rot2 * q;
+
+    this->pitch = glm::degrees(glm::pitch(rotation));
+    this->yaw   = -glm::degrees(glm::yaw(rotation));
+
+    if(this->pitch >  89.0f) this->pitch =  89.0f;
+    if(this->pitch < -89.0f) this->pitch = -89.0f;
+    this->update();
 }
 
 glm::vec3 Camera::project(const glm::vec3 &obj) const {

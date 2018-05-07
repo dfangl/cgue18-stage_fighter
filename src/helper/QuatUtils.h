@@ -5,7 +5,7 @@
 #ifndef STAGE_FIGHTER_QUATUTILS_H
 #define STAGE_FIGHTER_QUATUTILS_H
 
-// http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-17-quaternions/#how-do-i-convert-a-quaternion-to-a-matrix-
+// http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-17-quaternions
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>

@@ -93,7 +93,6 @@ void Level::start(Window *window) {
     const LuaVec3 *pLookAt = state["player"]["lookAt"];
 
     player->setEntityPosition(pPosition->pos, glm::quat(0, 0, 0, 1));
-    player->lookAt(pLookAt->pos);
 
     playerInputCallbackID = window->registerKeyPollingCallback(player->getKeyboardCallback());
 
@@ -123,6 +122,8 @@ void Level::start(Window *window) {
     //this->logger->info("Player.add={}", (void*)player.get());
 
     this->show();
+
+    player->lookAt(pLookAt->pos);
 }
 
 void Level::destroy() {

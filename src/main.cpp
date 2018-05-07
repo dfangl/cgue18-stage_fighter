@@ -85,6 +85,7 @@ int main(int argc, char *argv[]) {
      * given settings:
      * (The window class will ignore invalid settings, but parsing will fail if the type is not correct)
      */
+    auto lastTick = std::chrono::high_resolution_clock::now();
     Camera camera(glm::vec3(0.0f, 1.0f, 3.0f),  // Position in the OpenGL Space
                   glm::vec3(0.0f, 1.0f, 0.0f),  // Up Vector
                   -90.0f, 0.0f,                 // Yaw & Pitch of the Camera in degrees
@@ -148,9 +149,31 @@ int main(int argc, char *argv[]) {
 
 
     /*
+     * Render a Loading Level Frame before loading the Level, this may take a while ...
+     */
+    auto loadingLabel = std::make_shared<Label>("Loading Level ...", FontManager::get("Lato-64"), 0, 0, 1.0, glm::vec3(0.0, 0.0, 0.0));
+    loadingLabel->setPosition(window->getWidth()/2.0f-loadingLabel->getWidth()/2.0f, window->getHeight()/2.0f-32.0f);
+    window->addWidget(loadingLabel);
+
+    auto _curTick = std::chrono::high_resolution_clock::now();
+    window->render(_curTick - lastTick);
+
+    /*
      * Load and start Test level so we can do something
      */
     auto level = std::make_shared<Level>("../resources/level/test.lua");
+
+    /*
+     * Hide Mouse cursor and render another frame, to discard all the inputs
+     */
+    window->hideCursor();
+    _curTick = std::chrono::high_resolution_clock::now();
+    window->render(_curTick - lastTick);
+    window->removeWidget(loadingLabel);
+
+    /*
+     * Start the Level
+     */
     level->start(window);
 
     /*
@@ -160,7 +183,7 @@ int main(int argc, char *argv[]) {
      */
     window->processCameraMouseMovement(true);
     window->processCameraKeyMovement(false);
-    window->hideCursor();
+
 
     /*
      * Create a Label which displays the FPS counter on the Screen, better than just spamming the console with
@@ -169,7 +192,7 @@ int main(int argc, char *argv[]) {
     auto debugTextHud = std::make_shared<DebugTextHud>();
 
     /*
-     * Initilaze the GUI System "Nuklear" and the GameMenu which is displayed when pressing ESC
+     * Initialize the GUI System "Nuklear" and the GameMenu which is displayed when pressing ESC
      */
     auto nuklear = std::make_shared<NuklearContext>(window);
     auto gameMenu = std::make_shared<GameMenu>(nuklear, level);
@@ -228,7 +251,7 @@ int main(int argc, char *argv[]) {
      * and in frameSampleCount a accumulated number of frames is saved which is used
      * to limit the number of frames in which the fps llabelwill be redrawn ...
      */
-    auto lastTick = std::chrono::high_resolution_clock::now();
+
 
     /*
      * While the window is open we want to render stuff ...
