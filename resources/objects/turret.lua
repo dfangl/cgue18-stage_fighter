@@ -1,4 +1,4 @@
-dynamics.turrent =
+dynamics.turret =
 function (name, health, spawnTime, position, rotation)
     return EnemyEntity(
         name,
