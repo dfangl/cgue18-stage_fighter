@@ -80,5 +80,5 @@ void Player::collideWith(BulletObject *other) {
     }
 
     if (other->getKind() == BulletObject::BULLET)
-        this->health -= 5;
+        this->health -= 1;
 }
