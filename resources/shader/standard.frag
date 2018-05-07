@@ -1,5 +1,7 @@
 #version 450 core
 
+#define CEL_LIGHT_LEVELS 2
+
 struct Material {
     vec3 baseColor;
     float metallic;
@@ -46,16 +48,20 @@ void main() {
     float rDotV = max( dot(r,v), 0.0 );
     float spec  = pow( rDotV, 32);          // TODO: How to get this from a PBR Shader Model?
 
+    // Cel stuff:
+    //float level = floor(sDotN * CEL_LIGHT_LEVELS);
+    //float celBrightness = level / CEL_LIGHT_LEVELS;
+
     // Calculate acctual light values from diffuse / specular maps
     vec3 diffuseLight  = light.diffuse  * light.power / lDist;
     vec3 specularLight = light.specular * light.power / lDist;
 
     vec3 ambient  = light.ambient * vec3(texture(texture_0, fs_in.texcoord_0));
-    vec3 diffuse  = diffuseLight  * vec3(texture(texture_0, fs_in.texcoord_0)) * sDotN;
-    vec3 specular = specularLight * vec3(texture(texture_0, fs_in.texcoord_0)) * spec ;
+    vec3 diffuse  = diffuseLight  * vec3(texture(texture_0, fs_in.texcoord_0)) * sDotN;// * celBrightness;
+    vec3 specular = specularLight * vec3(texture(texture_0, fs_in.texcoord_0)) * spec ;// * celBrightness;
 
     vec3 color = ambient + diffuse + specular;
-    color = pow(color, vec3(1.0/screenGamma));
 
+    color = pow(color, vec3(1.0/screenGamma));
     FragColor = vec4(color, 1.0);
 }
