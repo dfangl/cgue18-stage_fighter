@@ -77,6 +77,8 @@ void Model3DObject::drawNode(const int idx, const tinygltf::Node &node) {
 }
 
 void Model3DObject::drawMesh(const tinygltf::Mesh &mesh) {
+    char texNameBuffer[16];
+
     for (auto &primitive : mesh.primitives) {
         if(primitive.indices < 0)
             return;
@@ -111,10 +113,12 @@ void Model3DObject::drawMesh(const tinygltf::Mesh &mesh) {
         // Bind Texture (Error?)
         // baseColorTexture is not set every time (exporter fuckup?)
         //const auto texId = material.values["baseColorTexture"].TextureIndex();
-        auto &texture = this->textures[0];
-        texture->bind(GL_TEXTURE0);
-
-        shader->setUniform("texture_0", 0);
+        for (int i=0; i<textures.size(); i++) {
+            auto &texture = this->textures[i];
+            texture->bind(GL_TEXTURE0 + i);
+            snprintf(texNameBuffer, 16, "texture_%d", i);
+            shader->setUniform(texNameBuffer, i);
+        }
 
         glBindVertexArray(this->VAO);
 

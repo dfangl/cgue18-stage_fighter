@@ -72,10 +72,11 @@ void Camera::processMouseInput(std::chrono::duration<double, std::milli> delta, 
     if (!enableUpdate)
         return;
 
-    if (xDelta > 100 && yDelta > 100) {
-        spdlog::get("console")->critical("Mouse moved too fast, discarding events!");
-        return;
-    }
+    // Dirty fix so lookAt does work
+    //if (xDelta > 100 || yDelta > 100) {
+    //    spdlog::get("console")->critical("Mouse moved too fast, discarding events!");
+    //    return;
+    //}
 
     this->yaw   += xDelta * mouseSensitivity;
     this->pitch -= yDelta * mouseSensitivity;

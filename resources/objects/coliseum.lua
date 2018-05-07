@@ -2,7 +2,7 @@ statics.coliseum =
 function (position, rotation)
     return StaticObject(
         "coliseum",     -- Model File
-        "standard",     -- Shader
+        "standard-splat",     -- Shader
         position,       -- Position
         rotation,  -- Rotation
         {               -- List of Bullet primitives
