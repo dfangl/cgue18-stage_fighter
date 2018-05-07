@@ -27,6 +27,7 @@
 #include "widget/PlayerHud.h"
 #include "widget/DebugTextHud.h"
 #include "widget/HelpMenu.h"
+#include "helper/ImageGenerator.h"
 
 #include <kaguya/kaguya.hpp>
 #include <spdlog/spdlog.h>
@@ -139,6 +140,11 @@ int main(int argc, char *argv[]) {
      *  Normally we should show a Loading Screen and pre-load all resources which are needed directly after Window creation
      *  for displaying stuff and then showing the Main menu of the Game with a level selection ...
      */
+
+
+    // Generate Marble Texture ... doesn't look like marble :/
+    //auto texData = ImageGenerator::marble(512, 512, glm::vec4(1.0, 1.0, 1.0, 1.0));
+    //TextureManager::store("__gen_marble", texData, 512, 512);
 
 
     /*

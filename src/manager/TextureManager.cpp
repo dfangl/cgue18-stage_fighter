@@ -30,3 +30,7 @@ std::shared_ptr<Texture> TextureManager::load(const tinygltf::Image &image, cons
 
     return textures[image.name];
 }
+
+void TextureManager::store(const std::string &name, std::vector<unsigned char> &data, int width, int height, bool rgba) {
+    textures[name] = std::make_shared<Texture>(data, height, width, rgba);
+}

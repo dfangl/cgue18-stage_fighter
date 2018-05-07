@@ -45,6 +45,8 @@ private:
 public:
     Model3DObject(const std::shared_ptr<tinygltf::Model> &model, const std::shared_ptr<Shader> &shader);
 
+    std::vector<std::shared_ptr<Texture>> &getTextures() { return this->textures; }
+
     void draw() override;
 
     void setOrigin(const glm::vec3 &vec) override;

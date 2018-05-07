@@ -30,12 +30,22 @@ public:
      * @param path
      */
     explicit Texture(const std::string &path);
+
     /**
-     *
+     * Load the Texture from a Image which is embedded in a gltf Model
      * @param image
      * @param sampler
      */
     Texture(const tinygltf::Image &image, const tinygltf::Sampler &sampler);
+
+    /**
+     * Generate a Texture from raw data
+     * @param imageData
+     * @param height
+     * @param width
+     * @param rgba
+     */
+    Texture(const std::vector<unsigned char> imageData, int width, int height, bool rgba = false);
 
     ~Texture();
 

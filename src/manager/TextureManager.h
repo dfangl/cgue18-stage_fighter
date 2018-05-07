@@ -24,6 +24,8 @@ public:
 
     static std::shared_ptr<Texture> load(const std::string &name);
     static std::shared_ptr<Texture> load(const tinygltf::Image &image, const tinygltf::Sampler &sampler);
+
+    static void store(const std::string &name, std::vector<unsigned char> &data, int width, int height, bool rgba = false);
 };
 
 
