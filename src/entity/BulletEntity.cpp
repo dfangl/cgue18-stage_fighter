@@ -2,9 +2,7 @@
 // Created by raphael on 16.04.18.
 //
 
-#define GLM_ENABLE_EXPERIMENTAL
-#include <glm/gtc/quaternion.hpp>
-#include <glm/gtx/norm.hpp>
+#include "../helper/QuatUtils.h"
 
 #include "../manager/ModelManager.h"
 #include "../manager/ShaderManager.h"
@@ -26,46 +24,12 @@ BulletEntity::BulletEntity(const btVector3 &pos, const btVector3 &target, std::s
     const glm::vec3 target1 = glm::vec3(target.x(), target.y(), target.z());
     this->direction = glm::normalize(target1 - position);
 
-    // Magic rotation calculation (does somehow not work as expected ...)
-    glm::quat rotation;
-    {
-        const glm::vec3 end   = glm::normalize(position);
-        const glm::vec3 start = glm::normalize(target1);
-
-
-        const float cosTheta = glm::dot(start, end);
-        glm::vec3 rotationAxis;
-
-        // special case when vectors in opposite directions, there is no "ideal" rotation axis
-        // So guess one; any will do as long as it's perpendicular to start
-        if (cosTheta < -1 + 0.001f){
-            rotationAxis = glm::cross(glm::vec3(0.0f, 0.0f, 1.0f), start);
-
-            // they were parallel, try again!
-            if (glm::length2(rotationAxis) < 0.01 )
-                rotationAxis = glm::cross(glm::vec3(1.0f, 0.0f, 0.0f), start);
-
-            rotationAxis = normalize(rotationAxis);
-            rotation = glm::angleAxis(glm::radians(180.0f), rotationAxis);
-        } else {
-            rotationAxis = glm::cross(start, end);
-
-            float s = sqrt( (1+cosTheta)*2 );
-            float invs = 1 / s;
-
-            rotation = glm::quat(
-                    s * 0.5f,
-                    rotationAxis.x * invs,
-                    rotationAxis.y * invs,
-                    rotationAxis.z * invs
-            );
-        }
-    }
-
+    // Magic rotation calculation
+    glm::quat rotation = Quat::rotateTo(target1 - position);
 
     Model3DObject::setRotation(rotation);
     Model3DObject::setOrigin(position);
-    BulletObject::setOrigin(pos, btQuaternion(rotation.x, rotation.y, rotation.z, rotation.z));
+    BulletObject::setOrigin(pos, btQuaternion(rotation.x, rotation.y, rotation.z, rotation.w));
 
     world->addRigidBody(this->rigidBody);
 }

@@ -2,6 +2,7 @@
 // Created by raphael on 26.04.18.
 //
 
+#include <algorithm>
 
 #include "../level/Level.h"
 #include "../manager/ModelManager.h"
@@ -63,11 +64,11 @@ void EnemyEntity::think(Level *level, std::chrono::duration<double, std::milli> 
             btVector3 center;
             float radius;
             BulletObject::fallShape->getBoundingSphere(center, radius);
-            glm::vec3 direction = glm::normalize(pPos - position);
+            glm::vec3 direction = glm::normalize(pPos - position) * radius;
 
             level->spawn(
                     std::make_shared<BulletEntity>(
-                            btVector3(origin.x() + direction.x * radius, origin.y() + direction.y * radius, origin.z() + direction.z * radius),
+                            btVector3(origin.x() + direction.x, origin.y() + direction.y, origin.z() + direction.z),
                             btVector3(pPos.x, pPos.y + 0.35f, pPos.z),
                             world
                     )
@@ -89,23 +90,6 @@ void EnemyEntity::collideWith(BulletObject *other) {
     // Health loss calculation:
     if (lastDmgTime > 0.0)
         return;
-
-    /*
-    if (other->getKind() == BulletObject::WEAPON || other->getKind() == BulletObject::PLAYER) {
-        spdlog::get("console")->info("{} got hit by {}", name, (void*)other);
-        auto *player = (Player*)other;
-        auto &t = player->getTransformation().getOrigin();
-        spdlog::get("console")->info("Player Transform: {},{},{}", t.x(), t.y(), t.z());
-        spdlog::get("console")->info("Player Position : {},{},{}", player->getEntityPosition().x, player->getEntityPosition().y, player->getEntityPosition().z);
-
-        t = this->getTransformation().getOrigin();
-        spdlog::get("console")->info("this Transform  : {},{},{}", t.x(), t.y(), t.z());
-        spdlog::get("console")->info("this Position   : {},{},{}", this->position.x, this->position.y, this->position.z);
-
-        lastDmgTime = dmgTimeout;
-        this->health -= 1;
-    }
-    */
 }
 
 void EnemyEntity::think(std::chrono::duration<double, std::milli> delta) {}
@@ -115,6 +99,5 @@ void EnemyEntity::render(Scene *scene) {
 }
 
 void EnemyEntity::receiveDamage(int points) {
-    if (this->health - points > 0) this->health -= points;
-    else this->health = 0;
+    this->health = std::max(this->health - points, 0);
 }
