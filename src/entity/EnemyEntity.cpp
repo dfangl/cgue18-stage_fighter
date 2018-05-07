@@ -115,5 +115,6 @@ void EnemyEntity::render(Scene *scene) {
 }
 
 void EnemyEntity::receiveDamage(int points) {
-    this->health -= points;
+    if (this->health - points > 0) this->health -= points;
+    else this->health = 0;
 }
