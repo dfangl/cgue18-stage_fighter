@@ -39,7 +39,7 @@ void GameMenu::render() {
         }
         nk_layout_row_dynamic(ctx->context(), 25, 1);
         nk_layout_row_dynamic(ctx->context(), 25, 1);
-        if (nk_button_label(ctx->context(), "Exit Menu")) {
+        if (nk_button_label(ctx->context(), "Resume game")) {
             ctx->enabled = false;
             this->hide();
             level->resume();
