@@ -7,7 +7,7 @@
 window = {
     width=1280,         -- Width  of Window in px
     height=768,         -- Height of Window in px
-    vsync=false,         -- true to enable vsync false to disable
+    vsync=true,         -- true to enable vsync false to disable
 
     -- Set Fullscreen Mode:
     --      -2      Windowed Fullscreen (Experimental)

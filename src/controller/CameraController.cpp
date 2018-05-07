@@ -47,7 +47,8 @@ void CameraEntity::think(std::chrono::duration<double, std::milli> delta) {
 
     auto bT = this->getTransformation();
     auto o = bT.getOrigin();
-    this->camera.update(glm::vec3(o.x(), o.y(), o.z()));
+    this->position = glm::vec3(o.x(), o.y(), o.z());
+    this->camera.update(position);
 
     float zVelocity = 0.0f;
     float xVelocity = 0.0f;
@@ -57,12 +58,10 @@ void CameraEntity::think(std::chrono::duration<double, std::milli> delta) {
     if (this->leftPressed)     zVelocity = -this->entitySpeed;
     if (this->rightPressed)    zVelocity =  this->entitySpeed;
 
-    speed.setZ( canJump ? zVelocity : zVelocity/2 );
-    speed.setX( canJump ? xVelocity : xVelocity/2 );
-    speed.setY(0.0f);
-
     auto x = rigidBody->getLinearVelocity();
-    speed.setY(x.y());
+    speed.setZ( x.z() + canJump ? zVelocity : zVelocity/2 );
+    speed.setX( x.x() + canJump ? xVelocity : xVelocity/2 );
+    speed.setY( x.y() ) ;
 
     rigidBody->setLinearVelocity(speed.rotate(bulletMovementVector, btRadians(-camera.getYaw())));
 

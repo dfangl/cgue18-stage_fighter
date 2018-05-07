@@ -11,11 +11,11 @@
 class Light {
 
 public:
-    Light(const glm::vec3 &pos, const glm::vec3 &ambient, const glm::vec3 &diffuse, const glm::vec3 &specular) :
-        position(pos), ambient(ambient), diffuse(diffuse), specular(specular) {
+    Light(const glm::vec3 &pos, const glm::vec3 &ambient, const glm::vec3 &diffuse, const glm::vec3 &specular, const float power = 40.0f) :
+        position(pos), ambient(ambient), diffuse(diffuse), specular(specular), power(power) {
     }
 
-    float power = 40.0f;
+    float power;
     glm::vec3 position;
     glm::vec3 ambient;
     glm::vec3 diffuse;

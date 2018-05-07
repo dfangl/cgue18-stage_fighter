@@ -20,6 +20,8 @@ private:
     std::shared_ptr<Entity> selectedEnemy = nullptr;
     Window *window;
 
+    std::vector<glm::vec3> knockbackDirections;
+
 public:
     Player(Camera &camera, Window *window, const std::shared_ptr<BulletUniverse> &world);
 
