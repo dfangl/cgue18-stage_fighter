@@ -8,60 +8,10 @@
 #include <sstream>
 #include <iostream>
 
+#define GL_LOG_SIZE (512)
+
 Shader::Shader(const std::string vertexCode, const std::string fragmentCode) : Logger("Shader"){
-    /*
-     * Convert from C++ string to C string
-     */
-    GLuint vertex, fragment;
-    const char *vShaderCode = vertexCode.c_str();
-    const char *fShaderCode = fragmentCode.c_str();
-
-    /*
-     * It's needed fo some error handling
-     */
-    int success;
-    char infoLog[512];
-
-    /*
-     * Compile Vertex and Fragment Shaders:
-     */
-    vertex = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertex, 1, &vShaderCode, nullptr);
-    glCompileShader(vertex);
-    glGetShaderiv(vertex, GL_COMPILE_STATUS, &success);
-    if (!success) {
-        glGetShaderInfoLog(vertex, 512, nullptr, infoLog);
-        logger->error("Vertex Shader compilation failed:\n{}", infoLog);
-    }
-
-    fragment = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragment, 1, &fShaderCode, nullptr);
-    glCompileShader(fragment);
-    glGetShaderiv(fragment, GL_COMPILE_STATUS, &success);
-    if (!success) {
-        glGetShaderInfoLog(fragment, 512, nullptr, infoLog);
-        logger->error("Fragment Shader compilation failed:\n{}", infoLog);
-    }
-
-    /*
-     * Link the Shader and Attach the fragment and vertex shader code
-     */
-    this->shaderID = glCreateProgram();
-    glAttachShader(this->shaderID, vertex);
-    glAttachShader(this->shaderID, fragment);
-    glLinkProgram(this->shaderID);
-
-    glGetProgramiv(this->shaderID, GL_LINK_STATUS, &success);
-    if (!success) {
-        glGetProgramInfoLog(this->shaderID, 512, nullptr, infoLog);
-        logger->error("Shader linking failed:\n{}", infoLog);
-    }
-
-    /*
-     * Vertex and Fragment Shader Codes can be deleted since they are in the Program
-     */
-    glDeleteShader(vertex);
-    glDeleteShader(fragment);
+    this->shaderID = compile(vertexCode, fragmentCode);
 }
 
 Shader::~Shader() {
@@ -109,38 +59,14 @@ void Shader::setUniform(const GLint location, const glm::mat4 &mat) {
 }
 
 std::shared_ptr<Shader> Shader::fromFile(const std::string vertex, const std::string fragment) {
-    auto console = spdlog::get("console");
+    Shader::Code code = Shader::loadFromFile(vertex, fragment);
 
-    std::string vertexCode;
-    std::string fragmentCode;
-    std::ifstream vShaderFile;
-    std::ifstream fShaderFile;
+    auto shader = std::make_shared<Shader>(code.vertex, code.fragment);
+    shader->loadedFromFile = true;
+    shader->vertexFilePath = vertex;
+    shader->fragmentFilePath = fragment;
 
-    vShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-    fShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-
-    try {
-        vShaderFile.open(vertex);
-        fShaderFile.open(fragment);
-        std::stringstream vShaderStream, fShaderStream;
-
-        vShaderStream << vShaderFile.rdbuf();
-        fShaderStream << fShaderFile.rdbuf();
-
-        vShaderFile.close();
-        fShaderFile.close();
-
-        vertexCode = vShaderStream.str();
-        fragmentCode = fShaderStream.str();
-    } catch (std::ifstream::failure& e) {
-        console->error("Unable to load shader files: {}, {}", vertex, fragment);
-        console->error("Error: {}", e.what());
-        console->flush();
-
-        throw e;
-    }
-
-    return std::make_shared<Shader>(vertexCode, fragmentCode);
+    return shader;
 }
 
 GLint Shader::getLocation(const std::string &name) {
@@ -183,4 +109,112 @@ void Shader::disableVAO(const std::string &name) {
     }
 
     glDisableVertexAttribArray(static_cast<GLuint>(element->second));
+}
+
+GLuint Shader::compile(const std::string &vertexCode, const std::string &fragmentCode) {
+    /*
+        * Convert from C++ string to C string
+        */
+    GLuint vertex, fragment, shaderID;
+    const char *vShaderCode = vertexCode.c_str();
+    const char *fShaderCode = fragmentCode.c_str();
+
+    /*
+     * It's needed fo some error handling
+     */
+    int success;
+    char infoLog[GL_LOG_SIZE];
+
+    /*
+     * Compile Vertex and Fragment Shaders:
+     */
+    vertex = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(vertex, 1, &vShaderCode, nullptr);
+    glCompileShader(vertex);
+    glGetShaderiv(vertex, GL_COMPILE_STATUS, &success);
+    if (!success) {
+        glGetShaderInfoLog(vertex, GL_LOG_SIZE, nullptr, infoLog);
+        logger->error("Vertex Shader compilation failed:\n{}", infoLog);
+    }
+
+    fragment = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(fragment, 1, &fShaderCode, nullptr);
+    glCompileShader(fragment);
+    glGetShaderiv(fragment, GL_COMPILE_STATUS, &success);
+    if (!success) {
+        glGetShaderInfoLog(fragment, GL_LOG_SIZE, nullptr, infoLog);
+        logger->error("Fragment Shader compilation failed:\n{}", infoLog);
+    }
+
+    /*
+     * Link the Shader and Attach the fragment and vertex shader code
+     */
+    shaderID = glCreateProgram();
+    glAttachShader(shaderID, vertex);
+    glAttachShader(shaderID, fragment);
+    glLinkProgram(shaderID);
+
+    glGetProgramiv(shaderID, GL_LINK_STATUS, &success);
+    if (!success) {
+        glGetProgramInfoLog(shaderID, GL_LOG_SIZE, nullptr, infoLog);
+        logger->error("Shader linking failed:\n{}", infoLog);
+    }
+
+    /*
+     * Vertex and Fragment Shader Codes can be deleted since they are in the Program
+     */
+    glDeleteShader(vertex);
+    glDeleteShader(fragment);
+
+    return shaderID;
+}
+
+void Shader::recompile() {
+    if (!loadedFromFile) {
+        logger->error("Unable to recompile Shader which is not loaded from a File!");
+        return;
+    }
+
+    Shader::Code code = Shader::loadFromFile(this->vertexFilePath, this->fragmentFilePath);
+    auto newShader = this->compile(code.vertex, code.fragment);
+
+    // Swap Shader IDs before deletion
+    auto oldShader = this->shaderID;
+    this->shaderID = newShader;
+
+    glDeleteShader(oldShader);
+}
+
+Shader::Code Shader::loadFromFile(const std::string &vertex, const std::string &fragment) {
+    auto console = spdlog::get("console");
+
+    Shader::Code code;
+    std::ifstream vShaderFile;
+    std::ifstream fShaderFile;
+
+    vShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+    fShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+
+    try {
+        vShaderFile.open(vertex);
+        fShaderFile.open(fragment);
+        std::stringstream vShaderStream, fShaderStream;
+
+        vShaderStream << vShaderFile.rdbuf();
+        fShaderStream << fShaderFile.rdbuf();
+
+        vShaderFile.close();
+        fShaderFile.close();
+
+        code.vertex = vShaderStream.str();
+        code.fragment = fShaderStream.str();
+    } catch (std::ifstream::failure& e) {
+        console->error("Unable to load shader files: {}, {}", vertex, fragment);
+        console->error("Error: {}", e.what());
+        console->flush();
+
+        throw e;
+    }
+
+    return code;
 }

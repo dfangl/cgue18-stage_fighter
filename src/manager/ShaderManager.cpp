@@ -26,3 +26,8 @@ std::shared_ptr<Shader> ShaderManager::load(const std::string &name) {
 void ShaderManager::store(const std::string &name, const std::shared_ptr<Shader> &shader) {
     shaderLib[name] = shader;
 }
+
+void ShaderManager::recompileAll() {
+    for (auto &shader : shaderLib)
+        shader.second->recompile();
+}

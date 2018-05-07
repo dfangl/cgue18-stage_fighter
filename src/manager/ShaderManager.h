@@ -23,6 +23,8 @@ public:
 
     static std::shared_ptr<Shader> load(const std::string &name);
     static void store(const std::string &name, const std::shared_ptr<Shader> &shader);
+
+    static void recompileAll();
 };
 
 

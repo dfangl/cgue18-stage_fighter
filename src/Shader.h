@@ -28,6 +28,18 @@ private:
     // Mapping of uniform locations and their names
     std::map<std::string, GLint> mapping;
 
+    bool loadedFromFile = false;
+    std::string vertexFilePath;
+    std::string fragmentFilePath;
+
+    struct Code {
+        std::string vertex;
+        std::string fragment;
+    };
+
+    GLuint compile(const std::string &vertexCode,const std::string &fragmentCode);
+    static Code loadFromFile(const std::string &vertex,const std::string &fragment);
+
 public:
     /*
      * Create a Shader from a Vertex and a Fragment shader code
@@ -76,6 +88,8 @@ public:
 
     void disableVAO(const GLuint location);
     void disableVAO(const std::string &name);
+
+    void recompile();
 };
 
 
