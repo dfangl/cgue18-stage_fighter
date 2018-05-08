@@ -82,8 +82,8 @@ GLint Shader::getLocation(const std::string &name) {
 }
 
 void Shader::setVertexAttributePointer(const GLuint location, GLuint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid *pointer) {
-    glVertexAttribPointer(location, size, type, normalized, stride, pointer);
     glEnableVertexAttribArray(location);
+    glVertexAttribPointer(location, size, type, normalized, stride, pointer);
 }
 
 void Shader::setVertexAttributePointer(const std::string &name, GLuint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid *pointer) {
@@ -217,4 +217,37 @@ Shader::Code Shader::loadFromFile(const std::string &vertex, const std::string &
     }
 
     return code;
+}
+
+void Shader::setVertexAttribDivisor(const GLuint location, const GLuint divisor) {
+    glVertexAttribDivisor(location, divisor);
+}
+
+void Shader::setVertexAttribDivisor(const GLuint location, const GLuint count, const GLuint divisor) {
+    for (int i=0; i<count; i++)
+        glVertexAttribDivisor(location + i, divisor);
+}
+
+void Shader::setVertexAttribDivisor(const std::string &name, const GLuint divisor) {
+    if(this->mapping.find(name) == this->mapping.end()) {
+        const GLint location = glGetAttribLocation(this->shaderID, name.c_str());
+        if(location<0)
+            return;
+
+        this->mapping[name] = location;
+    }
+
+    setVertexAttribDivisor(this->mapping[name], divisor);
+}
+
+void Shader::setVertexAttribDivisor(const std::string &name, const GLuint count, const GLuint divisor) {
+    if(this->mapping.find(name) == this->mapping.end()) {
+        const GLint location = glGetAttribLocation(this->shaderID, name.c_str());
+        if(location<0)
+            return;
+
+        this->mapping[name] = location;
+    }
+
+    setVertexAttribDivisor(this->mapping[name], count, divisor);
 }

@@ -28,26 +28,52 @@
 class Model3DObject : public Object3D, Logger {
 
 private:
+    unsigned int instanceID = 1;
+    int instances = 0, activeInstances = 0;
+    bool recomputeInstanceBuffer = false;
+
+    std::vector<GLuint> modelMatrixInstanceVBO;
+    std::vector<GLuint> normalMatrixInstanceVBO;
+    std::vector<std::vector<glm::mat4>> instancedModelMatrix;
+    std::vector<std::vector<glm::mat4>> instancedNormalMatrix;
+
     std::vector<GLuint> vbos;
+
+    struct Matrix {
+        const unsigned int id;
+
+        std::vector<glm::mat4> modelMatrix;
+        std::vector<glm::mat4> normalMatrix;
+
+        glm::vec3 translation;
+        glm::quat rotation;
+
+        Matrix(unsigned  int id, glm::vec3 translation, glm::quat rotation) :
+                id(id),
+                translation(translation),
+                rotation(rotation) {}
+    };
 
     std::shared_ptr<tinygltf::Model> gltfModel;
     std::vector<std::shared_ptr<Texture>> textures;
-    std::map<int, glm::mat4> modelMatrix;
-    std::map<int, glm::mat4> normalMatrix;
-
-    glm::vec3 translation;
-    glm::quat rotation;
+    std::vector<Matrix> modelMatrix;
 
     void prepareModelMatrices();
-    void drawNode(const int idx, const tinygltf::Node &node);
+    void prepareModelMatrices(Matrix &instance);
+
+    void drawNode(const int idx, const tinygltf::Node &node, Matrix &instance);
     void drawMesh(const tinygltf::Mesh &mesh);
 
 public:
-    Model3DObject(const std::shared_ptr<tinygltf::Model> &model, const std::shared_ptr<Shader> &shader);
+    Model3DObject(const std::shared_ptr<tinygltf::Model> &model, const std::shared_ptr<Shader> &shader, int instances = 0);
 
     std::vector<std::shared_ptr<Texture>> &getTextures() { return this->textures; }
 
     void draw() override;
+
+    unsigned int addInstance(const glm::vec3 &vec, const glm::quat &rot);
+    void setInstance(unsigned int  id, const glm::vec3 &vec, const glm::quat &rot);
+    void removeInstance(unsigned int id);
 
     void setOrigin(const glm::vec3 &vec) override;
     void setRotation(const glm::quat &rot);

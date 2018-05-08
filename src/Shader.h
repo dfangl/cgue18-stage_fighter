@@ -86,6 +86,11 @@ public:
     void setVertexAttributePointer(const GLuint location, GLuint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid *pointer);
     void setVertexAttributePointer(const std::string &name, GLuint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid *pointer);
 
+    void setVertexAttribDivisor(const GLuint location, const GLuint divisor);
+    void setVertexAttribDivisor(const GLuint location, const GLuint count, const GLuint divisor);
+    void setVertexAttribDivisor(const std::string &name, const GLuint divisor);
+    void setVertexAttribDivisor(const std::string &name, const GLuint count, const GLuint divisor);
+
     void disableVAO(const GLuint location);
     void disableVAO(const std::string &name);
 
