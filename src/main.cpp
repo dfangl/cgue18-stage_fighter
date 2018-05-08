@@ -169,12 +169,12 @@ int main(int argc, char *argv[]) {
     window->hideCursor();
     _curTick = std::chrono::high_resolution_clock::now();
     window->render(_curTick - lastTick);
-    window->removeWidget(loadingLabel);
-
+    
     /*
      * Start the Level
      */
     level->start(window);
+    window->removeWidget(loadingLabel);
 
     /*
      * For development purposes the Window can also handle direct camera movement aka "flying camera", we don't want
