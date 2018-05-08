@@ -14,11 +14,11 @@
 #include "../object3d/Light.h"
 
 Level::Level(const std::string &file) : Logger("Level"), world(std::make_shared<BulletUniverse>(btVector3(0,-9.81f,0))) {
-    winLoseLabel = std::make_shared<Label>("",
-                                           FontManager::get("Lato-64"),
-                                           0, 0, 1.2f, glm::vec3(1.0f, 1.0f, 1.0f));
+    winLoseLabel = std::make_shared<Label>("", FontManager::get("Lato-64"), 0, 0, 1.0f, glm::vec3(1.0f, 1.0f, 1.0f));
+    loadingStatusLabel = std::make_shared<Label>("", FontManager::get("Lato-12"), 0, 0, 1.0f, glm::vec3(0.0f, 0.0f, 0.0f));
 
     logger->info("Loading file {}", file);
+    auto past = std::chrono::high_resolution_clock::now();
 
     // Setup Lua Environment:
     state["vec3"].setClass(
@@ -69,6 +69,10 @@ Level::Level(const std::string &file) : Logger("Level"), world(std::make_shared<
 
     // Finally load file
     state.dofile(file);
+
+    auto curTick = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double, std::milli> delta =  curTick - past;
+    logger->info("Finished loading file {} in {} ms", file, delta.count());
 }
 
 void Level::start(Window *window) {
@@ -77,6 +81,9 @@ void Level::start(Window *window) {
      * (lazy loading or pre-loading)
      */
     this->window = window;
+    this->window->addWidget(this->loadingStatusLabel);
+    auto past = std::chrono::high_resolution_clock::now();
+
     this->player = std::make_shared<Player>(window->getScene()->getCamera(), window, world);
 
     /*
@@ -96,20 +103,35 @@ void Level::start(Window *window) {
 
     playerInputCallbackID = window->registerKeyPollingCallback(player->getKeyboardCallback());
 
-    for (auto &entity : state["entities"].map<int, LuaEntity *>())
+    int c=0;
+    int all = static_cast<int>(state["entities"].size());
+    for (auto &entity : state["entities"].map<int, LuaEntity *>()) {
+        this->setLoadingStatus("entities", c++, all);
         this->entities.push_back(entity.second->toEntity3D(this->world));
-
-    for (auto &light : state["lights"].map<int, LuaLight*>())
-        this->lights.push_back(light.second->toLight());
-
-    for (auto &obj : state["objects"].map<int, LuaStaticObject *>()) {
-        this->statics.push_back(obj.second->toModel());
-
-        auto c = obj.second->collisions();
-        this->bullet.insert(bullet.end(), c.begin(), c.end());
     }
 
+    c=0;
+    all = static_cast<int>(state["lights"].size());
+    for (auto &light : state["lights"].map<int, LuaLight*>()) {
+        this->setLoadingStatus("lights", c++, all);
+        this->lights.push_back(light.second->toLight());
+    }
+
+    c=0;
+    all = static_cast<int>(state["objects"].size());
+    for (auto &obj : state["objects"].map<int, LuaStaticObject *>()) {
+        this->setLoadingStatus("objects", c++, all);
+        this->statics.push_back(obj.second->toModel());
+
+        auto col = obj.second->collisions();
+        this->bullet.insert(bullet.end(), col.begin(), col.end());
+    }
+
+    c=0;
+    all = static_cast<int>(this->bullet.size());
     for (auto &bulletObj : this->bullet) {
+        this->setLoadingStatus("bullet physics", c++, all);
+
         auto &o = bulletObj->getTransformation().getOrigin();
         world->addRigidBody(bulletObj->getRigidBody());
     }
@@ -120,6 +142,12 @@ void Level::start(Window *window) {
     this->logger->info("Loaded {} light sources", lights.size());
 
     //this->logger->info("Player.add={}", (void*)player.get());
+
+    this->window->removeWidget(this->loadingStatusLabel);
+
+    auto curTick = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double, std::milli> delta =  curTick - past;
+    logger->info("Level loaded in {} ms", delta.count());
 
     this->show();
 
@@ -266,6 +294,19 @@ void Level::setLabel(const std::string text) {
 
     if (levelState != PLAYING)
         window->addWidget(winLoseLabel);
+}
+
+void Level::setLoadingStatus(std::string thing, int cur, int max) {
+    char buffer[256];
+    snprintf(buffer, 256, "Loading %s (%d / %d)", thing.c_str(), cur, max);
+
+    loadingStatusLabel->setText(buffer);
+    loadingStatusLabel->setPosition(
+                window->getWidth() / 2.0f - loadingStatusLabel->getWidth() / 2.0f,
+                window->getHeight() - 64.0f
+            );
+
+    this->window->render(std::chrono::duration<double, std::milli>::zero());
 }
 
 Level::~Level() {

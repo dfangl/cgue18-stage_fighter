@@ -60,6 +60,11 @@ void DebugTextHud::update(std::chrono::duration<double, std::milli> delta) {
         const int len = snprintf(this->fpsBuffer, 64, "FPS: %3.1f (%2.4f ms | %2.4f ms highest)", fps, delta.count(), highestDelta);
         fpsLabel->setText(std::string(fpsBuffer, fpsBuffer+len));
         refreshTimer = 0;
+    }
+
+    highestReset -= delta.count();
+    if ( highestReset < 0){
         highestDelta = 0;
+        highestReset = 60000.0;
     }
 }

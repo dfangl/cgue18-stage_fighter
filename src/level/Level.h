@@ -14,6 +14,7 @@
 
 #include <btBulletDynamicsCommon.h>
 #include <glm/gtc/type_ptr.hpp>
+#include <kaguya/state.hpp>
 
 #include "../helper/Logger.h"
 
@@ -65,9 +66,11 @@ private:
     LevelState levelState = PAUSED;
 
     std::shared_ptr<Label> winLoseLabel;
+    std::shared_ptr<Label> loadingStatusLabel;
 
 protected:
     void setLabel(const std::string text);
+    void setLoadingStatus(std::string thing, int cur, int max);
 
 public:
     explicit Level(const std::string &file);

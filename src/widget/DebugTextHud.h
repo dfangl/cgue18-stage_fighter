@@ -35,6 +35,7 @@ private:
     char fpsBuffer[64];
     double lastDelta;
     double highestDelta;
+    double highestReset = 5000.0;
     double accumDelta;
 
     std::function<void(int,int,int,int)> keyCallback;
