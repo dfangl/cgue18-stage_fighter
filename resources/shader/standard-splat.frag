@@ -60,7 +60,7 @@ void main() {
 
     vec4 alpha = texture2D(texture_2, fs_in.texcoord_0);
     vec4 tex0  = texture2D(texture_0, fs_in.texcoord_0 * 10);
-    vec4 tex1  = texture2D(texture_1, fs_in.texcoord_0);
+    vec4 tex1  = texture2D(texture_1, fs_in.texcoord_0 * 3);
 
     tex0 *= alpha.r;
     tex1  = mix(tex0, tex1, alpha.b);

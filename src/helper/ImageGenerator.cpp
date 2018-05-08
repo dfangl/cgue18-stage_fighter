@@ -18,8 +18,8 @@ std::vector<unsigned char> ImageGenerator::marble(unsigned int width, unsigned i
 
     for (int x=0; x < width; x++)
         for (int y=0; y < height; y++) {
-            auto noise = stb_perlin_noise3(x / 45.94f, y / 45.94f, 1.15f, 256, 256, 12);
-            auto value = (1 + glm::sin( (x + noise / 2 ) * 50) ) / 2;
+            auto noise = stb_perlin_ridge_noise3(x / 25.1123f, y / 25.123f, 15.296f, 2.0, 0.5, 1.0, 24, 256, 256, 64);
+            auto value = (1 + glm::sin( (x + noise / 2) * 25) / 2);
 
             //spdlog::get("console")->info("({},{}) noise: {}, value: {}", x,y, noise, value);
 

@@ -129,6 +129,9 @@ public:
         ret->setOrigin(position.pos);
         ret->updateModelMatrix();
 
+        if (ret->getTextures().size() > 1)
+            ret->getTextures()[1] = TextureManager::load("__gen_marble");
+
         return ret;
     }
 
@@ -188,8 +191,6 @@ public:
     }
 
     std::shared_ptr<Entity> toEntity3D(const std::shared_ptr<BulletUniverse> &world) const override {
-        //std::string &name, int health, int spawnTime, const btVector3 &pos, const btQuaternion &rot, std::string &model, float mass,
-        //                btCollisionShape *hitbox, std::shared_ptr<BulletUniverse> &world
         return std::make_shared<EnemyEntity>(name, health, spawnTime, position.toVector3(), rot.toQuat(), model, mass, hitBoxOffset.pos, hitbox, world);
     }
 

@@ -144,8 +144,8 @@ int main(int argc, char *argv[]) {
 
 
     // Generate Marble Texture ... doesn't look like marble :/
-    //auto texData = ImageGenerator::marble(512, 512, glm::vec4(1.0, 1.0, 1.0, 1.0));
-    //TextureManager::store("__gen_marble", texData, 512, 512);
+    auto texData = ImageGenerator::marble(512, 512, glm::vec4(139.0/255, 69.0/255, 19.0/255, 1.0));
+    TextureManager::store("__gen_marble", texData, 512, 512);
 
 
     /*
@@ -169,7 +169,7 @@ int main(int argc, char *argv[]) {
     window->hideCursor();
     _curTick = std::chrono::high_resolution_clock::now();
     window->render(_curTick - lastTick);
-    
+
     /*
      * Start the Level
      */
