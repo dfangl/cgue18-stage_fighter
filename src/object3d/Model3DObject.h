@@ -9,6 +9,8 @@
 #include <map>
 #include <memory>
 
+#include <glad/glad.h>
+
 #include <tiny_gltf.h>
 
 #define GLM_ENABLE_EXPERIMENTAL
@@ -28,16 +30,19 @@
 class Model3DObject : public Object3D, Logger {
 
 private:
+
     unsigned int instanceID = 1;
-    int instances = 0, activeInstances = 0;
+    int instances = 0;
     bool recomputeInstanceBuffer = false;
 
-    std::vector<GLuint> modelMatrixInstanceVBO;
-    std::vector<GLuint> normalMatrixInstanceVBO;
     std::vector<std::vector<glm::mat4>> instancedModelMatrix;
     std::vector<std::vector<glm::mat4>> instancedNormalMatrix;
 
     std::vector<GLuint> vbos;
+    GLuint *vaos;
+    GLenum *meshDrawMode;
+    GLuint *modelMatrixInstanceVBO;
+    GLuint *normalMatrixInstanceVBO;
 
     struct Matrix {
         const unsigned int id;
@@ -62,10 +67,17 @@ private:
     void prepareModelMatrices(Matrix &instance);
 
     void drawNode(const int idx, const tinygltf::Node &node, Matrix &instance);
-    void drawMesh(const tinygltf::Mesh &mesh);
+    void drawMesh(const tinygltf::Mesh &mesh, GLuint &VAO, GLenum &mode);
 
 public:
+    /**
+     * Create a Renderable gltf Model Object
+     * @param model gltf model
+     * @param shader shader which should be used
+     * @param instances 0 = no instances, >0 instances are used
+     */
     Model3DObject(const std::shared_ptr<tinygltf::Model> &model, const std::shared_ptr<Shader> &shader, int instances = 0);
+    ~Model3DObject();
 
     std::vector<std::shared_ptr<Texture>> &getTextures() { return this->textures; }
 

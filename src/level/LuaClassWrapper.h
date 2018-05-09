@@ -124,7 +124,7 @@ public:
             : position(position), model(model), shader(shader), bullet(bullet), rotation(rotation) {}
 
     std::shared_ptr<Model3DObject> toModel() const {
-        auto ret = std::make_shared<Model3DObject>(ModelManager::load(model), ShaderManager::load(shader));
+        auto ret = std::make_shared<Model3DObject>(ModelManager::load(model), ShaderManager::load(shader), 0);
         ret->setRotation(glm::quat(rotation.pos.w, rotation.pos.x, rotation.pos.y, rotation.pos.z));
         ret->setOrigin(position.pos);
         ret->updateModelMatrix();

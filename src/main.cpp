@@ -166,7 +166,7 @@ int main(int argc, char *argv[]) {
     /*
      * Hide Mouse cursor and render another frame, to discard all the inputs
      */
-    window->hideCursor();
+    //window->hideCursor();
     _curTick = std::chrono::high_resolution_clock::now();
     window->render(_curTick - lastTick);
 
