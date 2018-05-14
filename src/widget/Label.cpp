@@ -43,7 +43,7 @@ void Label::render(const glm::mat4 &projection) {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     glBindVertexArray(VAO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    //glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
     // Bind Texture atlas
     glActiveTexture(GL_TEXTURE0);
@@ -52,8 +52,8 @@ void Label::render(const glm::mat4 &projection) {
     // Render quads
     glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(vboData.size() * 6));
 
-    glBindTexture(GL_TEXTURE_2D, 0);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    //glBindTexture(GL_TEXTURE_2D, 0);
+    //glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
     glDisable(GL_BLEND);

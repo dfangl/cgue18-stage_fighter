@@ -17,12 +17,21 @@ Texture::Texture(const std::string &path) : Logger("Texture") {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    logger->debug("Loading Texture from {}", path);
+    logger->info("Loading Texture from {}", path);
 
     int width, height, nrChannels;
     unsigned char *data = stbi_load(path.c_str(), &width, &height, &nrChannels, 0);
     if (data != nullptr) {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+        glTexImage2D(GL_TEXTURE_2D,
+                     0,
+                     nrChannels == 4 ? GL_SRGB_ALPHA : GL_SRGB,
+                     width,
+                     height,
+                     0,
+                     nrChannels == 4 ? GL_RGBA : GL_RGB,
+                     GL_UNSIGNED_BYTE,
+                     data
+        );
         glGenerateMipmap(GL_TEXTURE_2D);
     } else {
         logger->error("Failed to load texture: {}", path);
