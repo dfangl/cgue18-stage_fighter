@@ -16,6 +16,10 @@ void Scene::render() {
     // Draw Bullet Debug Context after all Objects, just in case ...
     if (this->bulletDebugDrawer)
         this->bulletDebugDrawer->render(this);
+
+    // Draw skybox as last element to make use of the depth buffer
+    if (this->skybox)
+        this->skybox->render(this);
 }
 
 void Scene::addObject(const std::shared_ptr<Object3DAbstract> &object3D) {

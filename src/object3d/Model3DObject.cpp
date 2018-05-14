@@ -89,12 +89,13 @@ Model3DObject::Model3DObject(const std::shared_ptr<tinygltf::Model> &model, cons
             throw std::runtime_error("Mesh with multiple primitives is not supported!");
 
 
-        // unable to bind when instances = 5 & coliseum model is loaded? 
         glBindVertexArray(VAO);
+        /*
         auto error = glGetError();
         if(error != GL_NO_ERROR) {
             spdlog::get("console")->error("[Bind VAO] OpenGL Error Code: {}", error);
         }
+         */
 
         // Prepare attributes
         for (auto &attribute : primitive.attributes) {
@@ -122,11 +123,12 @@ Model3DObject::Model3DObject(const std::shared_ptr<tinygltf::Model> &model, cons
                                                     static_cast<GLboolean>(accessor.normalized ? GL_TRUE : GL_FALSE),
                                                     byteStride,
                                                     BUFFER_OFFSET(accessor.byteOffset));
-
+/*
             error = glGetError();
             if(error != GL_NO_ERROR) {
                 spdlog::get("consoe")->error("[setVertexAtrributePointer] OpenGL Error Code: {}", error);
             }
+*/
         }
 
         // Bind EBO (indices) to the VAO
@@ -207,11 +209,13 @@ void Model3DObject::draw() {
         // Push them to the GPU
         for (int i=0; i<instancedModelMatrix.size(); i++) {
             glBindBuffer(GL_ARRAY_BUFFER, modelMatrixInstanceVBO[i]);
-            glBufferData(GL_ARRAY_BUFFER, modelMatrix.size() * sizeof(glm::mat4), instancedModelMatrix.data(), GL_STATIC_DRAW);
+            glBufferData(GL_ARRAY_BUFFER, modelMatrix.size() * sizeof(glm::mat4), instancedModelMatrix.data(), GL_DYNAMIC_DRAW);
 
             glBindBuffer(GL_ARRAY_BUFFER, normalMatrixInstanceVBO[i]);
-            glBufferData(GL_ARRAY_BUFFER, modelMatrix.size() * sizeof(glm::mat4), instancedNormalMatrix.data(), GL_STATIC_DRAW);
+            glBufferData(GL_ARRAY_BUFFER, modelMatrix.size() * sizeof(glm::mat4), instancedNormalMatrix.data(), GL_DYNAMIC_DRAW);
         }
+
+        recomputeInstanceBuffer = false;
     }
 
     // Render all the instances with all nodes and meshes ...
@@ -295,10 +299,12 @@ void Model3DObject::drawMesh(const tinygltf::Mesh &mesh, GLuint &VAO, GLenum &mo
                                 modelMatrix.size()
         );
 
+    /*
     auto error = glGetError();
     if(error != GL_NO_ERROR) {
         spdlog::get("console")->error("[glDrawElements] OpenGL Error Code: {}", error);
     }
+     */
 
     glBindVertexArray(0);
 }

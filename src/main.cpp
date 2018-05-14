@@ -28,6 +28,8 @@
 #include "widget/DebugTextHud.h"
 #include "widget/HelpMenu.h"
 #include "helper/ImageGenerator.h"
+#include "CubemapTexture.h"
+#include "object3d/Skybox.h"
 
 #include <kaguya/kaguya.hpp>
 #include <spdlog/spdlog.h>
@@ -147,6 +149,10 @@ int main(int argc, char *argv[]) {
     auto texData = ImageGenerator::marble(512, 512, glm::vec4(139.0/255, 69.0/255, 19.0/255, 1.0));
     TextureManager::store("__gen_marble", texData, 512, 512);
 
+    // TODO: integrate skybox loading into level loading
+    auto skyboxTex = std::make_shared<CubemapTexture>("../resources/texture/skybox/Daylight Box", ".jpg");
+    auto skybox = std::make_shared<Skybox>(skyboxTex, ShaderManager::load("skybox"));
+    window->getScene()->setSkybox(skybox);
 
     /*
      * Render a Loading Level Frame before loading the Level, this may take a while ...
@@ -166,7 +172,7 @@ int main(int argc, char *argv[]) {
     /*
      * Hide Mouse cursor and render another frame, to discard all the inputs
      */
-    //window->hideCursor();
+    window->hideCursor();
     _curTick = std::chrono::high_resolution_clock::now();
     window->render(_curTick - lastTick);
 

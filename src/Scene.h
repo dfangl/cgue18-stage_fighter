@@ -7,6 +7,8 @@
 
 #include "Camera.h"
 #include "object3d/Light.h"
+#include "object3d/Skybox.h"
+
 class Object3DAbstract;
 class GLDebugDrawer;
 
@@ -17,6 +19,8 @@ private:
 
     std::vector<std::shared_ptr<Light>> lights;
     std::vector<std::shared_ptr<Object3DAbstract>> objects;
+
+    std::shared_ptr<Skybox> skybox;
 
 public:
     explicit Scene(Camera &camera);
@@ -30,6 +34,8 @@ public:
     void removeLight(const std::shared_ptr<Light> &light);
 
     void clear();
+
+    void setSkybox(std::shared_ptr<Skybox> &skybox) { this->skybox = skybox; }
 
     std::shared_ptr<GLDebugDrawer> bulletDebugDrawer;
 

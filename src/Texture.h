@@ -19,10 +19,11 @@
  *
  * sbt_image is used to load the Texture from Disk
  */
-class Texture : Logger {
+class Texture : public Logger {
 
-private:
+protected:
     GLuint textureID;
+    Texture(): Logger("Texture") { this->textureID = 0; }
 
 public:
     /**
@@ -49,7 +50,7 @@ public:
 
     ~Texture();
 
-    void bind(GLenum texUnit);
+    virtual void bind(GLenum texUnit);
 
 };
 

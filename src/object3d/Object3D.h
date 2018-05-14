@@ -13,7 +13,7 @@
 #include <glm/glm.hpp>
 
 #include "../Shader.h"
-#include "../Scene.h"
+class Scene; //#include "../Scene.h"
 #include "../Camera.h"
 
 #include "Light.h"
