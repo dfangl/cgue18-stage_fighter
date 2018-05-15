@@ -53,6 +53,7 @@ private:
     std::vector<std::shared_ptr<Model3DObject>> statics;
     std::vector<std::shared_ptr<BulletObject>> bullet;
     std::vector<std::shared_ptr<Light>> lights;
+    std::map<std::string, std::shared_ptr<BulletEntity>> projectiles;
 
     LuaVec3 cameraPos {0.0f, 0.0f, 0.0f};
     LuaVec3 lookAt {0.0f, 0.0f, 0.0f};

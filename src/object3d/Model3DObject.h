@@ -45,7 +45,7 @@ private:
     GLuint *normalMatrixInstanceVBO;
 
     struct Matrix {
-        const unsigned int id;
+        unsigned int id;
 
         std::vector<glm::mat4> modelMatrix;
         std::vector<glm::mat4> normalMatrix;
@@ -53,6 +53,7 @@ private:
         glm::vec3 translation;
         glm::quat rotation;
 
+        /* don't use*/ Matrix() : id(0) {};
         Matrix(unsigned  int id, glm::vec3 translation, glm::quat rotation) :
                 id(id),
                 translation(translation),
@@ -61,7 +62,7 @@ private:
 
     std::shared_ptr<tinygltf::Model> gltfModel;
     std::vector<std::shared_ptr<Texture>> textures;
-    std::vector<Matrix> modelMatrix;
+    std::map<unsigned  int, Matrix> modelMatrix;
 
     void prepareModelMatrices();
     void prepareModelMatrices(Matrix &instance);
@@ -91,6 +92,7 @@ public:
     void setRotation(const glm::quat &rot);
 
     void updateModelMatrix() { this->prepareModelMatrices(); }
+    void clearInstances();
 };
 
 

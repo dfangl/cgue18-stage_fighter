@@ -18,13 +18,17 @@ objects = {
     statics.wall(vec3(-50.08  , -42.5088,-8.18353), vec4(0,0.707107,0,0.707107)),
 
     -- Light Cube:
-    StaticObject("cube", "light", vec3(-50.188 , -35 , 0.0),  vec4(0,0,0,1), { BoxShape(vec3(0,0,0), vec4(0,0,0,1), 0, vec3(0.1/2, 0.1/2, 0.1/2)), }),
+    StaticObject("cube", "light", vec3(-50.188 , -35 , 0.0),  vec4(0,0,0,1), { BoxShape(vec3(0,0,0), vec4(0,0,0,1), 0, vec3(0.1/2, 0.1/2, 0.1/2)) }),
 }
 
 entities = {
     dynamics.turret("Turret #1", 1, 200,  vec3(-24.7897,-42.5088,1.65117), vec4(0,0,0,1)),
     dynamics.turret("Turret #2", 1, 200,  vec3(-50.2492,-42.5088,-25.1359), vec4(0,0.707107,0,0.707107)),
     dynamics.turret("Turret #4", 5, 300000,  vec3(-50.2492,-32.5088,5), vec4(0.707107/2,0.707107/2,0,0.707107))
+}
+
+projectiles = {
+    ["bullet"] = Projectile("bullet", 5.0, 0.00001, BoxShape(vec3(0,0,0), vec4(0,0,0,1), 0, vec3(0.174505/2, 0.174505/2, 0.286695/2)))
 }
 
 lights = {

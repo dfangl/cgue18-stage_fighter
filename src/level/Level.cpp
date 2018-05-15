@@ -49,7 +49,7 @@ Level::Level(const std::string &file) : Logger("Level"), world(std::make_shared<
     );
     state["EnemyEntity"].setClass(
             kaguya::UserdataMetatable<LuaEnemyEntity, LuaEntity>()
-                    .setConstructors<LuaEnemyEntity(std::string, int, int, LuaVec3, LuaVec4&, std::string, float, LuaBtCollisionShape&)>()
+                    .setConstructors<LuaEnemyEntity(std::string, int, int, LuaVec3&, LuaVec4&, std::string, float, LuaBtCollisionShape&)>()
     );
 
     state["btCollisionShape"].setClass(kaguya::UserdataMetatable<LuaBtCollisionShape>());
@@ -67,8 +67,15 @@ Level::Level(const std::string &file) : Logger("Level"), world(std::make_shared<
                     .setConstructors<LuaLight(LuaVec3&, LuaVec3&, LuaVec3&, LuaVec3&, float)>()
     );
 
+    state["Projectile"].setClass(
+            kaguya::UserdataMetatable<LuaProjectile>()
+                    .setConstructors<LuaProjectile(std::string, float, float, LuaBtCollisionShape&)>()
+    );
+
     // Finally load file
     state.dofile(file);
+
+    // TODO: validate file ...
 
     auto curTick = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double, std::milli> delta =  curTick - past;
@@ -103,21 +110,21 @@ void Level::start(Window *window) {
 
     playerInputCallbackID = window->registerKeyPollingCallback(player->getKeyboardCallback());
 
-    int c=0;
+    int c=1;
     int all = static_cast<int>(state["entities"].size());
     for (auto &entity : state["entities"].map<int, LuaEntity *>()) {
         this->setLoadingStatus("entities", c++, all);
         this->entities.push_back(entity.second->toEntity3D(this->world));
     }
 
-    c=0;
+    c=1;
     all = static_cast<int>(state["lights"].size());
     for (auto &light : state["lights"].map<int, LuaLight*>()) {
         this->setLoadingStatus("lights", c++, all);
         this->lights.push_back(light.second->toLight());
     }
 
-    c=0;
+    c=1;
     all = static_cast<int>(state["objects"].size());
     for (auto &obj : state["objects"].map<int, LuaStaticObject *>()) {
         this->setLoadingStatus("objects", c++, all);
@@ -127,13 +134,21 @@ void Level::start(Window *window) {
         this->bullet.insert(bullet.end(), col.begin(), col.end());
     }
 
-    c=0;
+    c=1;
     all = static_cast<int>(this->bullet.size());
     for (auto &bulletObj : this->bullet) {
         this->setLoadingStatus("bullet physics", c++, all);
 
         auto &o = bulletObj->getTransformation().getOrigin();
         world->addRigidBody(bulletObj->getRigidBody());
+    }
+
+    c=1;
+    all = static_cast<int>( state["projectiles"].size());
+    for(auto &projectile : state["projectiles"].map<std::string, LuaProjectile *>()) {
+        this->setLoadingStatus("projectiles", c++, all);
+
+        logger->info("Loading projectile: {}", projectile.first);
     }
 
     this->logger->info("Loaded {} entities", entities.size());
@@ -146,7 +161,7 @@ void Level::start(Window *window) {
     this->window->removeWidget(this->loadingStatusLabel);
 
     auto curTick = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double, std::milli> delta =  curTick - past;
+    std::chrono::duration<double, std::milli> delta = curTick - past;
     logger->info("Level loaded in {} ms", delta.count());
 
     this->show();

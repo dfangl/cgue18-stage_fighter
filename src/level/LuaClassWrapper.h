@@ -185,7 +185,7 @@ protected:
     LuaVec3 hitBoxOffset;
 
 public:
-    LuaEnemyEntity(std::string name, int health, int spawnTime, const LuaVec3 pos, const LuaVec4 &rot, std::string model, float mass, const LuaBtCollisionShape &hitbox) :
+    LuaEnemyEntity(std::string name, int health, int spawnTime, const LuaVec3 &pos, const LuaVec4 &rot, std::string model, float mass, const LuaBtCollisionShape &hitbox) :
             LuaEntity(pos), name(name), health(health), spawnTime(spawnTime), rot(rot), model(model), mass(mass), hitBoxOffset(hitbox.position) {
         this->hitbox = hitbox.generateShape();
     }
@@ -218,6 +218,20 @@ public:
                 );
     }
 
+};
+
+class LuaProjectile {
+protected:
+    std::string model;
+    btCollisionShape *hitbox;
+    float speed;
+    float mass;
+
+public:
+    /* don't use */ LuaProjectile() : model("__NAN__"), hitbox(nullptr) {};
+    LuaProjectile(std::string model, float speed, float mass, const LuaBtCollisionShape &hitbox) : model(model), speed(speed) {
+        this->hitbox = hitbox.generateShape();
+    }
 };
 
 #endif //STAGE_FIGHTER_LUACLASSWRAPPER_H

@@ -42,7 +42,7 @@ Model3DObject::Model3DObject(const std::shared_ptr<tinygltf::Model> &model, cons
     }
 
     // Set position and rotation for at least the main instance of the object
-    modelMatrix.push_back(Matrix(0, glm::vec3(0,0,0), glm::quat(1.0f,0.0f,0.0f,0.0f)));
+    modelMatrix[0] = Matrix(0, glm::vec3(0,0,0), glm::quat(1.0f,0.0f,0.0f,0.0f));
 
     // Get Mesh count:
     const tinygltf::Scene &scene = this->gltfModel->scenes[gltfModel->defaultScene];
@@ -192,6 +192,10 @@ void Model3DObject::draw() {
     //Support for more than one scene necessary?
     const auto &scene = this->gltfModel->scenes[gltfModel->defaultScene];
 
+    // Check if there are instances which should be drawn:
+    if (modelMatrix.empty())
+        return;
+
     // Re-construct the VBOs only if a instance has moved
     if (instances > 0 && recomputeInstanceBuffer) {
         instancedModelMatrix.clear();
@@ -199,11 +203,11 @@ void Model3DObject::draw() {
 
         // Build instanced VBO Data of model / normal matrices
         for (auto &instance : this->modelMatrix) {
-            for (int i = 0; i<instance.modelMatrix.size(); i++)
-                instancedModelMatrix[i].push_back(instance.modelMatrix[i]);
+            for (int i = 0; i<instance.second.modelMatrix.size(); i++)
+                instancedModelMatrix[i].push_back(instance.second.modelMatrix[i]);
 
-            for (int i = 0; i<instance.normalMatrix.size(); i++)
-                instancedNormalMatrix[i].push_back(instance.normalMatrix[i]);
+            for (int i = 0; i<instance.second.normalMatrix.size(); i++)
+                instancedNormalMatrix[i].push_back(instance.second.normalMatrix[i]);
         }
 
         // Push them to the GPU
@@ -221,7 +225,7 @@ void Model3DObject::draw() {
     // Render all the instances with all nodes and meshes ...
     for (auto &instance : this->modelMatrix)
         for (auto &node : scene.nodes) {
-            this->drawNode(node, gltfModel->nodes[node], instance);
+            this->drawNode(node, gltfModel->nodes[node], instance.second);
         }
 }
 
@@ -296,7 +300,7 @@ void Model3DObject::drawMesh(const tinygltf::Mesh &mesh, GLuint &VAO, GLenum &mo
                                 static_cast<GLsizei>(indexAccess.count),
                                 static_cast<GLenum>(indexAccess.componentType),
                                 BUFFER_OFFSET(indexAccess.byteOffset),
-                                modelMatrix.size()
+                                static_cast<GLsizei>(modelMatrix.size())
         );
 
     /*
@@ -318,7 +322,7 @@ void Model3DObject::prepareModelMatrices() {
     const tinygltf::Scene &scene = this->gltfModel->scenes[gltfModel->defaultScene];
 
     for (auto &instance : this->modelMatrix)
-        this->prepareModelMatrices(instance);
+        this->prepareModelMatrices(instance.second);
 }
 
 void Model3DObject::setRotation(const glm::quat &rot) {
@@ -326,21 +330,26 @@ void Model3DObject::setRotation(const glm::quat &rot) {
 }
 
 unsigned int Model3DObject::addInstance(const glm::vec3 &vec, const glm::quat &rot) {
-    modelMatrix.push_back(Matrix(
-        this->instanceID++,
-        vec,
-        rot
-    ));
+    auto ID = this->instanceID++;
 
-    return this->instanceID;
+    modelMatrix[ID] = Matrix(this->instanceID++, vec, rot);
+    prepareModelMatrices(modelMatrix[ID]);
+
+    return ID;
 }
 
 void Model3DObject::removeInstance(unsigned int id) {
-
+    modelMatrix.erase(id);
+    recomputeInstanceBuffer = true;
 }
 
 void Model3DObject::setInstance(unsigned int  id, const glm::vec3 &vec, const glm::quat &rot) {
+    auto &matrix = modelMatrix[id];
 
+    matrix.translation = vec;
+    matrix.rotation = rot;
+
+    prepareModelMatrices(matrix);
 }
 
 void Model3DObject::prepareModelMatrices(Model3DObject::Matrix &instance) {
@@ -404,4 +413,10 @@ Model3DObject::~Model3DObject() {
     delete modelMatrixInstanceVBO;
     delete normalMatrixInstanceVBO;
 
+}
+
+void Model3DObject::clearInstances() {
+    this->instancedModelMatrix.clear();
+    this->instancedNormalMatrix.clear();
+    this->modelMatrix.clear();
 }
