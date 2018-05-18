@@ -25,6 +25,8 @@ protected:
     GLuint textureID;
     Texture(): Logger("Texture") { this->textureID = 0; }
 
+    int height, width;
+
 public:
     /**
      * Creates a Texture from a
@@ -51,6 +53,9 @@ public:
     ~Texture();
 
     virtual void bind(GLenum texUnit);
+
+    float pixelHeightToNormal(int px);
+    float pixelWidthToNormal(int px);
 
 };
 

@@ -19,7 +19,7 @@ Texture::Texture(const std::string &path) : Logger("Texture") {
 
     logger->info("Loading Texture from {}", path);
 
-    int width, height, nrChannels;
+    int nrChannels;
     unsigned char *data = stbi_load(path.c_str(), &width, &height, &nrChannels, 0);
     if (data != nullptr) {
         glTexImage2D(GL_TEXTURE_2D,
@@ -56,6 +56,9 @@ Texture::Texture(const tinygltf::Image &image, const tinygltf::Sampler &sampler)
     logger->info("Loading Texture from gltf model: {}", image.name);
     GLuint imgType = sampler.name.c_str()[0] == '0' ? GL_RGB : GL_RGBA;
 
+    this->width = image.width;
+    this->height = image.height;
+
     glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB, image.width, image.height, 0, imgType, GL_UNSIGNED_BYTE,
                  reinterpret_cast<const void *>(&image.image.at(0)));
 
@@ -85,8 +88,19 @@ Texture::Texture(const std::vector<unsigned char> imageData, int width, int heig
 
     logger->debug("Create Texture from data pointer {}", (void*)imageData.data());
 
+    this->width = width;
+    this->height = height;
+
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, rgba ? GL_RGBA : GL_RGB, GL_UNSIGNED_BYTE, imageData.data());
     glGenerateMipmap(GL_TEXTURE_2D);
 
     glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+float Texture::pixelHeightToNormal(int px) {
+    return (float)px / (float)height;
+}
+
+float Texture::pixelWidthToNormal(int px) {
+    return (float)px / (float)width;
 }

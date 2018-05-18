@@ -248,6 +248,7 @@ void Window::render(std::chrono::duration<double, std::milli> delta) {
 
     // Models don't disable backface culling if they enabled it
     glDisable(GL_CULL_FACE);
+    glDisable(GL_DEPTH_TEST);
 
     // Render all Widgets:
     for (auto &widget : this->widgets) {
