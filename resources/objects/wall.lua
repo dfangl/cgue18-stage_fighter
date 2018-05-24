@@ -14,7 +14,7 @@ function (position, rotation, lightmap)
             ),
         },
         {
-            --[1] = levelResourcePath.."wall-lightmap-"..lightmap..".png"
+            [1] = levelResourcePath.."wall-lightmap.png"
         }
     )
 end

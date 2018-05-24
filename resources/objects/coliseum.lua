@@ -25,7 +25,7 @@ function (position, rotation)
         },
         {
             [1] = "__gen_marble",
-            --[3] = levelResourcePath.."coliseum-lightmap.png"
+            [3] = levelResourcePath.."coliseum-lightmap.png"
         }
     )
 end

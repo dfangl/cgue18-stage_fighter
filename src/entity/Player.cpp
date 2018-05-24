@@ -31,12 +31,12 @@ Player::Player(Camera &camera, Window *window, const std::shared_ptr<BulletUnive
 void Player::think(std::chrono::duration<double, std::milli> delta) {
     CameraEntity::think(delta);
 
-    for (auto &kD : this->knockbackDirections)
-        BulletObject::rigidBody->applyCentralImpulse(btVector3(kD.x * 4, kD.y * 2, kD.z * 4));
+    //for (auto &kD : this->knockbackDirections)
+    //    BulletObject::rigidBody->applyCentralImpulse(btVector3(kD.x * 4, kD.y * 2, kD.z * 4));
 
     hud->setHealth(health);
     hud->setShield(shield);
-    this->knockbackDirections.clear();
+    //this->knockbackDirections.clear();
 }
 
 void Player::computeEnemyInView(std::vector<std::shared_ptr<Entity>> &entities) {
@@ -85,9 +85,9 @@ void Player::collideWith(BulletObject *other) {
     }
 
     if (other->getKind() == BulletObject::BULLET) {
-        const auto *bullet = (const BulletEntity *)(other);
-        const glm::vec3 direction = glm::normalize(position - bullet->getEntityPosition());
-        this->knockbackDirections.push_back(direction);
+        //const auto *bullet = (const BulletEntity *)(other);
+        //const glm::vec3 direction = glm::normalize(position - bullet->getEntityPosition());
+        //this->knockbackDirections.push_back(direction);
 
         this->health -= 1;
 

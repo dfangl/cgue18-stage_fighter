@@ -30,6 +30,7 @@ uniform vec3 camera_position;
 uniform sampler2D texture_0;    // 0_marble
 uniform sampler2D texture_1;    // _APaintedTexture
 uniform sampler2D texture_2;    // Splatmap
+uniform sampler2D texture_3;    // Lightmap
 
 uniform Material material;
 uniform Light light;
@@ -74,6 +75,7 @@ void main() {
     vec3 specular = specularLight * vec3(tex1) * spec ;// * celBrightness;
 
     vec3 color = ambient + diffuse + specular;
+    color = color * texture2D(texture_3, fs_in.texcoord_0).xyz;
 
     color = pow(color, vec3(1.0/screenGamma));
     FragColor = vec4(color, 1.0);

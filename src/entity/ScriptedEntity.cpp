@@ -65,9 +65,9 @@ void ScriptedEntity::think(Level *level, std::chrono::duration<double, std::mill
     auto o = bT.getOrigin();
     auto r = bT.getRotation();
 
-    this->position = glm::vec3(o.x(), o.y(), o.z()) + collisionOffset;
+    this->position = glm::vec3(o.x(), o.y(), o.z());
     Model3DObject::setRotation(glm::quat(r.w(), r.x(), r.y(), r.z()));
-    Model3DObject::setOrigin(position);
+    Model3DObject::setOrigin(position + collisionOffset);
 
     this->scriptTimeout += delta.count();
     if (this->scriptTimeout >= SCRIPT_THINK_TIMEOUT) {
