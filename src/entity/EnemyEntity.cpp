@@ -97,7 +97,3 @@ void EnemyEntity::think(std::chrono::duration<double, std::milli> delta) {}
 void EnemyEntity::render(Scene *scene) {
     Model3DObject::render(scene);
 }
-
-void EnemyEntity::receiveDamage(int points) {
-    this->health = std::max(this->health - points, 0);
-}

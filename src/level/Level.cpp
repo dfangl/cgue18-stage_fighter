@@ -72,6 +72,21 @@ Level::Level(const std::string &file) : Logger("Level"), world(std::make_shared<
                     .setConstructors<LuaProjectile(std::string, float, float, LuaBtCollisionShape&)>()
     );
 
+    state["ScriptedEntity"].setClass(
+            kaguya::UserdataMetatable<LuaScriptedEntity, LuaEntity>()
+                    .setConstructors<LuaScriptedEntity(std::string, int, LuaVec3&, LuaVec4&, std::string, float, LuaBtCollisionShape &, kaguya::LuaTable)>()
+    );
+
+
+
+    // Register Level to use global functions everywhere:
+    state["Level"].setClass(
+            kaguya::UserdataMetatable<Level>()
+                    .addFunction("spawn", &Level::luaSpawnEntity)
+                    .addFunction("getPlayerPos", &Level::luaGetPlayerPos)
+    );
+    state["level"] = this;
+
     // Finally load file
     state.dofile(file);
 
@@ -328,4 +343,13 @@ Level::~Level() {
     this->player->disable();
     this->hide();
     this->window->removeKeyPollingCallback(playerInputCallbackID);
+}
+
+void Level::luaSpawnEntity(const LuaProjectile &projectile, const LuaVec3 &spawn, const LuaVec3 &target) {
+    this->spawn(projectile.toBulletEntity(spawn, target, world));
+}
+
+LuaVec3 Level::luaGetPlayerPos() {
+    auto p = this->player->getEntityPosition();
+    return LuaVec3(p.x, p.y, p.z);
 }

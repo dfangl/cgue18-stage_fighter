@@ -265,7 +265,12 @@ add_executable(
 		src/manager/FontManager.h src/widget/Label.cpp src/widget/Label.h src/widget/Widget.h src/helper/Font.cpp
 		src/helper/Font.h src/widget/NuklearCtx.cpp src/widget/NuklearCtx.h src/widget/GameMenu.cpp src/widget/GameMenu.h
 		src/widget/PlayerHud.cpp src/widget/PlayerHud.h src/entity/Player.cpp src/entity/Player.h src/entity/BulletEntity.cpp
-		src/entity/BulletEntity.h src/widget/DebugTextHud.cpp src/widget/DebugTextHud.h src/entity/EnemyEntity.cpp src/entity/EnemyEntity.h src/object3d/Light.h src/Scene.cpp src/Scene.h src/widget/HelpMenu.cpp src/widget/HelpMenu.h src/helper/QuatUtils.h src/helper/ImageGenerator.cpp src/helper/ImageGenerator.h src/CubemapTexture.cpp src/CubemapTexture.h src/object3d/Skybox.cpp src/object3d/Skybox.h)
+		src/entity/BulletEntity.h src/widget/DebugTextHud.cpp src/widget/DebugTextHud.h src/entity/EnemyEntity.cpp src/entity/EnemyEntity.h
+		src/object3d/Light.h src/Scene.cpp src/Scene.h src/widget/HelpMenu.cpp src/widget/HelpMenu.h src/helper/QuatUtils.h
+		src/helper/ImageGenerator.cpp src/helper/ImageGenerator.h src/CubemapTexture.cpp src/CubemapTexture.h
+		src/object3d/Skybox.cpp src/object3d/Skybox.h src/entity/ScriptedEntity.cpp src/entity/ScriptedEntity.h
+
+)
 
 set_target_properties("${BINARY}" PROPERTIES LINKER_LANGUAGE CXX)	
 	

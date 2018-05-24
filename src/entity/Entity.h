@@ -37,6 +37,8 @@ public:
     virtual int getHealth() const { return health; }
     virtual int getMaxHealth() const { return maxHealth; }
 
+    void receiveDamage(int points) {  if (lastDmgTime <= 0.0) this->health = std::max(this->health - points, 0); }
+
     bool mustBeKilled = false;
 };
 

@@ -22,9 +22,9 @@ objects = {
 }
 
 entities = {
-    dynamics.turret("Turret #1", 1, 200,  vec3(-24.7897,-42.5088,1.65117), vec4(0,0,0,1)),
-    dynamics.turret("Turret #2", 1, 200,  vec3(-50.2492,-42.5088,-25.1359), vec4(0,0.707107,0,0.707107)),
-    dynamics.turret("Turret #4", 5, 300000,  vec3(-50.2492,-32.5088,5), vec4(0.707107/2,0.707107/2,0,0.707107))
+    dynamics.sturret("Turret #1", 1,  vec3(-24.7897,-42.5088,1.65117), vec4(0,0,0,1)),
+ --   dynamics.sturret("Turret #2", 1,  vec3(-50.2492,-42.5088,-25.1359), vec4(0,0.707107,0,0.707107)),
+  --  dynamics.turret("Turret #4", 5, 300000,  vec3(-50.2492,-32.5088,5), vec4(0.707107/2,0.707107/2,0,0.707107))
 }
 
 projectiles = {

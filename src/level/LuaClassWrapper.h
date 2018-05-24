@@ -13,6 +13,11 @@
 #include "../entity/Entity.h"
 #include "../entity/EnemyEntity.h"
 #include "../entity/BulletEntity.h"
+#include "../entity/CubeEntity.h"
+#include "../entity/ScriptedEntity.h"
+
+#include "../manager/ModelManager.h"
+#include "../manager/TextureManager.h"
 
 // ********************
 // ==== Glm Vectors ===
@@ -228,10 +233,40 @@ protected:
     float mass;
 
 public:
-    /* don't use */ LuaProjectile() : model("__NAN__"), hitbox(nullptr) {};
+    /* don't use */ //LuaProjectile() : model("__NAN__"), hitbox(nullptr) {};
     LuaProjectile(std::string model, float speed, float mass, const LuaBtCollisionShape &hitbox) : model(model), speed(speed) {
         this->hitbox = hitbox.generateShape();
     }
+
+    std::shared_ptr<BulletEntity> toBulletEntity(const LuaVec3 &pos, const LuaVec3 &target, std::shared_ptr<BulletUniverse> &world) const {
+        return std::make_shared<BulletEntity>(pos.toVector3(), target.toVector3(), world);
+    }
+};
+
+class LuaScriptedEntity : public LuaEntity {
+
+protected:
+    std::string name;
+    int health;
+    LuaVec4 rot;
+    std::string model;
+    float mass;
+    btCollisionShape *hitbox;
+    LuaVec3 hitBoxOffset;
+    kaguya::LuaTable env;
+
+public:
+    LuaScriptedEntity(std::string name, int health, const LuaVec3 &pos, const LuaVec4 &rot, std::string model,
+                      float mass, const LuaBtCollisionShape &hitbox, kaguya::LuaTable env) :
+    LuaEntity(pos), name(name), health(health), rot(rot), model(model), mass(mass), hitBoxOffset(hitbox.position),
+    env(env) {
+        this->hitbox = hitbox.generateShape();
+    }
+
+    std::shared_ptr<Entity> toEntity3D(const std::shared_ptr<BulletUniverse> &world) const override {
+        return std::make_shared<ScriptedEntity>(name, health, position.toVector3(), rot.toQuat(), model, mass, hitBoxOffset.pos, hitbox, world, env);
+    }
+
 };
 
 #endif //STAGE_FIGHTER_LUACLASSWRAPPER_H

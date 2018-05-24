@@ -29,8 +29,6 @@ public:
                 glm::vec3 collisionOffset, btCollisionShape *hitbox, const std::shared_ptr<BulletUniverse> &world);
     ~EnemyEntity();
 
-    void receiveDamage(int points);
-
     void think(Level *level, std::chrono::duration<double, std::milli> delta) override;
 
     void collideWith(BulletObject *other) override;

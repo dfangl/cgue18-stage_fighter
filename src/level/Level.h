@@ -61,7 +61,7 @@ private:
     std::shared_ptr<Player> player;
     int playerInputCallbackID;
 
-    const std::shared_ptr<BulletUniverse> world;
+    std::shared_ptr<BulletUniverse> world;
     Window *window;
 
     LevelState levelState = PAUSED;
@@ -96,7 +96,11 @@ public:
 
     std::shared_ptr<Player> getPlayer() const { return this->player; }
     std::shared_ptr<BulletUniverse> getWorld() const { return this->world; }
-};
 
+    // Lua Binding part:
+    void luaSpawnEntity(const LuaProjectile &projectile, const LuaVec3 &spawn, const LuaVec3 &target);
+    LuaVec3 luaGetPlayerPos();
+
+};
 
 #endif //STAGE_FIGHTER_LEVEL_H
