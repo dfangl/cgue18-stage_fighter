@@ -29,6 +29,7 @@ public:
 
     LuaVec3(const LuaVec3 &source) = default;
     LuaVec3(double x, double y, double z) : pos(x,y,z) {}
+    LuaVec3(glm::vec3 &source) : pos(source) {}
 
     LuaVec3 &operator=(const LuaVec3 &source) = default;
 
@@ -121,12 +122,13 @@ private:
     const LuaVec3 position;
     const LuaVec4 rotation;
     const kaguya::LuaTable bullet;
+    const kaguya::LuaTable texOverride;
 
 public:
-    LuaStaticObject(const std::string model, const std::string shader, const LuaVec3 position, const kaguya::LuaTable bullet)
-            : position(position), model(model), shader(shader), bullet(bullet), rotation(LuaVec4(0,0,0,1)) {}
-    LuaStaticObject(const std::string model, const std::string shader, const LuaVec3 position, const LuaVec4 rotation, const kaguya::LuaTable bullet)
-            : position(position), model(model), shader(shader), bullet(bullet), rotation(rotation) {}
+    LuaStaticObject(const std::string model, const std::string shader, const LuaVec3 position, const kaguya::LuaTable bullet, kaguya::LuaTable texO)
+            : position(position), model(model), shader(shader), bullet(bullet), rotation(LuaVec4(0,0,0,1)), texOverride(texO) {}
+    LuaStaticObject(const std::string model, const std::string shader, const LuaVec3 position, const LuaVec4 rotation, const kaguya::LuaTable bullet, kaguya::LuaTable texO)
+            : position(position), model(model), shader(shader), bullet(bullet), rotation(rotation), texOverride(texO) {}
 
     std::shared_ptr<Model3DObject> toModel() const {
         auto ret = std::make_shared<Model3DObject>(ModelManager::load(model), ShaderManager::load(shader), 0);
@@ -134,8 +136,14 @@ public:
         ret->setOrigin(position.pos);
         ret->updateModelMatrix();
 
-        if (ret->getTextures().size() > 1)
-            ret->getTextures()[1] = TextureManager::load("__gen_marble");
+        for (auto &texture : texOverride.map<int, std::string>()) {
+            if (ret->getTextures().size() > texture.first) {
+                ret->getTextures()[texture.first] = TextureManager::load(texture.second);
+            } else {
+                spdlog::get("console")->warn("Texture will be appended and not overridden (array to small)!");
+                ret->getTextures().push_back(TextureManager::load(texture.second));
+            }
+        }
 
         return ret;
     }

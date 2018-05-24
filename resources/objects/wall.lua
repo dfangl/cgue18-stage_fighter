@@ -12,6 +12,9 @@ function (position, rotation)
                 0,
                 vec3(0.576059/2, 2.14664/2, 5.96413/2)
             ),
+        },
+        {
+            [1] = levelResourcePath.."wall-lightmap.png"
         }
     )
 end

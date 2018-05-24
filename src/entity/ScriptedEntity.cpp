@@ -40,6 +40,9 @@ ScriptedEntity::ScriptedEntity(const std::string &name, int health, const btVect
         return LuaVec3(origin.x() + direction.x, origin.y() + direction.y, origin.z() + direction.z);
     });
 
+    this->environment["getHealth"] = kaguya::function([this]() -> int { return this->getHealth(); });
+    this->environment["getPosition"] = kaguya::function([this]() -> LuaVec3 { return LuaVec3(this->position); });
+
 
     this->position = glm::vec3(pos.x(), pos.y(), pos.z()) + collisionOffset;
     Model3DObject::setRotation(glm::quat(rot.w(), rot.x(), rot.y(), rot.z()));
@@ -68,7 +71,8 @@ void ScriptedEntity::think(Level *level, std::chrono::duration<double, std::mill
 
     this->scriptTimeout += delta.count();
     if (this->scriptTimeout >= SCRIPT_THINK_TIMEOUT) {
-        environment["think"].call<void>(environment, delta.count());
+        this->environment["think"].call<void>(environment, delta.count());
+        this->scriptTimeout = 0;
     }
 
     if (lastDmgTime > 0.0)
