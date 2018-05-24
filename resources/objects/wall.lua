@@ -1,5 +1,5 @@
 statics.wall =
-function (position, rotation)
+function (position, rotation, lightmap)
     return StaticObject(
         "wall",
         "standard",
@@ -14,7 +14,7 @@ function (position, rotation)
             ),
         },
         {
-            [1] = levelResourcePath.."wall-lightmap.png"
+            --[1] = levelResourcePath.."wall-lightmap-"..lightmap..".png"
         }
     )
 end

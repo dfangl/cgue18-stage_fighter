@@ -21,7 +21,7 @@ DebugTextHud::DebugTextHud() : Logger("DebugHUD") {
         if(action == GLFW_RELEASE)
             switch(key) {
                 case GLFW_KEY_F2: showFrameTime = !showFrameTime; break;
-                case GLFW_KEY_F3: wireFrameMode = !wireFrameMode; break;
+                case GLFW_KEY_F3: toggleWireframeMode(); break;
                 case GLFW_KEY_F4: toggleEffect(0); break;
                 case GLFW_KEY_F5: toggleEffect(1); break;
                 case GLFW_KEY_F6: toggleEffect(2); break;
@@ -67,4 +67,11 @@ void DebugTextHud::update(std::chrono::duration<double, std::milli> delta) {
         highestDelta = 0;
         highestReset = 60000.0;
     }
+}
+
+void DebugTextHud::toggleWireframeMode() {
+    wireFrameMode = !wireFrameMode;
+
+    if(wireFrameMode) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    else              glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }

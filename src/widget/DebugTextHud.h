@@ -43,6 +43,7 @@ public:
     DebugTextHud();
 
     void toggleEffect(int id);
+    void toggleWireframeMode();
     bool showFrameTime = false;
 
     void update(std::chrono::duration<double, std::milli> delta);

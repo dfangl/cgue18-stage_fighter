@@ -35,7 +35,7 @@ Texture::Texture(const std::string &path) : Logger("Texture") {
         glGenerateMipmap(GL_TEXTURE_2D);
     } else {
         logger->error("Failed to load texture: {}", path);
-        throw std::runtime_error("Failed to load texture!");
+        throw std::runtime_error("Failed to load texture! (" + path + ")");
     }
 
     glBindTexture(GL_TEXTURE_2D, 0);

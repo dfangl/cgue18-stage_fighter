@@ -136,14 +136,15 @@ public:
         ret->setOrigin(position.pos);
         ret->updateModelMatrix();
 
-        for (auto &texture : texOverride.map<int, std::string>()) {
-            if (ret->getTextures().size() > texture.first) {
-                ret->getTextures()[texture.first] = TextureManager::load(texture.second);
-            } else {
-                spdlog::get("console")->warn("Texture will be appended and not overridden (array to small)!");
-                ret->getTextures().push_back(TextureManager::load(texture.second));
+        if (texOverride.size() > 0 )
+            for (auto &texture : texOverride.map<int, std::string>()) {
+                if (ret->getTextures().size() > texture.first) {
+                    ret->getTextures()[texture.first] = TextureManager::load(texture.second);
+                } else {
+                    spdlog::get("console")->warn("Texture will be appended and not overridden (array to small)!");
+                    ret->getTextures().push_back(TextureManager::load(texture.second));
+                }
             }
-        }
 
         return ret;
     }
