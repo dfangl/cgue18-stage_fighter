@@ -6,7 +6,6 @@
 
 #include "Player.h"
 #include "../manager/FontManager.h"
-#include "EnemyEntity.h"
 #include "BulletEntity.h"
 
 Player::Player(Camera &camera, Window *window, const std::shared_ptr<BulletUniverse> &world) :
@@ -49,7 +48,7 @@ void Player::computeEnemyInView(std::vector<std::shared_ptr<Entity>> &entities) 
     for (auto &entity : entities) {
         // TODO: Check if kind == Enemy
 
-        const glm::vec3 distV = glm::abs(getEntityPosition() - entity->getEntityPosition());
+        const glm::vec3 distV = glm::abs(getPosition() - entity->getPosition());
         const auto distance =  distV.x + distV.y + distV.z;
 
         if (distance < 25.0f) {
@@ -79,7 +78,7 @@ void Player::collideWith(BulletObject *other) {
         if (window->getMouseButton(GLFW_MOUSE_BUTTON_LEFT)) {
             logger->info("Hit with Enemy ({})!", (void*)other);
 
-            auto *enemy = (EnemyEntity*)other;
+            auto *enemy = (Entity*)other;
             enemy->receiveDamage(1);
         }
     }

@@ -77,13 +77,15 @@ public:
      * @param shader shader which should be used
      * @param instances 0 = no instances, >0 instances are used
      */
-    Model3DObject(const std::shared_ptr<tinygltf::Model> &model, const std::shared_ptr<Shader> &shader, int instances = 0);
+    Model3DObject(const glm::vec3 &position, float bsRadius, const std::shared_ptr<tinygltf::Model> &model,
+                  const std::shared_ptr<Shader> &shader, int instances = 0);
     ~Model3DObject();
 
     std::vector<std::shared_ptr<Texture>> &getTextures() { return this->textures; }
 
     void draw() override;
 
+    // Instancing not fully implemented !
     unsigned int addInstance(const glm::vec3 &vec, const glm::quat &rot);
     void setInstance(unsigned int  id, const glm::vec3 &vec, const glm::quat &rot);
     void removeInstance(unsigned int id);

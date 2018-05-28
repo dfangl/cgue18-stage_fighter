@@ -33,8 +33,11 @@ void Object3D::render(Scene *scene) {
     this->draw();
 }
 
-Object3D::Object3D(const std::shared_ptr<Shader> &shader) {
+Object3D::Object3D(const glm::vec3 &position, float boundingSphereRadius, const std::shared_ptr<Shader> &shader) {
     this->shader = shader;
+    this->boundingSphereRadius = boundingSphereRadius;
+
+    setOrigin(position);
 }
 
 void Object3D::rotate(float angle, const glm::vec3 &vec) {
@@ -42,6 +45,7 @@ void Object3D::rotate(float angle, const glm::vec3 &vec) {
 }
 
 void Object3D::translate(const glm::vec3 &vec) {
+    this->position = vec;
     this->model = glm::translate(this->model, vec);
 }
 
@@ -50,5 +54,6 @@ void Object3D::rotate(const glm::quat &quat) {
 }
 
 void Object3D::setOrigin(const glm::vec3 &vec) {
+    this->position = vec;
     this->model = glm::translate(glm::mat4(1.0f), vec);
 }

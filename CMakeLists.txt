@@ -252,12 +252,12 @@ include_directories(
 
 add_executable(
 		"${BINARY}"
-		src/main.cpp src/object3d/Triangle.cpp src/object3d/Triangle.h
+		src/main.cpp
 		src/Window.cpp src/Window.h src/helper/Callback.h src/BulletUniverse.cpp src/BulletUniverse.h
 		src/object3d/Object3D.cpp src/object3d/Object3D.h src/Shader.cpp src/Shader.h src/manager/ShaderManager.cpp
 		src/manager/ShaderManager.h src/Texture.cpp src/Texture.h src/manager/TextureManager.cpp src/entity/Entity.h
 		src/manager/TextureManager.h src/Camera.cpp src/Camera.h src/object3d/Cube.cpp src/object3d/Cube.h
-		src/object3d/BulletObject.cpp src/object3d/BulletObject.h src/entity/CubeEntity.cpp src/entity/CubeEntity.h
+		src/object3d/BulletObject.cpp src/object3d/BulletObject.h
         src/controller/CameraController.cpp src/controller/CameraController.h src/manager/ModelManager.cpp
 		src/manager/ModelManager.h src/object3d/Model3DObject.cpp src/object3d/Model3DObject.h
 		src/object3d/StaticBulletModelObject.cpp src/object3d/StaticBulletModelObject.h src/bullet/GLDebugDrawer.cpp
@@ -265,7 +265,7 @@ add_executable(
 		src/manager/FontManager.h src/widget/Label.cpp src/widget/Label.h src/widget/Widget.h src/helper/Font.cpp
 		src/helper/Font.h src/widget/NuklearCtx.cpp src/widget/NuklearCtx.h src/widget/GameMenu.cpp src/widget/GameMenu.h
 		src/widget/PlayerHud.cpp src/widget/PlayerHud.h src/entity/Player.cpp src/entity/Player.h src/entity/BulletEntity.cpp
-		src/entity/BulletEntity.h src/widget/DebugTextHud.cpp src/widget/DebugTextHud.h src/entity/EnemyEntity.cpp src/entity/EnemyEntity.h
+		src/entity/BulletEntity.h src/widget/DebugTextHud.cpp src/widget/DebugTextHud.h
 		src/object3d/Light.h src/Scene.cpp src/Scene.h src/widget/HelpMenu.cpp src/widget/HelpMenu.h src/helper/QuatUtils.h
 		src/helper/ImageGenerator.cpp src/helper/ImageGenerator.h src/CubemapTexture.cpp src/CubemapTexture.h
 		src/object3d/Skybox.cpp src/object3d/Skybox.h src/entity/ScriptedEntity.cpp src/entity/ScriptedEntity.h

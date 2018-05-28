@@ -6,8 +6,6 @@
 
 #include <glm/gtc/quaternion.hpp>
 
-#include "../entity/CubeEntity.h"
-
 #include "../manager/FontManager.h"
 #include "../manager/TextureManager.h"
 
@@ -39,18 +37,15 @@ Level::Level(const std::string &file) : Logger("Level"), world(std::make_shared<
 
     state["StaticObject"].setClass(
             kaguya::UserdataMetatable<LuaStaticObject>()
-                .setConstructors<LuaStaticObject(std::string,std::string,LuaVec3,LuaVec4,kaguya::LuaTable,kaguya::LuaTable)>()
+                .setConstructors<LuaStaticObject(std::string,std::string,LuaVec3,float,LuaVec4,kaguya::LuaTable,kaguya::LuaTable)>()
     );
 
     state["Entity"].setClass(kaguya::UserdataMetatable<LuaEntity>());
-    state["CubeEntity"].setClass(
-            kaguya::UserdataMetatable<LuaCubeEntity, LuaEntity>()
-                .setConstructors<LuaCubeEntity(std::string, LuaVec3)>()
+    state["ScriptedEntity"].setClass(
+            kaguya::UserdataMetatable<LuaScriptedEntity, LuaEntity>()
+                    .setConstructors<LuaScriptedEntity(std::string, int, LuaVec3&, float, LuaVec4&, std::string, float, LuaBtCollisionShape &, kaguya::LuaTable)>()
     );
-    state["EnemyEntity"].setClass(
-            kaguya::UserdataMetatable<LuaEnemyEntity, LuaEntity>()
-                    .setConstructors<LuaEnemyEntity(std::string, int, int, LuaVec3&, LuaVec4&, std::string, float, LuaBtCollisionShape&)>()
-    );
+
 
     state["btCollisionShape"].setClass(kaguya::UserdataMetatable<LuaBtCollisionShape>());
     state["SphereShape"].setClass(
@@ -72,10 +67,6 @@ Level::Level(const std::string &file) : Logger("Level"), world(std::make_shared<
                     .setConstructors<LuaProjectile(std::string, float, float, LuaBtCollisionShape&)>()
     );
 
-    state["ScriptedEntity"].setClass(
-            kaguya::UserdataMetatable<LuaScriptedEntity, LuaEntity>()
-                    .setConstructors<LuaScriptedEntity(std::string, int, LuaVec3&, LuaVec4&, std::string, float, LuaBtCollisionShape &, kaguya::LuaTable)>()
-    );
 
 
 
@@ -121,7 +112,7 @@ void Level::start(Window *window) {
     const LuaVec3 *pPosition = state["player"]["position"];
     const LuaVec3 *pLookAt = state["player"]["lookAt"];
 
-    player->setEntityPosition(pPosition->pos, glm::quat(0, 0, 0, 1));
+    player->setPosition(pPosition->pos, glm::quat(0, 0, 0, 1));
 
     playerInputCallbackID = window->registerKeyPollingCallback(player->getKeyboardCallback());
 
@@ -350,6 +341,6 @@ void Level::luaSpawnEntity(const LuaProjectile &projectile, const LuaVec3 &spawn
 }
 
 LuaVec3 Level::luaGetPlayerPos() {
-    auto p = this->player->getEntityPosition();
+    auto p = this->player->getPosition();
     return LuaVec3(p.x, p.y, p.z);
 }

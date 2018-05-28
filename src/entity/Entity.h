@@ -15,7 +15,6 @@ class Level; //#include "../level/Level.h"
 class Entity : public Object3DAbstract {
 
 protected:
-    glm::vec3 position;
     std::string name;
 
     int health, maxHealth;
@@ -25,17 +24,18 @@ protected:
 public:
     virtual ~Entity() = default;
 
-    virtual void setEntityPosition(const glm::vec3 &vec, const glm::quat &rot) = 0;
+    virtual void setPosition(const glm::vec3 &vec, const glm::quat &rot) = 0;
+    virtual float getBoundingSphereRadius() = 0;
+    virtual const glm::vec3 &getPosition() const = 0;
 
     virtual void think(Level *level, std::chrono::duration<double, std::milli> delta) { think(delta); }
     virtual void think(std::chrono::duration<double, std::milli> delta) = 0;
 
     virtual void render(Scene *scene) = 0;
 
-    virtual glm::vec3 getEntityPosition() const { return position; }
-    virtual std::string getName() const { return name; }
-    virtual int getHealth() const { return health; }
-    virtual int getMaxHealth() const { return maxHealth; }
+    std::string getName() const { return name; }
+    int getHealth() const { return health; }
+    int getMaxHealth() const { return maxHealth; }
 
     void receiveDamage(int points) {  if (lastDmgTime <= 0.0) this->health = std::max(this->health - points, 0); }
 

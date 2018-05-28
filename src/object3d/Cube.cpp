@@ -52,7 +52,7 @@ const float Cube::vertices[] = {
         -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
 };
 
-Cube::Cube(const glm::vec3 &pos, const std::shared_ptr<Texture> &texture): Object3D(ShaderManager::load("triangle")) {
+Cube::Cube(const glm::vec3 &pos, const std::shared_ptr<Texture> &texture): Object3D(pos, 0.5f, ShaderManager::load("triangle")) {
     this->texture = texture;
 
     glGenVertexArrays(1, &VAO);

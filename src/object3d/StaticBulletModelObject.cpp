@@ -7,12 +7,12 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include "StaticBulletModelObject.h"
 
-StaticBulletModelObject::StaticBulletModelObject(const btVector3 &pos,
+StaticBulletModelObject::StaticBulletModelObject(const btVector3 &pos, float bsRadius,
                                                  const StaticModel &model,
                                                  const std::shared_ptr<Shader> &shader,
                                                  std::shared_ptr<BulletUniverse> &world)
         : BulletObject(pos, getModelRotationQuat(model.collision), convertModelToTriangleMesh(model.collision), 0),
-          Model3DObject(model.graphical, shader) {
+          Model3DObject(glm::vec3(pos.x(), pos.y(), pos.z()), bsRadius, model.graphical, shader) {
 
     this->world = world;
 
@@ -23,8 +23,6 @@ StaticBulletModelObject::StaticBulletModelObject(const btVector3 &pos,
     );
 
     world->addCollsionObject(this->rigidBody);
-
-    Model3DObject::setOrigin(glm::vec3(pos.x(), pos.y(), pos.z()));
 }
 
 btBvhTriangleMeshShape *StaticBulletModelObject::convertModelToTriangleMesh(const std::shared_ptr<tinygltf::Model> &model) {

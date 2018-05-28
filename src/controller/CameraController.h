@@ -11,7 +11,7 @@
 #include "../object3d/BulletObject.h"
 
 #include "../entity/Entity.h"
-#include "../entity/CubeEntity.h"
+#include "../BulletUniverse.h"
 
 class CameraEntity : public Entity, public BulletObject {
 
@@ -51,8 +51,7 @@ public:
     void enable();
     void disable();
 
-    void setEntityPosition(const glm::vec3 &vec, const glm::quat &rot) override;
-    glm::vec3 getEntityPosition() const override { return this->camera.getPosition(); }
+    void setPosition(const glm::vec3 &vec, const glm::quat &rot) override;
     void lookAt(const glm::vec3 &obj);
 
     void think(std::chrono::duration<double, std::milli> delta) override;
@@ -65,6 +64,10 @@ public:
     void render(Scene *scene) override {}
 
     glm::vec3 isInView(const Entity *entity);
+
+    float getBoundingSphereRadius() override;
+
+    const glm::vec3 &getPosition() const override;
 
 };
 

@@ -12,6 +12,7 @@
 #include "Widget.h"
 
 #include "Label.h"
+#include "../Scene.h"
 
 /**
  * Debug Text HUD does handle all the F_ Keys which should display some debug information:
@@ -32,6 +33,9 @@ private:
     bool effect[4] = {true, true, true, true};
 
     std::shared_ptr<Label> fpsLabel;
+    std::shared_ptr<Label> cullingLabel;
+    std::shared_ptr<Scene> scene;
+
     char fpsBuffer[64];
     double lastDelta;
     double highestDelta;
@@ -40,7 +44,7 @@ private:
 
     std::function<void(int,int,int,int)> keyCallback;
 public:
-    DebugTextHud();
+    DebugTextHud(const std::shared_ptr<Scene> &scene);
 
     void toggleEffect(int id);
     void toggleWireframeMode();

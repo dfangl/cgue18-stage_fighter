@@ -27,7 +27,6 @@
 #include "../controller/CameraController.h"
 
 #include "../entity/Entity.h"
-#include "../entity/CubeEntity.h"
 #include "../entity/Player.h"
 
 #include "../widget/Label.h"

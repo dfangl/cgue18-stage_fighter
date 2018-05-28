@@ -35,9 +35,8 @@ CameraEntity::CameraEntity(Camera &camera, std::shared_ptr<BulletUniverse> world
     world->addRigidBody(rigidBody);
 }
 
-void CameraEntity::setEntityPosition(const glm::vec3 &vec, const glm::quat &rot) {
+void CameraEntity::setPosition(const glm::vec3 &vec, const glm::quat &rot) {
     this->camera.update(vec);
-    this->position = vec;
     BulletObject::setOrigin(btVector3(vec.x,vec.y,vec.z), btQuaternion(rot.x, rot.y, rot.z, rot.w));
 }
 
@@ -47,8 +46,7 @@ void CameraEntity::think(std::chrono::duration<double, std::milli> delta) {
 
     auto bT = this->getTransformation();
     auto o = bT.getOrigin();
-    this->position = glm::vec3(o.x(), o.y(), o.z());
-    this->camera.update(position);
+    this->camera.update(glm::vec3(o.x(), o.y(), o.z()));
 
     float zVelocity = 0.0f;
     float xVelocity = 0.0f;
@@ -104,5 +102,13 @@ void CameraEntity::disable() {
 }
 
 glm::vec3 CameraEntity::isInView(const Entity *object) {
-    return camera.project(object->getEntityPosition());
+    return camera.project(object->getPosition());
+}
+
+float CameraEntity::getBoundingSphereRadius() {
+    return 0.7;
+}
+
+const glm::vec3 &CameraEntity::getPosition() const {
+    return camera.getPosition();
 }

@@ -13,8 +13,9 @@
 
 #define BUFFER_OFFSET(i) ((char *)NULL + (i))
 
-Model3DObject::Model3DObject(const std::shared_ptr<tinygltf::Model> &model, const std::shared_ptr<Shader> &shader, int instances)
-    : Object3D(shader) {
+Model3DObject::Model3DObject(const glm::vec3 &position, float bsRadius,const std::shared_ptr<tinygltf::Model> &model,
+                             const std::shared_ptr<Shader> &shader, int instances)
+    : Object3D(position, bsRadius, shader) {
     this->instances = instances;
     this->gltfModel = model;
 
@@ -173,6 +174,7 @@ Model3DObject::Model3DObject(const std::shared_ptr<tinygltf::Model> &model, cons
 
     // Prepare Static Node matrices:
     prepareModelMatrices();
+    setOrigin(position);
 
     // Load Textures
     for (auto &texture : gltfModel->textures) {

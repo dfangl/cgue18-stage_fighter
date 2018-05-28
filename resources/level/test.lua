@@ -56,7 +56,7 @@ behavior = {
                         targetPos  = vec3(x, origin:y(), z)
                         emitterPos = this.getSpawnPosFor(targetPos)
 
-                        level:spawn(projectiles["bullet"], emitterPos, vec3(x, origin:y() + 2.52301 / 4, z))
+                        level:spawn(projectiles["bullet"], emitterPos, vec3(x, origin:y(), z))
                     end
                 end
             end
@@ -77,7 +77,7 @@ objects = {
     statics.wall(vec3(-50.08  , -42.5088,-8.18353), vec4(0,0.707107,0,0.707107), "west"),
 
     -- Light Cube:
-    StaticObject("cube", "light", vec3(-50.188 , -35 , 0.0),  vec4(0,0,0,1), { BoxShape(vec3(0,0,0), vec4(0,0,0,1), 0, vec3(0.1/2, 0.1/2, 0.1/2)) })
+    StaticObject("cube", "light", vec3(-50.188 , -35 , 0.0),  0.2, vec4(0,0,0,1), { BoxShape(vec3(0,0,0), vec4(0,0,0,1), 0, vec3(0.1/2, 0.1/2, 0.1/2)) })
 }
 
 entities = {

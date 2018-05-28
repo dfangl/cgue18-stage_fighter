@@ -10,7 +10,6 @@ statics  = {}
 root = "../resources/objects/"
 
 -- load all entities
-dofile(root.."enemy1.lua")
 dofile(root.."turret.lua")
 
 -- load all static objects

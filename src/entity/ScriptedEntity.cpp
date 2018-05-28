@@ -10,11 +10,11 @@
 #include "../level/Level.h"
 #include "../level/LuaClassWrapper.h"
 
-ScriptedEntity::ScriptedEntity(const std::string &name, int health, const btVector3 &pos, const btQuaternion &rot,
+ScriptedEntity::ScriptedEntity(const std::string &name, int health, const btVector3 &pos, float bsRadius, const btQuaternion &rot,
                                std::string model, float mass, glm::vec3 collisionOffset, btCollisionShape *hitbox,
                                const std::shared_ptr<BulletUniverse> &world, kaguya::LuaTable scriptEnv)
         : BulletObject(pos, rot, hitbox, mass),
-          Model3DObject(ModelManager::load(model), ShaderManager::load("standard")) {
+          Model3DObject(glm::vec3(pos.x(),pos.y(),pos.z()), bsRadius, ModelManager::load(model), ShaderManager::load("standard")) {
 
     this->world = world;
     this->environment = scriptEnv;
@@ -79,7 +79,7 @@ void ScriptedEntity::think(Level *level, std::chrono::duration<double, std::mill
         lastDmgTime -= delta.count();
 }
 
-void ScriptedEntity::setEntityPosition(const glm::vec3 &vec, const glm::quat &rot) {
+void ScriptedEntity::setPosition(const glm::vec3 &vec, const glm::quat &rot) {
     this->position = vec;
     Model3DObject::setOrigin(vec);
     BulletObject::setOrigin(btVector3(vec.x, vec.y, vec.z), btQuaternion(rot.x, rot.y, rot.z, rot.w));
@@ -93,4 +93,12 @@ void ScriptedEntity::think(std::chrono::duration<double, std::milli> delta) {}
 
 void ScriptedEntity::render(Scene *scene) {
     Model3DObject::render(scene);
+}
+
+float ScriptedEntity::getBoundingSphereRadius() {
+    return Object3D::boundingSphereRadius;
+}
+
+const glm::vec3 &ScriptedEntity::getPosition() const {
+    return this->position;
 }

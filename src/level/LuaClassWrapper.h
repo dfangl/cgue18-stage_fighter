@@ -11,9 +11,7 @@
 #include "../object3d/BulletObject.h"
 
 #include "../entity/Entity.h"
-#include "../entity/EnemyEntity.h"
 #include "../entity/BulletEntity.h"
-#include "../entity/CubeEntity.h"
 #include "../entity/ScriptedEntity.h"
 
 #include "../manager/ModelManager.h"
@@ -123,17 +121,18 @@ private:
     const LuaVec4 rotation;
     const kaguya::LuaTable bullet;
     const kaguya::LuaTable texOverride;
+    const float bsRadius;
 
 public:
-    LuaStaticObject(const std::string model, const std::string shader, const LuaVec3 position, const kaguya::LuaTable bullet, kaguya::LuaTable texO)
-            : position(position), model(model), shader(shader), bullet(bullet), rotation(LuaVec4(0,0,0,1)), texOverride(texO) {}
-    LuaStaticObject(const std::string model, const std::string shader, const LuaVec3 position, const LuaVec4 rotation, const kaguya::LuaTable bullet, kaguya::LuaTable texO)
-            : position(position), model(model), shader(shader), bullet(bullet), rotation(rotation), texOverride(texO) {}
+    LuaStaticObject(const std::string model, const std::string shader, const LuaVec3 position, float bsRadius,
+                    const LuaVec4 rotation, const kaguya::LuaTable bullet, kaguya::LuaTable texO)
+            : position(position), model(model), shader(shader), bullet(bullet), rotation(rotation), texOverride(texO),
+                bsRadius(bsRadius) {}
 
     std::shared_ptr<Model3DObject> toModel() const {
-        auto ret = std::make_shared<Model3DObject>(ModelManager::load(model), ShaderManager::load(shader), 0);
+        auto ret = std::make_shared<Model3DObject>(position.pos, bsRadius, ModelManager::load(model), ShaderManager::load(shader), 0);
         ret->setRotation(glm::quat(rotation.pos.w, rotation.pos.x, rotation.pos.y, rotation.pos.z));
-        ret->setOrigin(position.pos);
+        //ret->setOrigin(position.pos);
         ret->updateModelMatrix();
 
         if (texOverride.size() > 0 )
@@ -172,42 +171,6 @@ public:
     explicit LuaEntity(const LuaVec3 pos) : position(pos) {}
 
     virtual std::shared_ptr<Entity> toEntity3D(const std::shared_ptr<BulletUniverse> &world) const = 0;
-};
-
-class LuaCubeEntity : public LuaEntity {
-protected:
-    const std::string texture;
-
-public:
-    LuaCubeEntity(const std::string texture, const LuaVec3 position) : LuaEntity(position), texture(texture) {}
-
-    std::shared_ptr<Entity> toEntity3D(const std::shared_ptr<BulletUniverse> &world) const override {
-        return std::make_shared<CubeEntity>(position.pos, TextureManager::load(texture), world);
-    }
-};
-
-class LuaEnemyEntity : public LuaEntity {
-
-protected:
-    std::string name;
-    int health;
-    int spawnTime;
-    LuaVec4 rot;
-    std::string model;
-    float mass;
-    btCollisionShape *hitbox;
-    LuaVec3 hitBoxOffset;
-
-public:
-    LuaEnemyEntity(std::string name, int health, int spawnTime, const LuaVec3 &pos, const LuaVec4 &rot, std::string model, float mass, const LuaBtCollisionShape &hitbox) :
-            LuaEntity(pos), name(name), health(health), spawnTime(spawnTime), rot(rot), model(model), mass(mass), hitBoxOffset(hitbox.position) {
-        this->hitbox = hitbox.generateShape();
-    }
-
-    std::shared_ptr<Entity> toEntity3D(const std::shared_ptr<BulletUniverse> &world) const override {
-        return std::make_shared<EnemyEntity>(name, health, spawnTime, position.toVector3(), rot.toQuat(), model, mass, hitBoxOffset.pos, hitbox, world);
-    }
-
 };
 
 class LuaLight {
@@ -255,25 +218,26 @@ public:
 class LuaScriptedEntity : public LuaEntity {
 
 protected:
-    std::string name;
-    int health;
-    LuaVec4 rot;
-    std::string model;
-    float mass;
+    const std::string name;
+    const int health;
+    const LuaVec4 rot;
+    const std::string model;
+    const float mass;
     btCollisionShape *hitbox;
-    LuaVec3 hitBoxOffset;
-    kaguya::LuaTable env;
+    const LuaVec3 hitBoxOffset;
+    const kaguya::LuaTable env;
+    const float bsRadius;
 
 public:
-    LuaScriptedEntity(std::string name, int health, const LuaVec3 &pos, const LuaVec4 &rot, std::string model,
+    LuaScriptedEntity(std::string name, int health, const LuaVec3 &pos, float bsRadius, const LuaVec4 &rot, std::string model,
                       float mass, const LuaBtCollisionShape &hitbox, kaguya::LuaTable env) :
     LuaEntity(pos), name(name), health(health), rot(rot), model(model), mass(mass), hitBoxOffset(hitbox.position),
-    env(env) {
+    env(env), bsRadius(bsRadius) {
         this->hitbox = hitbox.generateShape();
     }
 
     std::shared_ptr<Entity> toEntity3D(const std::shared_ptr<BulletUniverse> &world) const override {
-        return std::make_shared<ScriptedEntity>(name, health, position.toVector3(), rot.toQuat(), model, mass, hitBoxOffset.pos, hitbox, world, env);
+        return std::make_shared<ScriptedEntity>(name, health, position.toVector3(), bsRadius, rot.toQuat(), model, mass, hitBoxOffset.pos, hitbox, world, env);
     }
 
 };

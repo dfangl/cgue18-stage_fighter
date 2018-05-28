@@ -33,7 +33,7 @@ private:
 
 
 public:
-    ScriptedEntity(const std::string &name, int health, const btVector3 &pos, const btQuaternion &rot, std::string model, float mass,
+    ScriptedEntity(const std::string &name, int health, const btVector3 &pos, float bsRadius, const btQuaternion &rot, std::string model, float mass,
     glm::vec3 collisionOffset, btCollisionShape *hitbox, const std::shared_ptr<BulletUniverse> &world, kaguya::LuaTable scriptEnv);
     ~ScriptedEntity();
 
@@ -41,11 +41,15 @@ public:
 
     void collideWith(BulletObject *other) override;
 
-    void setEntityPosition(const glm::vec3 &vec, const glm::quat &rot) override;
+    void setPosition(const glm::vec3 &vec, const glm::quat &rot) override;
 
     void think(std::chrono::duration<double, std::milli> delta) override;
 
     void render(Scene *scene) override;
+
+    float getBoundingSphereRadius() override;
+
+    const glm::vec3 &getPosition() const override;
 };
 
 #endif //STAGE_FIGHTER_SCRIPTEDENTITY_H

@@ -10,11 +10,9 @@
 
 #include "Window.h"
 #include "BulletUniverse.h"
-#include "object3d/Triangle.h"
 #include "manager/ShaderManager.h"
 #include "manager/TextureManager.h"
 #include "object3d/Cube.h"
-#include "entity/CubeEntity.h"
 #include "controller/CameraController.h"
 #include "manager/ModelManager.h"
 #include "object3d/Model3DObject.h"
@@ -94,7 +92,7 @@ int main(int argc, char *argv[]) {
                   config["camera"]["fov"],
                   config["window"]["width"],
                   config["window"]["height"],
-                  0.01f, 1000.0f                // zNear & zFar for clipping stuff
+                  0.1f, 1000.0f                // zNear & zFar for clipping stuff
     );
 	auto *window = new Window(camera,
                               config["window"]["width"],
@@ -146,7 +144,7 @@ int main(int argc, char *argv[]) {
 
 
     // Generate Marble Texture ... doesn't look like marble :/
-    auto texData = ImageGenerator::marble(512, 512, glm::vec4(139.0/255, 69.0/255, 19.0/255, 1.0));
+    auto texData = ImageGenerator::marble(512, 512, glm::vec4(126.0/255, 126.0/255, 126.0/255, 1.0));
     TextureManager::store("__gen_marble", texData, 512, 512);
 
     // TODO: integrate skybox loading into level loading
@@ -191,11 +189,21 @@ int main(int argc, char *argv[]) {
     window->processCameraKeyMovement(false);
 
 
+    // Toggle Free flying camera: 
+    //level->getPlayer()->disable();
+    //window->getScene()->getCamera().enableUpdate = true;
+    //window->getScene()->getCamera().keySensitivity = 0.05;
+    //window->processCameraKeyMovement(true);
+
+    //window->getScene()->initFustrumDEBUG();
+    window->getScene()->frustumCulling = false; // Does not work
+
+
     /*
      * Create a Label which displays the FPS counter on the Screen, better than just spamming the console with
      * such a output
      */
-    auto debugTextHud = std::make_shared<DebugTextHud>();
+    auto debugTextHud = std::make_shared<DebugTextHud>(window->getScene());
 
     /*
      * Initialize the GUI System "Nuklear" and the GameMenu which is displayed when pressing ESC

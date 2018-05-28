@@ -4,6 +4,7 @@ function (position, rotation)
         "coliseum",     -- Model File
         "standard-splat",     -- Shader
         position,       -- Position
+        324.826/2, -- Culling Sphere radius
         rotation,  -- Rotation
         {               -- List of Bullet primitives
             BoxShape(vec3(position:x()-34.3794,position:y()-49.5088,position:z()+0      ), vec4(0,        0,0,        1), 0, vec3(236.465/2, 15.7829/2, 324.826/2)),

@@ -9,13 +9,15 @@
 
 #include "DebugTextHud.h"
 
-DebugTextHud::DebugTextHud() : Logger("DebugHUD") {
+DebugTextHud::DebugTextHud(const std::shared_ptr<Scene> &scene) : Logger("DebugHUD"), scene(scene) {
     this->fpsLabel = std::make_shared<Label>("FPS: 000.0 (00.0000 ms | 00.0000 ms highest)",
                                             FontManager::get("Lato-12"),       // Font
                                             3.0f, 15.0f,                       // X, Y Coordinates on the Screen
                                             1.0f,                              // Font scaling
                                             glm::vec3(0.9f, 0.9f, 0.9f)        // Color RGB values between 0.0 and 1.0
     );
+
+    this->cullingLabel = std::make_shared<Label>("", FontManager::get("Lato-12"), 3, 30.0f, 1.0f, glm::vec3(.9f,.9f,.9f));
 
     keyCallback = [this](int key, int scancode, int action, int mods){
         if(action == GLFW_RELEASE)
@@ -38,7 +40,10 @@ void DebugTextHud::toggleEffect(int id) {
 }
 
 void DebugTextHud::render(const glm::mat4 &projection) {
-    if (showFrameTime) fpsLabel->render(projection);
+    if (showFrameTime) {
+        fpsLabel->render(projection);
+        cullingLabel->render(projection);
+    }
 }
 
 void DebugTextHud::resize(float x, float y) {}
@@ -57,8 +62,12 @@ void DebugTextHud::update(std::chrono::duration<double, std::milli> delta) {
      */
     if (showFrameTime && (refreshTimer) > 250.0) {
         const double fps = 1000.0/delta.count();
-        const int len = snprintf(this->fpsBuffer, 64, "FPS: %3.1f (%2.4f ms | %2.4f ms highest)", fps, delta.count(), highestDelta);
+        int len = snprintf(this->fpsBuffer, 64, "FPS: %3.1f (%2.4f ms | %2.4f ms highest)", fps, delta.count(), highestDelta);
         fpsLabel->setText(std::string(fpsBuffer, fpsBuffer+len));
+
+        len = snprintf(this->fpsBuffer, 64, "Culled Objects: %u", scene->getCulledObjectCount());
+        cullingLabel->setText(std::string(fpsBuffer, fpsBuffer+len));
+
         refreshTimer = 0;
     }
 

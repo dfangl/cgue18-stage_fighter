@@ -29,11 +29,15 @@ public:
 
     void collideWith(BulletObject *other) override;
 
-    void setEntityPosition(const glm::vec3 &vec, const glm::quat &rot) override;
+    void setPosition(const glm::vec3 &vec, const glm::quat &rot) override;
 
     void think(std::chrono::duration<double, std::milli> delta) override;
 
     void render(Scene *scene) override;
+
+    float getBoundingSphereRadius() override;
+
+    const glm::vec3 &getPosition() const override;
 };
 
 

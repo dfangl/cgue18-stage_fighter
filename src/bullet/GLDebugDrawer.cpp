@@ -6,7 +6,7 @@
 
 #include <glad/glad.h>
 
-GLDebugDrawer::GLDebugDrawer() : Logger("Bullet"), Object3D(ShaderManager::load("bulletdebug")) {
+GLDebugDrawer::GLDebugDrawer() : Logger("Bullet"), Object3D(glm::vec3(0,0,0), 0.0f, ShaderManager::load("bulletdebug")) {
     this->debugMode = btIDebugDraw::DBG_NoDebug;
 
     glGenVertexArrays(1, &VAO);

@@ -22,8 +22,12 @@ class Scene; //#include "../Scene.h"
  * This Interface represents all Objects which can be drawn with a Camera into something
  */
 class Object3DAbstract {
+
 public:
     virtual void render(Scene *scene) = 0;
+
+    virtual float getBoundingSphereRadius() = 0;
+    virtual const glm::vec3 &getPosition() const = 0;
 };
 
 /**
@@ -35,10 +39,13 @@ protected:
     GLuint VBO = 0, VAO = 0, EBO = 0;
     std::shared_ptr<Shader> shader;
 
+    glm::vec3 position;
     glm::mat4 model = glm::mat4(1.0f);
 
+    float boundingSphereRadius;
+
 public:
-    explicit Object3D(const std::shared_ptr<Shader> &shader);
+    explicit Object3D(const glm::vec3 &position, float boundingSphereRadius, const std::shared_ptr<Shader> &shader);
 
     /**
      * This function does apply all the matries to the shader
@@ -56,6 +63,9 @@ public:
 
     virtual void translate(const glm::vec3 &vec);
     virtual void setOrigin(const glm::vec3 &vec);
+
+    float getBoundingSphereRadius() override { return this->boundingSphereRadius; }
+    const glm::vec3 &getPosition() const override { return this->position; }
 
 };
 

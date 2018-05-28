@@ -13,7 +13,7 @@
 
 BulletEntity::BulletEntity(const btVector3 &pos, const btVector3 &target, std::shared_ptr<BulletUniverse> &world) :
         BulletObject(pos, btQuaternion(0,0,0,1), new btBoxShape(btVector3(0.174505f/2,0.174505f/2,0.286695f/2)), 0.00001),
-        Model3DObject(ModelManager::load("bullet"), ShaderManager::load("standard")) {
+        Model3DObject(glm::vec3(pos.x(), pos.y(), pos.z()), 0.286695f/2, ModelManager::load("bullet"), ShaderManager::load("standard")) {
 
     this->health = 1;
     this->maxHealth = 0;
@@ -68,7 +68,7 @@ BulletEntity::~BulletEntity() {
     world->removeRigidBody(this->rigidBody);
 }
 
-void BulletEntity::setEntityPosition(const glm::vec3 &vec, const glm::quat &rot) {
+void BulletEntity::setPosition(const glm::vec3 &vec, const glm::quat &rot) {
     Model3DObject::setOrigin(vec);
     BulletObject::setOrigin(btVector3(vec.x, vec.y, vec.z), btQuaternion(rot.x, rot.y, rot.z, rot.w));
 }
@@ -78,4 +78,12 @@ void BulletEntity::think(std::chrono::duration<double, std::milli> delta) {}
 
 void BulletEntity::render(Scene *scene) {
     Model3DObject::render(scene);
+}
+
+float BulletEntity::getBoundingSphereRadius() {
+    return Object3D::boundingSphereRadius;
+}
+
+const glm::vec3 &BulletEntity::getPosition() const {
+    return this->position;
 }

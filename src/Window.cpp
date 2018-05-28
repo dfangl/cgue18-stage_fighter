@@ -207,7 +207,7 @@ int Window::registerKeyCallback(std::function<void(int, int, int, int)> callback
 
 void Window::render(std::chrono::duration<double, std::milli> delta) {
     // Clear Window before drawing
-    glClearColor(0.63f, 0.79f, 0.94f, 1.0f);
+    glClearColor(0,0,0,1);//0.63f, 0.79f, 0.94f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     /*
@@ -219,7 +219,7 @@ void Window::render(std::chrono::duration<double, std::milli> delta) {
 
     // Process Camera
     if(this->cameraKey) {
-        auto camera = this->scene->getCamera();
+        auto &camera = this->scene->getCamera();
 
         if(glfwGetKey(this->glfwWindow, GLFW_KEY_W) == GLFW_PRESS) camera.processKeyInput(delta, Camera::FORWARD);
         if(glfwGetKey(this->glfwWindow, GLFW_KEY_A) == GLFW_PRESS) camera.processKeyInput(delta, Camera::LEFT);

@@ -51,7 +51,7 @@ const float Skybox::vertices[] = {
 };
 
 Skybox::Skybox(const std::shared_ptr<CubemapTexture> &cubemap, const std::shared_ptr<Shader> &shader)
-        : Object3D(shader), cubemap(cubemap) {
+        : Object3D(glm::vec3(0,0,0), 0.0f, shader), cubemap(cubemap) {
 
     glGenVertexArrays(1, &this->VAO);
     glGenBuffers(1, &this->VBO);

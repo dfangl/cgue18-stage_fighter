@@ -33,7 +33,7 @@ public:
         std::shared_ptr<tinygltf::Model> collision;
     };
 
-    StaticBulletModelObject(const btVector3 &pos, const StaticModel &model, const std::shared_ptr<Shader> &shader,
+    StaticBulletModelObject(const btVector3 &pos, float bsRadius, const StaticModel &model, const std::shared_ptr<Shader> &shader,
                             std::shared_ptr<BulletUniverse> &world);
 
 };
