@@ -82,12 +82,12 @@ void Camera::updateFrustum() {
     }
 */
 
-    const auto front = glm::normalize(this->position - (position + this->front));
-    const auto right = glm::normalize(glm::cross(worldUp, front));
-    const auto up = glm::cross(front, right);
+    const auto front = -this->front;
+    //const auto right = glm::mat3(viewMatrix)[0];
+    //const auto up = glm::mat3(viewMatrix)[1];
 
     const auto nC = this->position - front * zNear;
-    const auto fC = this->position - front * zFar;
+    const auto fC = this->position - front * 10.0f;
     glm::vec3 aux, point;
 
     frustumPlanes[NEARP  ]        = glm::vec4(-front, -glm::dot(-front, nC));
@@ -234,13 +234,13 @@ glm::vec3 Camera::project(const glm::vec3 &obj) const {
 
 Camera::FrustumLocation Camera::isInFrustum(const glm::vec3 &position, float radius) {
     Camera::FrustumLocation result = INSIDE;
-    const auto front = glm::normalize(this->position - (this->position + this->front));
-    const auto right = glm::normalize(glm::cross(worldUp, front));
-    const auto up = glm::cross(front, right);
+    //const auto front = this->front;
+    //const auto right = glm::normalize(glm::cross(worldUp, front));
+    //const auto up = glm::cross(front, right);
 
     glm::vec3 v = position - this->position;
 
-    float az = glm::dot(v, -front);
+    float az = glm::dot(v, front);
     float ax = glm::dot(v, right);
     float ay = glm::dot(v, up);
 
@@ -257,12 +257,14 @@ Camera::FrustumLocation Camera::isInFrustum(const glm::vec3 &position, float rad
     if (ay > zz2+d2 || ay < -zz2-d2)
         return OUTSIDE;
 
+    /*
     if (az > zFar - radius || az < zNear+radius)
         return INTERSECT;
     if (ay > zz2-d2 || ay < -zz2+d2)
         return INTERSECT;
     if (ax > zz1-d1 || ax < -zz1+d1)
         return INTERSECT;
+    */
 
     return result;
 }

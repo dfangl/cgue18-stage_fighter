@@ -36,7 +36,6 @@ void Scene::render() {
     if (this->skybox)
         this->skybox->render(this);
 
-    /*
     if (!vfDc.empty()) {
         for (int i=4; i<8; i++)
             vfDc[i]->setOrigin(camera.debug_frustumPlanes[i]);
@@ -44,24 +43,25 @@ void Scene::render() {
         for (int i=4; i<8; i++)
             vfDc[i]->render(this);
 
-        ShaderManager::load("light")->use();
+        auto shader = ShaderManager::load("light");
+        shader->use();
+        shader->setUniform("model", glm::mat4(1.0f));
         glDisable(GL_CULL_FACE);
         glBindVertexArray(vao);
         glBindBuffer(GL_ARRAY_BUFFER, vbo);
         glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * camera.debug_frustumPlanes.size(),
                      camera.debug_frustumPlanes.data(), GL_DYNAMIC_DRAW);
-        glDrawArrays(GL_LINES, 0, static_cast<GLsizei>(camera.debug_frustumPlanes.size()));
+        glDrawArrays(GL_LINES, 0, static_cast<GLsizei>(camera.debug_frustumPlanes.size()) / 2);
 
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glBindVertexArray(vao);
     }
-     */
 }
 
 Camera::FrustumLocation Scene::isSphereInFrustum(const glm::vec3 &position, float radius) {
-//    return camera.isInFrustum(position, radius);
+    return camera.isInFrustum(position, radius);
 
-
+/*
     auto result = Camera::INSIDE;
     auto pl = camera.getFrustumPlanes();
 
@@ -78,6 +78,7 @@ Camera::FrustumLocation Scene::isSphereInFrustum(const glm::vec3 &position, floa
     }
 
     return result;
+    */
 }
 
 void Scene::addObject(const std::shared_ptr<Object3DAbstract> &object3D) {

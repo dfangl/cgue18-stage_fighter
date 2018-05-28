@@ -46,14 +46,6 @@ private:
 
     float screenGamma = 1.0f;
 
-protected:
-    void glfwWindowSizeChanged(GLFWwindow* window,int width, int height);
-    void glfwMouseCallabck(GLFWwindow* window, double xpos, double ypos);
-    void glfwErrorCallabck(int code, const char *text);
-    void glfwKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
-    void glfwMouseButtonCallback(GLFWwindow *window, int button, int action, int mods);
-    void glfwScrollCallback(GLFWwindow* window, double xoffset, double yoffset);
-
 public:
     /**
     * Create a Window with GLFW with the specific size, the glfw library must already be initalized!
@@ -115,6 +107,13 @@ public:
      * @param gamma between 0.0 and + infinity
      */
     void setScreenGamma(float gamma);
+
+    // Stuff needed for C API, don't call directly
+    void glfwWindowSizeChanged(int width, int height);
+    void glfwMouseCallabck(double xpos, double ypos);
+    void glfwKeyCallback(int key, int scancode, int action, int mods);
+    void glfwMouseButtonCallback(int button, int action, int mods);
+    void glfwScrollCallback(double xoffset, double yoffset);
 };
 
 

@@ -7,6 +7,7 @@
 #include "Player.h"
 #include "../manager/FontManager.h"
 #include "BulletEntity.h"
+#include "ScriptedEntity.h"
 
 Player::Player(Camera &camera, Window *window, const std::shared_ptr<BulletUniverse> &world) :
         CameraEntity(camera, world, new btSphereShape(0.7f), 1.0f),
@@ -78,7 +79,7 @@ void Player::collideWith(BulletObject *other) {
         if (window->getMouseButton(GLFW_MOUSE_BUTTON_LEFT)) {
             logger->info("Hit with Enemy ({})!", (void*)other);
 
-            auto *enemy = (Entity*)other;
+            auto *enemy = dynamic_cast<Entity *>(other);
             enemy->receiveDamage(1);
         }
     }

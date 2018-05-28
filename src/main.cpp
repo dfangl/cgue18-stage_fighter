@@ -4,6 +4,8 @@
 #include <iostream>
 #include <chrono>
 #include <memory>
+#include <thread>
+#include <future>
 
 #include <btBulletDynamicsCommon.h>
 
@@ -142,10 +144,26 @@ int main(int argc, char *argv[]) {
      *  for displaying stuff and then showing the Main menu of the Game with a level selection ...
      */
 
+    auto loadingLabel = std::make_shared<Label>("Generating resources", FontManager::get("Lato-64"), 0, 0, 1.0, glm::vec3(0.0, 0.0, 0.0));
+    loadingLabel->setPosition(window->getWidth()/2.0f-loadingLabel->getWidth()/2.0f, window->getHeight()/2.0f-32.0f);
+    window->addWidget(loadingLabel);
 
-    // Generate Marble Texture ... doesn't look like marble :/
-    auto texData = ImageGenerator::marble(512, 512, glm::vec4(126.0/255, 126.0/255, 126.0/255, 1.0));
-    TextureManager::store("__gen_marble", texData, 512, 512);
+
+    // Generate Marble Texture ...
+    // Compute all the Resources in another thread:
+    auto asyncTexData = std::async(std::launch::async, [] {
+        return ImageGenerator::marble(256, 256, glm::vec4(126.0/255, 126.0/255, 126.0/255, 1.0));
+    });
+
+    while(asyncTexData.wait_for(std::chrono::milliseconds(0)) != std::future_status::ready) {
+        auto _curTick = std::chrono::high_resolution_clock::now();
+        window->render(_curTick - lastTick);
+
+        lastTick = _curTick;
+    }
+
+    auto texData = asyncTexData.get();
+    TextureManager::store("__gen_marble", texData, 256, 256);
 
     // TODO: integrate skybox loading into level loading
     auto skyboxTex = std::make_shared<CubemapTexture>("../resources/texture/skybox/Daylight Box", ".jpg");
@@ -155,24 +173,18 @@ int main(int argc, char *argv[]) {
     /*
      * Render a Loading Level Frame before loading the Level, this may take a while ...
      */
-    auto loadingLabel = std::make_shared<Label>("Loading Level ...", FontManager::get("Lato-64"), 0, 0, 1.0, glm::vec3(0.0, 0.0, 0.0));
+    loadingLabel->setText("Loading Level ...");
     loadingLabel->setPosition(window->getWidth()/2.0f-loadingLabel->getWidth()/2.0f, window->getHeight()/2.0f-32.0f);
-    window->addWidget(loadingLabel);
 
-    auto _curTick = std::chrono::high_resolution_clock::now();
-    window->render(_curTick - lastTick);
+
+    //auto _curTick = std::chrono::high_resolution_clock::now();
+    //window->render(_curTick - lastTick);
 
     /*
      * Load and start Test level so we can do something
      */
     auto level = std::make_shared<Level>("../resources/level/test.lua");
-
-    /*
-     * Hide Mouse cursor and render another frame, to discard all the inputs
-     */
     window->hideCursor();
-    _curTick = std::chrono::high_resolution_clock::now();
-    window->render(_curTick - lastTick);
 
     /*
      * Start the Level
@@ -189,7 +201,7 @@ int main(int argc, char *argv[]) {
     window->processCameraKeyMovement(false);
 
 
-    // Toggle Free flying camera: 
+    // Toggle Free flying camera:
     //level->getPlayer()->disable();
     //window->getScene()->getCamera().enableUpdate = true;
     //window->getScene()->getCamera().keySensitivity = 0.05;

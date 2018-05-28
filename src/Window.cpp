@@ -9,12 +9,14 @@
 #include <iostream>
 #include <glm/gtc/matrix_transform.hpp>
 
-typedef void (*framebuffer_size_callback)(GLFWwindow *, int, int);
-typedef void (*mouse_callback)(GLFWwindow *, double, double);
-typedef void (*error_callback)(int, const char *);
-typedef void (*key_callback)(GLFWwindow *, int, int, int, int);
-typedef void (*scroll_callback)(GLFWwindow *, double, double);
-typedef void (*mbtn_callback)(GLFWwindow *, int, int, int);
+void framebuffer_size_callback(GLFWwindow *, int, int);
+void mouse_callback(GLFWwindow *, double, double);
+void error_callback(int, const char *);
+void key_callback(GLFWwindow *, int, int, int, int);
+void scroll_callback(GLFWwindow *, double, double);
+void mbtn_callback(GLFWwindow *, int, int, int);
+
+static bool errorCallbackSet = false;
 
 void APIENTRY glDebugOutput(GLenum source, GLenum type, GLuint id, GLenum severity,
                             GLsizei length, const GLchar *message, const void *userParam);
@@ -27,16 +29,16 @@ Window::Window(Camera &camera, int width, int height, const std::string &windowN
 
     logger->info("Creating Window: {} ({}x{})", windowName, width, height);
 
-    { // Register Error Callback of GLFW
-        Callback<void(int,const char *)>::func = std::bind(&Window::glfwErrorCallabck, this, std::placeholders::_1, std::placeholders::_2);
-        auto errorCallbackFunc = static_cast<error_callback>(Callback<void(int,const char *)>::callback);
 
-        glfwSetErrorCallback(errorCallbackFunc);
+    // Set Error callback only once
+    if (!errorCallbackSet) {
+        glfwSetErrorCallback(error_callback);
+        errorCallbackSet = true;
     }
 
-    // Set OpenGL Context to 4.5 core
+    // Set OpenGL Context to 4.3 core
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     /*glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
 
@@ -89,56 +91,14 @@ Window::Window(Camera &camera, int width, int height, const std::string &windowN
         throw std::runtime_error("Failed to create GLFW Window!");
     }
 
+    // Initalize Callbacks the old C style (no magic C++11 syntax stuff)
     glfwMakeContextCurrent(this->glfwWindow);
-
-    // ==========================================================================
-    // Do some black witchery because C++11 and C don't mix function pointer well
-    // ==========================================================================
-    {
-        Callback<void(GLFWwindow *, int, int)>::func =
-                std::bind(&Window::glfwWindowSizeChanged, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
-        auto framebufferCallbackFunc = static_cast<framebuffer_size_callback>(Callback<void(GLFWwindow*,int,int)>::callback);
-
-        glfwSetFramebufferSizeCallback(this->glfwWindow, framebufferCallbackFunc);
-    }
-
-    {
-        Callback<void(GLFWwindow*,double,double)>::func =
-                std::bind(&Window::glfwMouseCallabck, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
-        auto mouseCallbackFunc = static_cast<mouse_callback>(Callback<void(GLFWwindow*,double,double)>::callback);
-
-        glfwSetCursorPosCallback(this->glfwWindow, mouseCallbackFunc);
-    }
-
-    {
-        Callback<void(GLFWwindow*,int,int,int,int)>::func =
-                std::bind(&Window::glfwKeyCallback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3
-                        , std::placeholders::_4, std::placeholders::_5);
-        auto keyCallbackFunc = static_cast<key_callback >(Callback<void(GLFWwindow*,int,int,int,int)>::callback);
-
-        glfwSetKeyCallback(this->glfwWindow, keyCallbackFunc);
-    }
-
-    /*
-    {
-        Callback<void(GLFWwindow*,double,double)>::func =
-                std::bind(&Window::glfwScrollCallback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
-        auto scrollCallbackFunc = static_cast<scroll_callback >(Callback<void(GLFWwindow*,double,double)>::callback);
-
-        glfwSetScrollCallback(this->glfwWindow, scrollCallbackFunc);
-    }
-     */
-
-    {
-        Callback<void(GLFWwindow*,int,int,int)>::func =
-                std::bind(&Window::glfwMouseButtonCallback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4);
-        auto mBtnCallback = static_cast<mbtn_callback >(Callback<void(GLFWwindow*,int,int,int)>::callback);
-
-        glfwSetMouseButtonCallback(this->glfwWindow, mBtnCallback);
-    }
-    // ==========================================================================
-    //                        End of the Black magic stuff
-    // ==========================================================================
+    glfwSetWindowUserPointer(this->glfwWindow, this);
+    glfwSetFramebufferSizeCallback(this->glfwWindow, framebuffer_size_callback);
+    glfwSetCursorPosCallback(this->glfwWindow, mouse_callback);
+    glfwSetKeyCallback(this->glfwWindow, key_callback);
+    glfwSetScrollCallback(this->glfwWindow, scroll_callback);
+    glfwSetMouseButtonCallback(this->glfwWindow, mbtn_callback);
 
     //Load GLAD Stuff:
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
@@ -158,7 +118,7 @@ void Window::setVSync(bool enabled) {
     glfwSwapInterval(enabled ? 1 : 0);
 }
 
-void Window::glfwWindowSizeChanged(GLFWwindow* window,int width, int height) {
+void Window::glfwWindowSizeChanged(int width, int height) {
     // Happens if Fullscreen Window is minimized, glm does not like this
     if (width == 0 || height == 0)
         return;
@@ -181,7 +141,7 @@ void Window::glfwWindowSizeChanged(GLFWwindow* window,int width, int height) {
     glViewport(0, 0, width, height);
 }
 
-void Window::glfwMouseCallabck(GLFWwindow* window, double xpos, double ypos) {
+void Window::glfwMouseCallabck(double xpos, double ypos) {
     for (auto &callback : this->mouseCallbacks) {
         callback(xpos, ypos);
     }
@@ -207,7 +167,7 @@ int Window::registerKeyCallback(std::function<void(int, int, int, int)> callback
 
 void Window::render(std::chrono::duration<double, std::milli> delta) {
     // Clear Window before drawing
-    glClearColor(0,0,0,1);//0.63f, 0.79f, 0.94f, 1.0f);
+    glClearColor(0.63f, 0.79f, 0.94f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     /*
@@ -260,11 +220,7 @@ void Window::render(std::chrono::duration<double, std::milli> delta) {
     glfwPollEvents();
 }
 
-void Window::glfwErrorCallabck(int code, const char *text) {
-    logger->error("{}: {}", code, text);
-}
-
-void Window::glfwKeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods) {
+void Window::glfwKeyCallback(int key, int scancode, int action, int mods) {
     for(auto &callback : this->keyInputCallbacks) {
         callback(key, scancode, action, mods);
     }
@@ -304,16 +260,12 @@ void Window::removeWidget(const std::shared_ptr<Widget> &widget) {
     );
 }
 
-void Window::glfwMouseButtonCallback(GLFWwindow *window, int button, int action, int mods) {
+void Window::glfwMouseButtonCallback(int button, int action, int mods) {
     // TODO: implement me
     logger->info("Mouse Button: {}, action: {}", button, action);
 }
 
-void Window::glfwScrollCallback(GLFWwindow *window, double xoffset, double yoffset) {
-    // Some funny callback bug, filter out mouse events ...
-    if (xoffset > 2 || yoffset > 2)
-        return;
-
+void Window::glfwScrollCallback(double xoffset, double yoffset) {
     logger->info("Scroll: {}x{}", xoffset, yoffset);
 }
 
@@ -341,6 +293,37 @@ void Window::setScreenGamma(float gamma) {
 }
 
 
+// ======================
+// C GFLW Proxy Handlers:
+// ======================
+
+void framebuffer_size_callback(GLFWwindow *window, int w, int h) {
+    static_cast<Window*>(glfwGetWindowUserPointer(window))->glfwWindowSizeChanged(w, h);
+}
+
+void mouse_callback(GLFWwindow *window, double x, double y) {
+    static_cast<Window *>(glfwGetWindowUserPointer(window))->glfwMouseCallabck(x, y);
+}
+
+void error_callback(int errorCode, const char *message) {
+    spdlog::get("Window")->error("({}): {}", errorCode, message);
+}
+
+void key_callback(GLFWwindow *window, int a, int b, int c, int d) {
+    static_cast<Window *>(glfwGetWindowUserPointer(window))->glfwKeyCallback(a, b, c, d);
+}
+
+void scroll_callback(GLFWwindow *window, double x, double y) {
+    static_cast<Window *>(glfwGetWindowUserPointer(window))->glfwScrollCallback(x, y);
+
+}
+
+void mbtn_callback(GLFWwindow *window, int a, int b, int c) {
+    static_cast<Window *>(glfwGetWindowUserPointer(window))->glfwMouseButtonCallback(a, b, c);
+}
+
+
+// OpenGL Debug Function:
 void APIENTRY glDebugOutput(GLenum source,
                             GLenum type,
                             GLuint id,

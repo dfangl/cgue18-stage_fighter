@@ -19,7 +19,7 @@ DebugTextHud::DebugTextHud(const std::shared_ptr<Scene> &scene) : Logger("DebugH
 
     this->cullingLabel = std::make_shared<Label>("", FontManager::get("Lato-12"), 3, 30.0f, 1.0f, glm::vec3(.9f,.9f,.9f));
 
-    keyCallback = [this](int key, int scancode, int action, int mods){
+    keyCallback = [this, scene](int key, int scancode, int action, int mods){
         if(action == GLFW_RELEASE)
             switch(key) {
                 case GLFW_KEY_F2: showFrameTime = !showFrameTime; break;
@@ -28,7 +28,7 @@ DebugTextHud::DebugTextHud(const std::shared_ptr<Scene> &scene) : Logger("DebugH
                 case GLFW_KEY_F5: toggleEffect(1); break;
                 case GLFW_KEY_F6: toggleEffect(2); break;
                 case GLFW_KEY_F7: toggleEffect(3); break;
-                case GLFW_KEY_F8: viewFrustumCulling = !viewFrustumCulling; break;
+                case GLFW_KEY_F8: viewFrustumCulling = !viewFrustumCulling; scene->frustumCulling = viewFrustumCulling; break;
                 default: { /* Nope no default handling here */ }
             }
     };
@@ -65,7 +65,8 @@ void DebugTextHud::update(std::chrono::duration<double, std::milli> delta) {
         int len = snprintf(this->fpsBuffer, 64, "FPS: %3.1f (%2.4f ms | %2.4f ms highest)", fps, delta.count(), highestDelta);
         fpsLabel->setText(std::string(fpsBuffer, fpsBuffer+len));
 
-        len = snprintf(this->fpsBuffer, 64, "Culled Objects: %u", scene->getCulledObjectCount());
+        if (viewFrustumCulling) len = snprintf(this->fpsBuffer, 64, "Culled Objects: %u", scene->getCulledObjectCount());
+        else                    len = snprintf(this->fpsBuffer, 64, "Culled Objects: [Disabled - F8]");
         cullingLabel->setText(std::string(fpsBuffer, fpsBuffer+len));
 
         refreshTimer = 0;
