@@ -23,14 +23,13 @@ std::vector<unsigned char> ImageGenerator::marble(unsigned int width, unsigned i
 
 
             auto noise =
-                    1    * stb_perlin_ridge_noise3(2 * nx, 2 * ny, nz, 2.0, 0.7, 1.0, 24, 16, 16, 64) +
-                    .5   * stb_perlin_ridge_noise3(4 * nx, 4 * ny, nz, 2.0, 0.5, 1.0, 24, 16, 16, 64) +
-                    .5   * stb_perlin_ridge_noise3(6 * nx, 6 * ny, nz, 2.0, 0.7, 1.0, 24, 16, 16, 64) +
-                    .125 * stb_perlin_ridge_noise3(16 * nx, 8 * ny, nz, 2.0, 0.7, 1.0, 24, 64, 64, 32) +
-                    .125 * stb_perlin_ridge_noise3(4 * nx, 8 * ny, nz, 1.0, 0.5, 0.9, 24, 32, 32, 64);
-            auto value = 1.2f * (glm::pow(noise / 2.5f, 4.2965) + 0.5) - 0.5;
-
-
+                    1    * stb_perlin_ridge_noise3(2 * nx, 2 * ny, nz, 2.0, 0.5, 1.0, 24, 2, 2, 64) +
+                    .5   * stb_perlin_ridge_noise3(4 * nx, 4 * ny, nz, 2.0, 0.5, 1.0, 24, 4, 4, 64) +
+                    .5   * stb_perlin_ridge_noise3(6 * nx, 6 * ny, nz, 2.0, 0.5, 1.0, 24, 6, 6, 64) +
+                    .125 * stb_perlin_ridge_noise3(16 * nx, 8 * ny, nz, 2.0, 0.5, 1.0, 24, 16, 8, 32) +
+                    .125 * stb_perlin_ridge_noise3(4 * nx, 8 * ny, nz, 2.0, 0.5, 0.9, 24, 4, 8, 64);
+            auto value = 1.9f * (glm::pow(noise / 2.5f, 3.23463) + 0.5) - 0.5;
+            value = glm::pow(value, 2.0);
 
             //spdlog::get("console")->info("({},{}) noise: {}, value: {}", x,y, noise, value);
 
