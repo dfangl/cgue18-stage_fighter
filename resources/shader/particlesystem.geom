@@ -11,11 +11,12 @@ in vData {
 } vertex[];
 
 out vec2 texcoord_0;
+out vec2 texcoord_1;
 flat out float TTL;
 
 // UV Mapping for explosion.png:
 float texcoord_explosion(float ttl, uint x) {
-    return (8 - (floor(ttl * 2403 / 288) + x)) * 0.111189;
+    return clamp(8 - (floor(ttl * 2403 / 288) + x), 0, 8) * 0.111189;
 }
 
 void main (void) {
@@ -26,6 +27,7 @@ void main (void) {
     vec2 va = P.xy + vec2(-0.5, -0.5) * particle_size;
     gl_Position = projection * vec4(va, P.zw);
     texcoord_0  = vec2(texcoord_explosion(vertex[0].TTL, 0), 0.0);
+    texcoord_1  = vec2(texcoord_explosion(vertex[0].TTL, 1), 0.0);
     TTL         = vertex[0].TTL;
     EmitVertex();
 
@@ -33,6 +35,7 @@ void main (void) {
     vec2 vb = P.xy + vec2(-0.5,  0.5) * particle_size;
     gl_Position = projection * vec4(vb, P.zw);
     texcoord_0  = vec2(texcoord_explosion(vertex[0].TTL, 0), 1.0);
+    texcoord_1  = vec2(texcoord_explosion(vertex[0].TTL, 1), 1.0);
     TTL         = vertex[0].TTL;
     EmitVertex();
 
@@ -40,6 +43,7 @@ void main (void) {
     vec2 vc = P.xy + vec2( 0.5, -0.5) * particle_size;
     gl_Position = projection * vec4(vc, P.zw);
     texcoord_0  = vec2(texcoord_explosion(vertex[0].TTL, 1), 0.0);
+    texcoord_1  = vec2(texcoord_explosion(vertex[0].TTL, 2), 0.0);
     TTL         = vertex[0].TTL;
     EmitVertex();
 
@@ -47,6 +51,7 @@ void main (void) {
     vec2 vd = P.xy + vec2( 0.5,  0.5) * particle_size;
     gl_Position = projection * vec4(vd, P.zw);
     texcoord_0  = vec2(texcoord_explosion(vertex[0].TTL, 1), 1.0);
+    texcoord_1  = vec2(texcoord_explosion(vertex[0].TTL, 2), 1.0);
     TTL         = vertex[0].TTL;
     EmitVertex();
 
