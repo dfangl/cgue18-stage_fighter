@@ -276,19 +276,15 @@ int main(int argc, char *argv[]) {
 
     /*
      * ======= MAIN GAME LOOP =======
-     * in lastTick count we want to save the last time we rendered a frame
-     * and in frameSampleCount a accumulated number of frames is saved which is used
-     * to limit the number of frames in which the fps llabelwill be redrawn ...
      */
-
 
     // Test particle system:
     auto ps = std::make_shared<ParticleSystem>(
-            glm::vec3(-22.7897,-20.0 ,1.65117),
+            glm::vec3(-50.188 , -35 , 0.0),
             100.0f,
             ShaderManager::load("particlesystem", true),
-            TextureManager::load("blackSmoke02.png"),
-            500
+            TextureManager::load("explosion.png"),
+            75
     );
 
     window->getScene()->lastStageRender.push_back(ps);

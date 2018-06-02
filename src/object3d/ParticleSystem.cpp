@@ -5,6 +5,8 @@
 #include "ParticleSystem.h"
 #include <stb_perlin.h>
 #include <utility>
+#include <random>
+
 #include "../Scene.h"
 #include "../manager/ShaderManager.h"
 
@@ -15,6 +17,7 @@ void ParticleSystem::render(Scene *scene) {
     compute->use();
     compute->setUniform("deltaT", hpDeltaT);
     compute->setUniform("size", particles);
+    compute->setUniform("enableRespawn", (unsigned int) true);
     const int workingGroups = particles;
 
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, SSBO);
@@ -66,25 +69,34 @@ ParticleSystem::~ParticleSystem() {
 void ParticleSystem::generateParticles(unsigned int count) {
     data.reserve(count);
 
+    float nz1 = 29.2938648971363f;
+    float nz2 = 24.1293682342339f;
+    float nz3 = 39.3745902239486f;
+
+    std::default_random_engine generator;
+    std::uniform_int_distribution<int> distribution(2000, 3499);
+
     for(int i=0; i < count; i++) {
         float nx = (float)i / count * 1.128128364f;
         float ny = (float)i / count * 0.923865875f;
-        float nz = 29.2938648971363f;
 
-        float speed = stb_perlin_ridge_noise3(18 * nx, 18 * ny, 5 * nz, 2.0, 0.5, 1.0, 24, 18, 18, 64) * 300;
-        float noiseX = ( 0.5f - stb_perlin_ridge_noise3(2 * nx, 2 * ny, nz, 2.0, 0.5, 1.0, 24, 2, 2, 64) ) / speed;
-        float noiseY = ( 0.5f - stb_perlin_ridge_noise3(2 * nx, 9 * ny, nz, 2.0, 0.5, 1.0, 24, 4, 4, 64) ) / speed;
-        float noiseZ = ( 0.5f - stb_perlin_ridge_noise3(9 * nx, 2 * ny, nz, 2.0, 0.5, 1.0, 24, 4, 4, 64) ) / speed;
+        float speed = stb_perlin_ridge_noise3(18 * nx, 18 * ny, 5 * nz1, 2.0, 0.5, 1.0, 24, 18, 18, 64) * 400;
+        float ttl   = distribution(generator);
+        float noiseX = ( 0.5f - stb_perlin_ridge_noise3(9 * nx, 9 * ny, nz1, 2.0, 0.52734, 1.0, 24, 9, 9, 64) ) / speed;
+        float noiseY = ( 0.5f - stb_perlin_ridge_noise3(9 * nx, 9 * ny, nz2, 1.9, 0.49237, 1.0, 24, 9, 9, 64) ) / speed;
+        float noiseZ = ( 0.5f - stb_perlin_ridge_noise3(8 * nx, 9 * ny, nz3, 1.8, 0.51278, 1.0, 24, 9, 9, 64) ) / speed;
+
+        float x = static_cast<float>(glm::cos(distribution(generator))) * 1.4f;
+        float y = static_cast<float>(glm::sin(distribution(generator))) * 1.4f;
+        float z = static_cast<float>(glm::tan(distribution(generator))) * 1.4f;
 
         data.emplace_back(
-                glm::vec4(this->position, 2000.0f),
+                glm::vec4(x, y, z, ttl - distribution(generator)),
                 glm::vec4(noiseX, noiseY, noiseZ, 0.0f),
-                glm::vec4(this->position, 2000.0f)
+                glm::vec4(x, y, z, ttl)
 
         );
     }
-
-    spdlog::get("console")->info("DATA: {}, {}", (void *)data.data(), data.size());
 
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, SSBO);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, SSBO);

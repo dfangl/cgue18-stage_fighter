@@ -13,6 +13,7 @@ layout(std140, binding = 0) buffer Particles {
 
 uniform float deltaT;
 uniform uint size;
+uniform uint enableRespawn;
 
 void main() {
     uint index = gl_GlobalInvocationID.x;
@@ -22,11 +23,13 @@ void main() {
     vec4 vVelocity = particles[index].velocity;
 
     if (vPosition.w <= 0) {
-        vPosition  = particles[index].sPos;
+        if (enableRespawn > 0) {
+            vPosition  = particles[index].sPos;
+        }
+    } else {
+        vPosition   += vVelocity * deltaT;
+        vPosition.w -= deltaT;
     }
-
-    vPosition   += vVelocity * deltaT;
-    vPosition.w -= deltaT;
 
     particles[index].position = vPosition;
 }
