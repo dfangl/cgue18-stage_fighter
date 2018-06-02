@@ -14,6 +14,10 @@ Shader::Shader(const std::string vertexCode, const std::string fragmentCode) : L
     this->shaderID = compile(vertexCode, fragmentCode);
 }
 
+Shader::Shader(const std::string computeCode) {
+    this->shaderID = compileComputeShader(computeCode);
+}
+
 Shader::~Shader() {
     glDeleteProgram(this->shaderID);
 }
@@ -65,6 +69,16 @@ std::shared_ptr<Shader> Shader::fromFile(const std::string vertex, const std::st
     shader->loadedFromFile = true;
     shader->vertexFilePath = vertex;
     shader->fragmentFilePath = fragment;
+
+    return shader;
+}
+
+std::shared_ptr<Shader> Shader::fromFile(const std::string compute) {
+    Shader::Code code = Shader::loadFromFile(compute);
+
+    auto shader = std::make_shared<Shader>(code.compute);
+    shader->loadedFromFile = true;
+    shader->computeFilePath = compute;
 
     return shader;
 }
@@ -175,12 +189,22 @@ void Shader::recompile() {
         return;
     }
 
-    Shader::Code code = Shader::loadFromFile(this->vertexFilePath, this->fragmentFilePath);
-    auto newShader = this->compile(code.vertex, code.fragment);
+    GLuint oldShader;
+    if (this->computeFilePath.empty()) {
+        Shader::Code code = Shader::loadFromFile(this->vertexFilePath, this->fragmentFilePath);
+        auto newShader = this->compile(code.vertex, code.fragment);
 
-    // Swap Shader IDs before deletion
-    auto oldShader = this->shaderID;
-    this->shaderID = newShader;
+        // Swap Shader IDs before deletion
+        oldShader = this->shaderID;
+        this->shaderID = newShader;
+    } else {
+        Shader::Code code = Shader::loadFromFile(this->computeFilePath);
+        auto newShader = this->compileComputeShader(code.compute);
+
+        // Swap Shader IDs before deletion
+        oldShader = this->shaderID;
+        this->shaderID = newShader;
+    }
 
     glDeleteShader(oldShader);
 }
@@ -219,6 +243,34 @@ Shader::Code Shader::loadFromFile(const std::string &vertex, const std::string &
     return code;
 }
 
+Shader::Code Shader::loadFromFile(const std::string &compute) {
+    auto console = spdlog::get("console");
+
+    Shader::Code code;
+    std::ifstream vComputeFile;
+
+    vComputeFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+
+    try {
+        vComputeFile.open(compute);
+        std::stringstream vComputeStream;
+
+        vComputeStream << vComputeFile.rdbuf();
+        vComputeFile.close();
+
+        code.compute = vComputeStream.str();
+    } catch (std::ifstream::failure &e) {
+        console->error("Unable to load shader files {}, {}", compute);
+        console->error("Error: {}", e.what());
+        console->flush();
+
+        throw e;
+    }
+
+    return code;
+}
+
+
 void Shader::setVertexAttribDivisor(const GLuint location, const GLuint divisor) {
     glVertexAttribDivisor(location, divisor);
 }
@@ -237,7 +289,7 @@ void Shader::setVertexAttribDivisor(const std::string &name, const GLuint diviso
         this->mapping[name] = location;
     }
 
-    setVertexAttribDivisor(this->mapping[name], divisor);
+    setVertexAttribDivisor(static_cast<const GLuint>(this->mapping[name]), divisor);
 }
 
 void Shader::setVertexAttribDivisor(const std::string &name, const GLuint count, const GLuint divisor) {
@@ -249,5 +301,33 @@ void Shader::setVertexAttribDivisor(const std::string &name, const GLuint count,
         this->mapping[name] = location;
     }
 
-    setVertexAttribDivisor(this->mapping[name], count, divisor);
+    setVertexAttribDivisor(static_cast<const GLuint>(this->mapping[name]), count, divisor);
+}
+
+GLuint Shader::compileComputeShader(const std::string &computeCode) {
+    int success;
+    char infoLog[GL_LOG_SIZE];
+
+    const char *vComputeCode = computeCode.c_str();
+
+    GLuint computeShader = glCreateShader(GL_COMPUTE_SHADER);
+    glShaderSource(computeShader, 1, &vComputeCode, nullptr);
+    glCompileShader(computeShader);
+    glGetShaderiv(computeShader, GL_COMPILE_STATUS, &success);
+    if (!success) {
+        glGetShaderInfoLog(computeShader, GL_LOG_SIZE, nullptr, infoLog);
+        logger->error("Compute Shader compilation failed:\n{}", infoLog);
+    }
+
+    GLuint program = glCreateProgram();
+    glAttachShader(program, computeShader);
+    glLinkProgram(program);
+    glGetProgramiv(shaderID, GL_LINK_STATUS, &success);
+    if (!success) {
+        glGetProgramInfoLog(shaderID, GL_LOG_SIZE, nullptr, infoLog);
+        logger->error("Shader linking failed:\n{}", infoLog);
+    }
+
+    glDeleteShader(computeShader);
+    return program;
 }

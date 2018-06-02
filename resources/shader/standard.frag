@@ -1,4 +1,4 @@
-#version 450 core
+#version 430 core
 
 #define CEL_LIGHT_LEVELS 2
 

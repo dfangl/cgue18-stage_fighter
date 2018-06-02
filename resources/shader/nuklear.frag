@@ -1,4 +1,4 @@
-#version 450 core
+#version 430 core
 
 precision mediump float;
 uniform sampler2D Texture;

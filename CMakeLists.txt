@@ -270,7 +270,7 @@ add_executable(
 		src/helper/ImageGenerator.cpp src/helper/ImageGenerator.h src/CubemapTexture.cpp src/CubemapTexture.h
 		src/object3d/Skybox.cpp src/object3d/Skybox.h src/entity/ScriptedEntity.cpp src/entity/ScriptedEntity.h
 
-)
+        src/object3d/ParticleSystem.cpp src/object3d/ParticleSystem.h)
 
 set_target_properties("${BINARY}" PROPERTIES LINKER_LANGUAGE CXX)	
 	
