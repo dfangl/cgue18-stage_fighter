@@ -31,30 +31,37 @@ private:
     bool loadedFromFile = false;
     std::string vertexFilePath;
     std::string fragmentFilePath;
+    std::string geometryFilePath;
     std::string computeFilePath;
 
     struct Code {
         std::string vertex;
         std::string fragment;
+        std::string geometry;
         std::string compute;
     };
 
-    GLuint compile(const std::string &vertexCode,const std::string &fragmentCode);
+    GLuint compile(const std::string &vertexCode, const std::string &fragmentCode, const std::string &geometryCode);
     GLuint compileComputeShader(const std::string &computeCode);
 
-    static Code loadFromFile(const std::string &vertex,const std::string &fragment);
+    static Code loadFromFile(const std::string &vertex, const std::string &fragment, const std::string &geometry);
     static Code loadFromFile(const std::string &compute);
+
+    void logOnError(GLuint shader, const char *message);
+    void logOnProgError(GLuint program, const char *message);
 
 public:
     /*
      * Create a Shader from a Vertex and a Fragment shader code
      */
-    Shader(const std::string vertexCode,const std::string fragmentCode);
+    Shader(const std::string vertexCode, const std::string fragmentCode);
+    Shader(const std::string vertexCode, const std::string fragmentCode, const std::string geomentryCode);
     explicit Shader(const std::string computeCode);
 
     /*
      * Load a Shader from a vertex and a fragment shader file
      */
+    static std::shared_ptr<Shader> fromFile(const std::string vertex, const std::string fragment, const std::string geoemtry);
     static std::shared_ptr<Shader> fromFile(const std::string vertex, const std::string fragment);
     static std::shared_ptr<Shader> fromFile(const std::string compute);
 

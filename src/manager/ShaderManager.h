@@ -21,7 +21,8 @@ public:
     static void build(const std::string &root = nullptr);
     static void destroy();
 
-    static std::shared_ptr<Shader> load(const std::string &name);
+    static std::shared_ptr<Shader> load(const std::string &name, bool withGeometry = false);
+    static std::shared_ptr<Shader> loadCompute(const std::string &name);
     static void store(const std::string &name, const std::shared_ptr<Shader> &shader);
 
     static void recompileAll();

@@ -8,10 +8,12 @@
 #include <sstream>
 #include <iostream>
 
-#define GL_LOG_SIZE (512)
-
 Shader::Shader(const std::string vertexCode, const std::string fragmentCode) : Logger("Shader"){
-    this->shaderID = compile(vertexCode, fragmentCode);
+    this->shaderID = compile(vertexCode, fragmentCode, "");
+}
+
+Shader::Shader(const std::string vertexCode, const std::string fragmentCode, const std::string geometryCode) : Logger("Shader"){
+    this->shaderID = compile(vertexCode, fragmentCode, geometryCode);
 }
 
 Shader::Shader(const std::string computeCode) {
@@ -63,12 +65,24 @@ void Shader::setUniform(const GLint location, const glm::mat4 &mat) {
 }
 
 std::shared_ptr<Shader> Shader::fromFile(const std::string vertex, const std::string fragment) {
-    Shader::Code code = Shader::loadFromFile(vertex, fragment);
+    Shader::Code code = Shader::loadFromFile(vertex, fragment, "");
 
     auto shader = std::make_shared<Shader>(code.vertex, code.fragment);
     shader->loadedFromFile = true;
     shader->vertexFilePath = vertex;
     shader->fragmentFilePath = fragment;
+
+    return shader;
+}
+
+std::shared_ptr<Shader> Shader::fromFile(const std::string vertex, const std::string fragment, const std::string geoemtry) {
+    Shader::Code code = Shader::loadFromFile(vertex, fragment, geoemtry);
+
+    auto shader = std::make_shared<Shader>(code.vertex, code.fragment, code.geometry);
+    shader->loadedFromFile = true;
+    shader->vertexFilePath = vertex;
+    shader->fragmentFilePath = fragment;
+    shader->geometryFilePath = geoemtry;
 
     return shader;
 }
@@ -125,19 +139,14 @@ void Shader::disableVAO(const std::string &name) {
     glDisableVertexAttribArray(static_cast<GLuint>(element->second));
 }
 
-GLuint Shader::compile(const std::string &vertexCode, const std::string &fragmentCode) {
+GLuint Shader::compile(const std::string &vertexCode, const std::string &fragmentCode, const std::string &geometryCode) {
     /*
-        * Convert from C++ string to C string
-        */
-    GLuint vertex, fragment, shaderID;
+     * Convert from C++ string to C string
+     */
+    GLuint vertex, fragment, shaderID, geometry;
     const char *vShaderCode = vertexCode.c_str();
     const char *fShaderCode = fragmentCode.c_str();
-
-    /*
-     * It's needed fo some error handling
-     */
-    int success;
-    char infoLog[GL_LOG_SIZE];
+    const char *gShaderCode = geometryCode.empty() ? nullptr : geometryCode.c_str();
 
     /*
      * Compile Vertex and Fragment Shaders:
@@ -145,19 +154,18 @@ GLuint Shader::compile(const std::string &vertexCode, const std::string &fragmen
     vertex = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vertex, 1, &vShaderCode, nullptr);
     glCompileShader(vertex);
-    glGetShaderiv(vertex, GL_COMPILE_STATUS, &success);
-    if (!success) {
-        glGetShaderInfoLog(vertex, GL_LOG_SIZE, nullptr, infoLog);
-        logger->error("Vertex Shader compilation failed:\n{}", infoLog);
-    }
+    this->logOnError(vertex, "Vertex Shader compilation failed:\n{}");
 
     fragment = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(fragment, 1, &fShaderCode, nullptr);
     glCompileShader(fragment);
-    glGetShaderiv(fragment, GL_COMPILE_STATUS, &success);
-    if (!success) {
-        glGetShaderInfoLog(fragment, GL_LOG_SIZE, nullptr, infoLog);
-        logger->error("Fragment Shader compilation failed:\n{}", infoLog);
+    this->logOnError(fragment, "Fragment Shader compilation failed:\n{}");
+
+    if (gShaderCode != nullptr) {
+        geometry = glCreateShader(GL_GEOMETRY_SHADER);
+        glShaderSource(geometry, 1, &gShaderCode, nullptr);
+        glCompileShader(geometry);
+        this->logOnError(geometry, "Geometry Shader compilation failed:\n{}");
     }
 
     /*
@@ -166,13 +174,11 @@ GLuint Shader::compile(const std::string &vertexCode, const std::string &fragmen
     shaderID = glCreateProgram();
     glAttachShader(shaderID, vertex);
     glAttachShader(shaderID, fragment);
-    glLinkProgram(shaderID);
+    if (gShaderCode != nullptr)
+        glAttachShader(shaderID, geometry);
 
-    glGetProgramiv(shaderID, GL_LINK_STATUS, &success);
-    if (!success) {
-        glGetProgramInfoLog(shaderID, GL_LOG_SIZE, nullptr, infoLog);
-        logger->error("Shader linking failed:\n{}", infoLog);
-    }
+    glLinkProgram(shaderID);
+    this->logOnProgError(shaderID, "Shader linking failed:\n{}");
 
     /*
      * Vertex and Fragment Shader Codes can be deleted since they are in the Program
@@ -191,8 +197,8 @@ void Shader::recompile() {
 
     GLuint oldShader;
     if (this->computeFilePath.empty()) {
-        Shader::Code code = Shader::loadFromFile(this->vertexFilePath, this->fragmentFilePath);
-        auto newShader = this->compile(code.vertex, code.fragment);
+        Shader::Code code = Shader::loadFromFile(this->vertexFilePath, this->fragmentFilePath, this->geometryFilePath);
+        auto newShader = this->compile(code.vertex, code.fragment, code.geometry);
 
         // Swap Shader IDs before deletion
         oldShader = this->shaderID;
@@ -209,15 +215,17 @@ void Shader::recompile() {
     glDeleteShader(oldShader);
 }
 
-Shader::Code Shader::loadFromFile(const std::string &vertex, const std::string &fragment) {
+Shader::Code Shader::loadFromFile(const std::string &vertex, const std::string &fragment, const std::string &geometry) {
     auto console = spdlog::get("console");
 
     Shader::Code code;
     std::ifstream vShaderFile;
     std::ifstream fShaderFile;
+    std::ifstream gShaderFile;
 
     vShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
     fShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+    gShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
 
     try {
         vShaderFile.open(vertex);
@@ -232,8 +240,17 @@ Shader::Code Shader::loadFromFile(const std::string &vertex, const std::string &
 
         code.vertex = vShaderStream.str();
         code.fragment = fShaderStream.str();
+
+        if (!geometry.empty()) {
+            gShaderFile.open(geometry);
+            std::stringstream gShaderStream;
+
+            gShaderStream << gShaderFile.rdbuf();
+
+            code.geometry = gShaderStream.str();
+        }
     } catch (std::ifstream::failure& e) {
-        console->error("Unable to load shader files: {}, {}", vertex, fragment);
+        console->error("Unable to load shader files: {}, {} (, {})", vertex, fragment, geometry);
         console->error("Error: {}", e.what());
         console->flush();
 
@@ -306,28 +323,55 @@ void Shader::setVertexAttribDivisor(const std::string &name, const GLuint count,
 
 GLuint Shader::compileComputeShader(const std::string &computeCode) {
     int success;
-    char infoLog[GL_LOG_SIZE];
+    int logLength = 0;
 
     const char *vComputeCode = computeCode.c_str();
 
     GLuint computeShader = glCreateShader(GL_COMPUTE_SHADER);
     glShaderSource(computeShader, 1, &vComputeCode, nullptr);
     glCompileShader(computeShader);
+
     glGetShaderiv(computeShader, GL_COMPILE_STATUS, &success);
-    if (!success) {
-        glGetShaderInfoLog(computeShader, GL_LOG_SIZE, nullptr, infoLog);
-        logger->error("Compute Shader compilation failed:\n{}", infoLog);
-    }
+    glGetShaderiv(computeShader, GL_INFO_LOG_LENGTH, &logLength);
+    this->logOnError(computeShader, "Compute Shader compilation failed:\n{}");
 
     GLuint program = glCreateProgram();
     glAttachShader(program, computeShader);
     glLinkProgram(program);
-    glGetProgramiv(shaderID, GL_LINK_STATUS, &success);
-    if (!success) {
-        glGetProgramInfoLog(shaderID, GL_LOG_SIZE, nullptr, infoLog);
-        logger->error("Shader linking failed:\n{}", infoLog);
-    }
+    this->logOnProgError(program, "Compute Shader linking failed:\n{}");
 
     glDeleteShader(computeShader);
     return program;
+}
+
+void Shader::logOnError(GLuint shader, const char *message) {
+    int success, logLength;
+
+    glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
+    glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &logLength);
+    if (!success) {
+        auto infoLog = new char[logLength];
+        memset(infoLog, 0, static_cast<size_t>(logLength));
+
+        glGetShaderInfoLog(shader, logLength, nullptr, infoLog);
+        logger->error(message, infoLog);
+
+        delete infoLog;
+    }
+}
+
+void Shader::logOnProgError(GLuint program, const char *message) {
+    int success, logLength;
+
+    glGetProgramiv(program, GL_LINK_STATUS, &success);
+    glGetProgramiv(program, GL_INFO_LOG_LENGTH, &logLength);
+    if (!success) {
+        auto infoLog = new char[logLength];
+        memset(infoLog, 0, static_cast<size_t>(logLength));
+
+        glGetProgramInfoLog(shaderID, logLength, nullptr, infoLog);
+        logger->error(message, infoLog);
+
+        delete infoLog;
+    }
 }
