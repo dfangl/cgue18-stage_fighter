@@ -89,6 +89,7 @@ public:
 
     void setUniform(const GLint location, bool value);
     void setUniform(const GLint location, int value);
+    void setUniform(const GLint location, unsigned int value);
     void setUniform(const GLint location, float value);
     void setUniform(const GLint location, const glm::vec2 &value);
     void setUniform(const GLint location, const glm::vec3 &value);

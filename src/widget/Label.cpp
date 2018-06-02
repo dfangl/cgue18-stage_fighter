@@ -41,6 +41,7 @@ void Label::render(const glm::mat4 &projection) {
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glBlendEquation(GL_FUNC_ADD);
 
     glBindVertexArray(VAO);
     //glBindBuffer(GL_ARRAY_BUFFER, VBO);

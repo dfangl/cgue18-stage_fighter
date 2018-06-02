@@ -165,7 +165,7 @@ int Window::registerKeyCallback(std::function<void(int, int, int, int)> callback
     return static_cast<int>(this->keyInputCallbacks.size() - 1);
 }
 
-void Window::render(std::chrono::duration<double, std::milli> delta) {
+void Window::render(std::chrono::duration<double, std::milli> &delta) {
     // Clear Window before drawing
     glClearColor(0.63f, 0.79f, 0.94f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -204,7 +204,7 @@ void Window::render(std::chrono::duration<double, std::milli> delta) {
     glDepthFunc(GL_LESS);
 
     // Render all Objects to the Window
-    this->scene->render();
+    this->scene->render(delta);
 
     // Models don't disable backface culling if they enabled it
     glDisable(GL_CULL_FACE);

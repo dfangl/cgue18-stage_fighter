@@ -30,6 +30,7 @@
 #include "helper/ImageGenerator.h"
 #include "CubemapTexture.h"
 #include "object3d/Skybox.h"
+#include "object3d/ParticleSystem.h"
 
 #include <kaguya/kaguya.hpp>
 #include <spdlog/spdlog.h>
@@ -155,9 +156,12 @@ int main(int argc, char *argv[]) {
         return ImageGenerator::marble(256, 256, glm::vec4(126.0/255, 126.0/255, 126.0/255, 1.0));
     });
 
+    // Async resource loading & events from window polling so it doesn't hang
     while(asyncTexData.wait_for(std::chrono::milliseconds(0)) != std::future_status::ready) {
         auto _curTick = std::chrono::high_resolution_clock::now();
-        window->render(_curTick - lastTick);
+        std::chrono::duration<double, std::milli> deltaT = _curTick - lastTick;
+
+        window->render(deltaT);
 
         lastTick = _curTick;
     }
@@ -175,7 +179,6 @@ int main(int argc, char *argv[]) {
      */
     loadingLabel->setText("Loading Level ...");
     loadingLabel->setPosition(window->getWidth()/2.0f-loadingLabel->getWidth()/2.0f, window->getHeight()/2.0f-32.0f);
-
 
     //auto _curTick = std::chrono::high_resolution_clock::now();
     //window->render(_curTick - lastTick);
@@ -202,10 +205,10 @@ int main(int argc, char *argv[]) {
 
 
     // Toggle Free flying camera:
-    //level->getPlayer()->disable();
-    //window->getScene()->getCamera().enableUpdate = true;
-    //window->getScene()->getCamera().keySensitivity = 0.05;
-    //window->processCameraKeyMovement(true);
+    level->getPlayer()->disable();
+    window->getScene()->getCamera().enableUpdate = true;
+    window->getScene()->getCamera().keySensitivity = 0.05;
+    window->processCameraKeyMovement(true);
 
     //window->getScene()->initFustrumDEBUG();
     window->getScene()->frustumCulling = false; // Does not work
@@ -277,6 +280,18 @@ int main(int argc, char *argv[]) {
      * and in frameSampleCount a accumulated number of frames is saved which is used
      * to limit the number of frames in which the fps llabelwill be redrawn ...
      */
+
+
+    // Test particle system:
+    auto ps = std::make_shared<ParticleSystem>(
+            glm::vec3(-22.7897,-20.0 ,1.65117),
+            100.0f,
+            ShaderManager::load("particlesystem", true),
+            TextureManager::load("blackSmoke02.png"),
+            500
+    );
+
+    window->getScene()->lastStageRender.push_back(ps);
 
 
     /*

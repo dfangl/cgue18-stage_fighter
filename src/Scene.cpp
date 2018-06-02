@@ -11,8 +11,9 @@
 
 Scene::Scene(Camera &camera) : camera(camera) {}
 
-void Scene::render() {
-    culledObjects = 0;
+void Scene::render(std::chrono::duration<double, std::milli> &delta) {
+    this->deltaT = delta;
+    this->culledObjects = 0;
 
     for (auto &obj : this->objects) {
 
@@ -35,6 +36,9 @@ void Scene::render() {
     // Draw skybox as last element to make use of the depth buffer
     if (this->skybox)
         this->skybox->render(this);
+
+    for (auto &obj : this->lastStageRender)
+        obj->render(this);
 
     if (!vfDc.empty()) {
         for (int i=4; i<8; i++)

@@ -15,7 +15,7 @@ void ShaderManager::destroy() {
     ShaderManager::shaderLib.clear();
 }
 
-std::shared_ptr<Shader> ShaderManager::load(const std::string &name, bool withGeometry = false) {
+std::shared_ptr<Shader> ShaderManager::load(const std::string &name, bool withGeometry) {
     if(shaderLib.find(name) == shaderLib.end()) {
         shaderLib[name] = withGeometry ?
                           Shader::fromFile(root + name + ".vert", root + name + ".frag", root + name + ".geom") :

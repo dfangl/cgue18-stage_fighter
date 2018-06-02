@@ -36,7 +36,7 @@ public:
 class Object3D : public Object3DAbstract {
 
 protected:
-    GLuint VBO = 0, VAO = 0, EBO = 0;
+    GLuint VBO = 0, VAO = 0;//, EBO = 0;
     std::shared_ptr<Shader> shader;
 
     glm::vec3 position;

@@ -327,7 +327,8 @@ void Level::setLoadingStatus(std::string thing, int cur, int max) {
                 window->getHeight() - 64.0f
             );
 
-    this->window->render(std::chrono::duration<double, std::milli>::zero());
+    auto zDeltaT = std::chrono::duration<double, std::milli>::zero();
+    this->window->render(zDeltaT);
 }
 
 Level::~Level() {

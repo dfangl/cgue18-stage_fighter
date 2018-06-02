@@ -26,6 +26,8 @@ private:
 
     std::shared_ptr<Skybox> skybox;
 
+    std::chrono::duration<double, std::milli> deltaT;
+
     GLuint vbo,vao;
     std::vector<std::shared_ptr<Cube>> vfDc;
 
@@ -36,7 +38,7 @@ protected:
 public:
     explicit Scene(Camera &camera);
 
-    void render();
+    void render(std::chrono::duration<double, std::milli> &delta);
 
     void addObject(const std::shared_ptr<Object3DAbstract> &object3D);
     void removeObject(const std::shared_ptr<Object3DAbstract> &object3D);
@@ -57,6 +59,8 @@ public:
 
     bool frustumCulling = true;
     unsigned int getCulledObjectCount() const { return this->culledObjects; }
+
+    std::vector<std::shared_ptr<Object3DAbstract>> lastStageRender;
 
     void initFustrumDEBUG() {
         glGenVertexArrays(1, &vao);
@@ -80,6 +84,8 @@ public:
             vfDc.push_back(std::make_shared<Cube>(glm::vec3(0,0,0), TextureManager::load("__gen_marble")));
             vfDc.push_back(std::make_shared<Cube>(glm::vec3(0,0,0), TextureManager::load("__gen_marble")));
     }
+
+    std::chrono::duration<double, std::milli> &getFrameTime() { return this->deltaT; }
 };
 
 #endif //STAGE_FIGHTER_SCENE_H

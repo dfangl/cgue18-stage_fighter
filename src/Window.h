@@ -63,7 +63,7 @@ public:
     inline int getHeight() { return this->height; }
     inline int getWidth() { return this->width; }
 
-    void render(std::chrono::duration<double, std::milli> delta);
+    void render(std::chrono::duration<double, std::milli> &delta);
 
     void setScene(std::shared_ptr<Scene> &scene);
     std::shared_ptr<Scene> getScene() { return this->scene; }

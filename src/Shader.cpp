@@ -36,6 +36,10 @@ void Shader::setUniform(const GLint location, int value) {
     glUniform1i(location, value);
 }
 
+void Shader::setUniform(const GLint location, unsigned int value) {
+    glUniform1ui(location, value);
+}
+
 void Shader::setUniform(const GLint location, float value) {
     glUniform1f(location, value);
 }
@@ -185,6 +189,8 @@ GLuint Shader::compile(const std::string &vertexCode, const std::string &fragmen
      */
     glDeleteShader(vertex);
     glDeleteShader(fragment);
+    if (gShaderCode != nullptr)
+        glDeleteShader(geometry);
 
     return shaderID;
 }
@@ -369,7 +375,7 @@ void Shader::logOnProgError(GLuint program, const char *message) {
         auto infoLog = new char[logLength];
         memset(infoLog, 0, static_cast<size_t>(logLength));
 
-        glGetProgramInfoLog(shaderID, logLength, nullptr, infoLog);
+        glGetProgramInfoLog(program, logLength, nullptr, infoLog);
         logger->error(message, infoLog);
 
         delete infoLog;
