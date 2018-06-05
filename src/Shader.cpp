@@ -203,6 +203,8 @@ void Shader::recompile() {
 
     GLuint oldShader;
     if (this->computeFilePath.empty()) {
+        logger->info("Recompiling Shader ({}, {}, {})", this->vertexFilePath, this->fragmentFilePath, this->geometryFilePath);
+
         Shader::Code code = Shader::loadFromFile(this->vertexFilePath, this->fragmentFilePath, this->geometryFilePath);
         auto newShader = this->compile(code.vertex, code.fragment, code.geometry);
 
@@ -210,6 +212,8 @@ void Shader::recompile() {
         oldShader = this->shaderID;
         this->shaderID = newShader;
     } else {
+        logger->info("Recompiling Compute Shader {}", this->computeFilePath);
+
         Shader::Code code = Shader::loadFromFile(this->computeFilePath);
         auto newShader = this->compileComputeShader(code.compute);
 
