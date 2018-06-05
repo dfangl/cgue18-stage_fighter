@@ -8,6 +8,7 @@
 #include "../manager/FontManager.h"
 
 #include "DebugTextHud.h"
+#include "../manager/ShaderManager.h"
 
 DebugTextHud::DebugTextHud(const std::shared_ptr<Scene> &scene) : Logger("DebugHUD"), scene(scene) {
     this->fpsLabel = std::make_shared<Label>("FPS: 000.0 (00.0000 ms | 00.0000 ms highest)",
@@ -30,6 +31,7 @@ DebugTextHud::DebugTextHud(const std::shared_ptr<Scene> &scene) : Logger("DebugH
                 case GLFW_KEY_F6: toggleEffect(2); break;
                 case GLFW_KEY_F7: toggleEffect(3); break;
                 case GLFW_KEY_F8: viewFrustumCulling = !viewFrustumCulling; scene->frustumCulling = viewFrustumCulling; break;
+                case GLFW_KEY_F12: ShaderManager::recompileAll(); break;
                 default: { /* Nope no default handling here */ }
             }
     };

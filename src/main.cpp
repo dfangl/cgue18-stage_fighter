@@ -260,10 +260,6 @@ int main(int argc, char *argv[]) {
                 helpMenu->show();
             }
         }
-
-        if (key == GLFW_KEY_F12 && action == GLFW_RELEASE) {
-            ShaderManager::recompileAll();
-        }
     });
 
 
