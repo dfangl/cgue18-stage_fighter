@@ -82,14 +82,14 @@ void Camera::updateFrustum() {
     }
 */
 
-    const auto front = -this->front;
+    //const auto front = glm::normalize(-this->front);
     //const auto right = glm::mat3(viewMatrix)[0];
     //const auto up = glm::mat3(viewMatrix)[1];
 
-    const auto nC = this->position - front * zNear;
-    const auto fC = this->position - front * 10.0f;
+    const auto nC = this->position + front * zNear;
+    const auto fC = this->position + front * zFar; // zFar = 1000
     glm::vec3 aux, point;
-
+/*
     frustumPlanes[NEARP  ]        = glm::vec4(-front, -glm::dot(-front, nC));
     frustumPlanes[FARP  ]         = glm::vec4( front, -glm::dot( front, fC));
 
@@ -108,20 +108,20 @@ void Camera::updateFrustum() {
     point = nC + right * npWidth;
     aux   = glm::normalize(glm::cross(up, glm::normalize(point - position)));
     frustumPlanes[RIGHTP ]        = glm::vec4(aux, -glm::dot(aux, point));
-
+*/
     auto &nw = npWidth;
     auto &fw = fpWidth;
     auto &nh = npHeight;
     auto &fh = fpHeight;
 
-    auto ntl = nC + up * nh - right * nw;
-    auto ntr = nC + up * nh + right * nw;
-    auto nbl = nC - up * nh - right * nw;
-    auto nbr = nC - up * nh + right * nw;
-    auto ftl = fC + up * fh - right * fw;
-    auto ftr = fC + up * fh + right * fw;
-    auto fbl = fC - up * fh - right * fw;
-    auto fbr = fC - up * fh + right * fw;
+    auto ntl = nC + (up * nh) - (right * nw);
+    auto ntr = nC + (up * nh) + (right * nw);
+    auto nbl = nC - (up * nh) - (right * nw);
+    auto nbr = nC - (up * nh) + (right * nw);
+    auto ftl = fC + (up * fh) - (right * fw);
+    auto ftr = fC + (up * fh) + (right * fw);
+    auto fbl = fC - (up * fh) - (right * fw);
+    auto fbr = fC - (up * fh) + (right * fw);
 /*
     frustumPlanes[TOPP   ] = Plane(ntr,ntl,ftl);
     frustumPlanes[BOTTOMP] = Plane(nbl,nbr,fbr);
@@ -132,9 +132,11 @@ void Camera::updateFrustum() {
 */
    debug_frustumPlanes = {
            ntl, ntr, nbr, nbl,     //Near
+           ntl, nbl, ntr, nbr,
            ftr, ftl, fbl, fbr,     //Far
-           nbl, nbr, fbr, fbl,     //Bottom
-           ntr, ntl, ftl, ftr,     //Top
+           ftr, fbr, ftl, fbl,
+           nbl, fbl, nbr, fbr,     //Bottom
+           ntl, ftl, ntr, ftr,     //Top
            ntl, nbl, fbl, ftl,     //Left
            nbr, ntr, ftr, fbr      //Right
    };
@@ -149,17 +151,17 @@ void Camera::screenSizeChanged(int width, int height) {
     auto t = glm::tan(glm::radians(fov) * .5f);
     this->npHeight = zNear * t;
     this->npWidth  = npHeight * screenRatio;
-    this->fpHeight = 7.0f * t;
+    this->fpHeight = zFar * t;
     this->fpWidth  = fpHeight * screenRatio;
 
-    tang = glm::tan(glm::radians(fov) / 2.0f);
-    sphereFactorY = 1.0f/glm::cos(glm::radians(fov) / 2.0f);
+    tang = glm::tan(glm::radians(fov) * 0.5f);
+    sphereFactorY = 1.0f/glm::cos(glm::radians(fov) * 0.5f);
 
     float anglex = glm::atan(tang*screenRatio);
     sphereFactorX = 1.0f/glm::cos(anglex);
 
-    //this->npHeight /= 2;
-    //this->npWidth /= 2;
+    this->npHeight /= 2;
+    this->npWidth /= 2;
 
     this->update();
 }
@@ -234,7 +236,7 @@ glm::vec3 Camera::project(const glm::vec3 &obj) const {
 
 Camera::FrustumLocation Camera::isInFrustum(const glm::vec3 &position, float radius) {
     Camera::FrustumLocation result = INSIDE;
-    //const auto front = this->front;
+    //const auto front = glm::normalize(-this->front);
     //const auto right = glm::normalize(glm::cross(worldUp, front));
     //const auto up = glm::cross(front, right);
 
@@ -247,15 +249,23 @@ Camera::FrustumLocation Camera::isInFrustum(const glm::vec3 &position, float rad
     float d1 = sphereFactorX * radius;
     float d2 = sphereFactorY * radius;
 
-    float zz1 = az * tang * screenRatio;
-    float zz2 = az * tang;
+    float auxX = az * tang * screenRatio + d1;
+    float auxY = az * tang               + d2;
 
-    if (az > zFar + radius || az < zNear-radius)
+    if (az > (zFar + radius) || az < (zNear-radius)) {
+        spdlog::get("console")->info("[1]: {},{},{}; {},{},{} -> {},{},{} is outside : {} > {} + {} || {} < {} - {}", v.x, v.y, v.z, front.x, front.y, front.z, position.x, position.y, position.z, az, zFar, radius, az, zNear, radius);
         return OUTSIDE;
-    if (ax > zz1+d1 || ax < -zz1-d1)
+    }
+    if (ax > auxX || ax < -auxX) {
+        spdlog::get("console")->info("[2]: {},{},{}; {},{},{} ->  {},{},{} is outside : {} > {} || {} < -{} ({}||{}) => true", v.x, v.y, v.z, front.x, front.y, front.z,  position.x, position.y, position.z, ax, auxX, ax, auxX, (ax>auxX), (ax<-auxX));
         return OUTSIDE;
-    if (ay > zz2+d2 || ay < -zz2-d2)
+    }
+    if (ay > auxY || ay < -auxY) {
+        spdlog::get("console")->info("[3]: {},{},{}; {},{},{} ->  {},{},{} is outside : {} > {} || {} < -{}",
+                                     v.x, v.y, v.z, front.x, front.y, front.z,
+                                     position.x, position.y, position.z, ay, auxY, ay, auxY);
         return OUTSIDE;
+    }
 
     /*
     if (az > zFar - radius || az < zNear+radius)

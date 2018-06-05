@@ -17,6 +17,7 @@ DebugTextHud::DebugTextHud(const std::shared_ptr<Scene> &scene) : Logger("DebugH
                                             glm::vec3(0.9f, 0.9f, 0.9f)        // Color RGB values between 0.0 and 1.0
     );
 
+    this->viewFrustumCulling = scene->frustumCulling;
     this->cullingLabel = std::make_shared<Label>("", FontManager::get("Lato-12"), 3, 30.0f, 1.0f, glm::vec3(.9f,.9f,.9f));
 
     keyCallback = [this, scene](int key, int scancode, int action, int mods){
