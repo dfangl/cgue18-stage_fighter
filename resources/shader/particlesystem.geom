@@ -15,7 +15,7 @@ out vec2 texcoord_1;
 flat out float TTL;
 
 // UV Mapping for explosion.png:
-float texcoord_explosion(float ttl, uint x) {
+float texcoord_explosion(float ttl, int x) {
     return clamp(8 - (floor(ttl * 2403 / 288) + x), 0, 8) * 0.111189;
 }
 
