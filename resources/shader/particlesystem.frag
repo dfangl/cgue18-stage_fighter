@@ -4,6 +4,8 @@ out vec4 FragColor;
 in vec2 texcoord_0;
 in vec2 texcoord_1;
 
+uniform float screenGamma = 1.0f;
+
 flat in float TTL;
 
 void main () {
@@ -16,8 +18,8 @@ void main () {
 
 	//color1.w *= value;
 	vec4 color = mix(color1, color2, value);
+	float alpha = color.w *= TTL;
 
-	color.w *= TTL;
-
-	FragColor = color;
+    color = pow(color, vec4(1.0/screenGamma));
+	FragColor = vec4(color.r, color.g, color.b, alpha);
 }

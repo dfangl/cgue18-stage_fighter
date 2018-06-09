@@ -5,6 +5,7 @@ layout (triangle_strip, max_vertices = 4) out;
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
+uniform vec2 particle_size;
 
 in vData {
     float TTL;
@@ -20,7 +21,6 @@ float texcoord_explosion(float ttl, int x) {
 }
 
 void main (void) {
-    const vec2 particle_size = vec2(7, 7);
     vec4 P = gl_in[0].gl_Position;
 
     // Left-Bottom
