@@ -33,9 +33,13 @@ std::vector<unsigned char> ImageGenerator::marble(unsigned int width, unsigned i
 
             //spdlog::get("console")->info("({},{}) noise: {}, value: {}", x,y, noise, value);
 
-            data.push_back(static_cast<unsigned char &&>(value * color.x * UCHAR_MAX));
-            data.push_back(static_cast<unsigned char &&>(value * color.y * UCHAR_MAX));
-            data.push_back(static_cast<unsigned char &&>(value * color.z * UCHAR_MAX));
+            auto r = static_cast<unsigned char>(UCHAR_MAX - value * color.r * UCHAR_MAX);
+            auto g = static_cast<unsigned char>(UCHAR_MAX - value * color.g * UCHAR_MAX);
+            auto b = static_cast<unsigned char>(UCHAR_MAX - value * color.b * UCHAR_MAX);
+
+            data.push_back(r);
+            data.push_back(g);
+            data.push_back(b);
 
             if (rgba) data.push_back(static_cast<unsigned char &&>(color.w * UCHAR_MAX));
         }
