@@ -17,7 +17,8 @@ void Scene::render(std::chrono::duration<double, std::milli> &delta) {
 
     for (auto &obj : this->objects) {
 
-        if (frustumCulling && this->isSphereInFrustum(obj->getPosition(), obj->getBoundingSphereRadius()) == Camera::OUTSIDE) {
+        if (frustumCulling &&
+            isSphereInFrustum(obj->getPosition(), obj->getBoundingSphereRadius()) == Camera::OUTSIDE) {
             this->culledObjects++;
             continue;
 
@@ -37,29 +38,18 @@ void Scene::render(std::chrono::duration<double, std::milli> &delta) {
     if (this->skybox)
         this->skybox->render(this);
 
-    for (auto &obj : this->lastStageRender)
-        obj->render(this);
-
-    if (!vfDc.empty()) {
-        /*for (int i=4; i<8; i++)
-            vfDc[i]->setOrigin(camera.debug_frustumPlanes[i]);
-
-        for (int i=4; i<8; i++)
-            vfDc[i]->render(this);
-        */
-        auto shader = ShaderManager::load("light");
-        shader->use();
-        shader->setUniform("model", glm::mat4(1.0f));
-        glDisable(GL_CULL_FACE);
-        glBindVertexArray(vao);
-        glBindBuffer(GL_ARRAY_BUFFER, vbo);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * camera.debug_frustumPlanes.size(),
-                     camera.debug_frustumPlanes.data(), GL_DYNAMIC_DRAW);
-        glDrawArrays(GL_LINES, 0, static_cast<GLsizei>(camera.debug_frustumPlanes.size()) / 2);
-
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        glBindVertexArray(vao);
+    // Since particles do not use the DEPTH buffer the skybox would
+    // overdraw them, so we have to draw them after the skybox
+    for (auto &obj : this->particles) {
+        if (frustumCulling &&
+            isSphereInFrustum(obj->getPosition(), obj->getBoundingSphereRadius()) == Camera::OUTSIDE) {
+            this->culledObjects++;
+            continue;
+        } else {
+            obj->render(this);
+        }
     }
+
 }
 
 Camera::FrustumLocation Scene::isSphereInFrustum(const glm::vec3 &position, float radius) {
@@ -130,4 +120,21 @@ Camera &Scene::getCamera() {
 void Scene::clear() {
     this->lights.clear();
     this->objects.clear();
+}
+
+void Scene::addParticleSystem(const std::shared_ptr<ParticleSystem> &s) {
+    this->particles.push_back(s);
+}
+
+void Scene::removeParticleSystem(const std::shared_ptr<ParticleSystem> &s) {
+    this->particles.erase(
+            std::remove_if(
+                    this->particles.begin(),
+                    this->particles.end(),
+                    [s](std::shared_ptr<ParticleSystem> current) -> bool {
+                        return current == s;
+                    }
+            ),
+            this->particles.end()
+    );
 }
