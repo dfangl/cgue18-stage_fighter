@@ -205,19 +205,24 @@ void PlayerHud::setShield(int shield) {
 }
 
 void PlayerHud::setEnemy(std::string &name, int health, int maxHealth) {
-    //TODO: only set values to new ones if it changed!
-    eNameLabel.setText(name);
+    if(this->eNameBuffer.compare(name) != 0) {
+        this->eNameBuffer = name;
 
-    int len = snprintf(buffer, BUFFER_SIZE, "%3d / %3d", health, maxHealth);
+        eNameLabel.setText(name);
+        eNameLabel.setPosition(width/2-eNameLabel.getWidth()/2, font->getSize() + 10);
+    }
 
-    this->eNameLabel.setText(name);
-    this->eHealth.setText(std::string(buffer, buffer+len));
+    if (this->eHealthBuffer != health || this->maxHealthBuffer != maxHealth) {
+        this->eHealthBuffer = health;
+        this->maxHealthBuffer = maxHealth;
 
-    this->eNameLabel.setPosition(width/2-eNameLabel.getWidth()/2, font->getSize() + 10);
-    this->eHealth.setPosition(width/2-eHealth.getWidth()/2, font->getSize()*2 + 15);
+        const int len = snprintf(buffer, BUFFER_SIZE, "%3d / %3d", health, maxHealth);
+
+        eHealth.setText(std::string(buffer, buffer+len));
+        eHealth.setPosition(width/2-eHealth.getWidth()/2, font->getSize()*2 + 15);
+    }
 
     this->showEnemy = true;
-
 
     const float hBsY = font->getSize()*2 - 8;
     const float hBsX = width/2.0f - hBSize/2.0f;

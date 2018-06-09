@@ -42,6 +42,9 @@ private:
     Label sProgress;
     Label eHealth;
 
+    std::string eNameBuffer;
+    int eHealthBuffer = 0, maxHealthBuffer = 0;
+
     // TODO: Set in Constructor
     const int maxHealth = 100;
     const int maxShield = 100;
