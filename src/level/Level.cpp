@@ -300,10 +300,20 @@ void Level::resume() {
 void Level::spawn(std::shared_ptr<Entity> entity) {
     this->newEntities.push_back(entity);
     this->window->getScene()->addObject(entity);
+
+    if (entity->getEntityKind() == BulletObject::BULLET) {
+        BulletEntity *o = dynamic_cast<BulletEntity *>(entity.get());
+        this->window->getScene()->addParticleSystem(o->getSmoke());
+    }
 }
 
 void Level::despawn(Entity *entity) {
     this->oldEntities.push_back(entity);
+
+    if (entity->getEntityKind() == BulletObject::BULLET) {
+        BulletEntity *o = dynamic_cast<BulletEntity *>(entity);
+        this->window->getScene()->removeParticleSystem(o->getSmoke());
+    }
 }
 
 void Level::setLabel(const std::string text) {

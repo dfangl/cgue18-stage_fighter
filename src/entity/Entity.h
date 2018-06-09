@@ -40,6 +40,8 @@ public:
     void receiveDamage(int points) {  if (lastDmgTime <= 0.0) this->health = std::max(this->health - points, 0); }
 
     bool mustBeKilled = false;
+
+    virtual BulletObject::Kind getEntityKind() = 0;
 };
 
 

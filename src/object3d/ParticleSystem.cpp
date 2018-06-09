@@ -43,7 +43,7 @@ ParticleSystem::ParticleSystem(const glm::vec3 &position, float radius, std::sha
 
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &SSBO);
-    generateParticles(count);
+    //generateParticles(count);
 
     glBindVertexArray(VAO);
     glBindBuffer(GL_ARRAY_BUFFER, SSBO);
@@ -98,9 +98,7 @@ void ParticleSystem::generateParticles(unsigned int count) {
         );
     }
 
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, SSBO);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, SSBO);
-    glBufferData(GL_SHADER_STORAGE_BUFFER, count * sizeof(ParticleSystem::Particle), data.data(), GL_STATIC_DRAW);
+    loadSSBO();
 }
 
 void ParticleSystem::draw() {
@@ -111,6 +109,7 @@ void ParticleSystem::draw() {
     glBlendEquation(GL_FUNC_ADD);
 
     texture->bind(GL_TEXTURE0);
+    shader->setUniform("particle_size", this->particle_size);
 
     glBindVertexArray(VAO);
     glDrawArrays(GL_POINTS, 0, particles);
@@ -118,6 +117,16 @@ void ParticleSystem::draw() {
 
     glDisable(GL_BLEND);
     glDepthMask(GL_TRUE);
+}
+
+void ParticleSystem::setSize(const glm::vec2 &size) {
+    this->particle_size = size;
+}
+
+void ParticleSystem::loadSSBO() {
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, SSBO);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, SSBO);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, data.size() * sizeof(ParticleSystem::Particle), data.data(), GL_STATIC_DRAW);
 }
 
 

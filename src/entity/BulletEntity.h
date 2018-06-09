@@ -21,6 +21,8 @@ private:
     float speed = 5.0f;
     float maxLifeTime = 10000.0f; // 10 sec
 
+    std::shared_ptr<ParticleSystem> smoke;
+
 public:
     BulletEntity(const btVector3 &pos, const btVector3 &target, std::shared_ptr<BulletUniverse> &world);
     ~BulletEntity();
@@ -38,6 +40,10 @@ public:
     float getBoundingSphereRadius() override;
 
     const glm::vec3 &getPosition() const override;
+
+    const std::shared_ptr<ParticleSystem> &getSmoke() const { return this->smoke; }
+
+    Kind getEntityKind() override;
 };
 
 

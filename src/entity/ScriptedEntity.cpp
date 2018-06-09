@@ -102,3 +102,7 @@ float ScriptedEntity::getBoundingSphereRadius() {
 const glm::vec3 &ScriptedEntity::getPosition() const {
     return this->position;
 }
+
+BulletObject::Kind ScriptedEntity::getEntityKind() {
+    return BulletObject::getKind();
+}

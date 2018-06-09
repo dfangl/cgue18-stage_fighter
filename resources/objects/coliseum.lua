@@ -25,8 +25,12 @@ function (position, rotation)
             BoxShape(vec3(position:x()+21.7294,position:y()-20.3659,position:z()+38.8318), vec4(0,-0.870369,0, 0.4924  ), 0, vec3(32.5442/2, 45.0000/2, 24.0786/2)),
         },
         {
-            [1] = "__gen_marble",
-            [3] = levelResourcePath.."coliseum-lightmap.png"
+            [0] = "__gen_marble",
+            [1] = "transparent_blocks.png",
+            [2] = "gray_blocks.png",
+            [3] = "none.png",
+            [4] = "A_coliseum_splatmap.png",
+            [5] = levelResourcePath.."coliseum-lightmap.png"
         }
     )
 end

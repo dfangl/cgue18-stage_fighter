@@ -50,6 +50,8 @@ public:
     float getBoundingSphereRadius() override;
 
     const glm::vec3 &getPosition() const override;
+
+    Kind getEntityKind() override;
 };
 
 #endif //STAGE_FIGHTER_SCRIPTEDENTITY_H

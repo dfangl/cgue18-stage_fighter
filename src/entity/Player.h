@@ -31,6 +31,8 @@ public:
     void computeEnemyInView(std::vector<std::shared_ptr<Entity>> &entities);
 
     void collideWith(BulletObject *other) override;
+
+    Kind getEntityKind() override;
 };
 
 

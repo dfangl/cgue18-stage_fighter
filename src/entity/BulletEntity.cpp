@@ -2,18 +2,66 @@
 // Created by raphael on 16.04.18.
 //
 
+#include <utility>
+#include <random>
+
 #include "../helper/QuatUtils.h"
 
 #include "../manager/ModelManager.h"
 #include "../manager/ShaderManager.h"
 
+#include "../object3d/ParticleSystem.h"
+
 #include "../level/Level.h"
 
 #include "BulletEntity.h"
 
+#define FRUSTUM_CULLING_RADIUS (0.286695f/2)
+#define BULLET_COLLISION_BOX btVector3(0.174505f/2,0.174505f/2,0.286695f/2)
+#define PARTILCE_COUNT (4)
+
+class BulletEntitySmokeParticleSystem: public ParticleSystem {
+public:
+    BulletEntitySmokeParticleSystem(const glm::vec3 &position, const glm::vec3 &direction, const float &speed) : ParticleSystem(
+            position, 0.286695f, ShaderManager::load("particlesystem", true), TextureManager::load("explosion.png"), PARTILCE_COUNT),
+            direction(direction), speed(speed) {
+        this->generateParticles(PARTILCE_COUNT);
+    }
+
+protected:
+    const glm::vec3 &direction;
+    const float &speed;
+
+    void generateParticles(unsigned int count) override {
+        data.reserve(count);
+
+        std::default_random_engine generator;
+        std::uniform_int_distribution<int> distribution(550, 825);
+
+        const glm::vec3 spawn = glm::vec3(
+                -direction.x * 0.174505f/2,
+                -direction.y * 0.174505f/2,
+                -direction.z * 0.286695f/2);
+        const glm::vec3 vec = -direction * 0.025f * 1.0f/60.0f; // trust me, just a magic number
+
+        for (int i = 0; i < count; i++) {
+            const float ttl = distribution(generator);
+
+            data.emplace_back(
+                    glm::vec4(spawn, ttl - distribution(generator)),
+                    glm::vec4(vec, 0.0f),
+                    glm::vec4(spawn, ttl)
+
+            );
+        }
+
+        ParticleSystem::loadSSBO();
+    }
+};
+
 BulletEntity::BulletEntity(const btVector3 &pos, const btVector3 &target, std::shared_ptr<BulletUniverse> &world) :
-        BulletObject(pos, btQuaternion(0,0,0,1), new btBoxShape(btVector3(0.174505f/2,0.174505f/2,0.286695f/2)), 0.00001),
-        Model3DObject(glm::vec3(pos.x(), pos.y(), pos.z()), 0.286695f/2, ModelManager::load("bullet"), ShaderManager::load("standard")) {
+        BulletObject(pos, btQuaternion(0,0,0,1), new btBoxShape(BULLET_COLLISION_BOX), 0.00001),
+        Model3DObject(glm::vec3(pos.x(), pos.y(), pos.z()), FRUSTUM_CULLING_RADIUS, ModelManager::load("bullet"), ShaderManager::load("standard")) {
 
     this->health = 1;
     this->maxHealth = 0;
@@ -23,6 +71,13 @@ BulletEntity::BulletEntity(const btVector3 &pos, const btVector3 &target, std::s
     const glm::vec3 position = glm::vec3(pos.x(), pos.y(), pos.z());
     const glm::vec3 target1 = glm::vec3(target.x(), target.y(), target.z());
     this->direction = glm::normalize(target1 - position);
+
+    this->smoke = std::make_shared<BulletEntitySmokeParticleSystem>(
+            glm::vec3(pos.x(), pos.y(), pos.z()),
+            this->direction,
+            this->speed
+    );
+    this->smoke->setSize(glm::vec2(0.2f, 0.2f));
 
     // Magic rotation calculation
     glm::quat rotation = Quat::rotateTo(target1 - position);
@@ -54,6 +109,9 @@ void BulletEntity::think(Level *level, std::chrono::duration<double, std::milli>
     Model3DObject::setOrigin(glm::vec3(o.x(), o.y(), o.z()));
 
     BulletObject::rigidBody->setLinearVelocity(btVector3(vec.x, vec.y, vec.z));
+    BulletObject::rigidBody->setGravity(btVector3(0,0,0));
+
+    smoke->setOrigin(glm::vec3(o.x(), o.y(), o.z()));
 }
 
 void BulletEntity::collideWith(BulletObject *other) {
@@ -86,4 +144,8 @@ float BulletEntity::getBoundingSphereRadius() {
 
 const glm::vec3 &BulletEntity::getPosition() const {
     return this->position;
+}
+
+BulletObject::Kind BulletEntity::getEntityKind() {
+    return BulletObject::BULLET;
 }

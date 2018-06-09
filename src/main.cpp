@@ -153,7 +153,7 @@ int main(int argc, char *argv[]) {
     // Generate Marble Texture ...
     // Compute all the Resources in another thread:
     auto asyncTexData = std::async(std::launch::async, [] {
-        return ImageGenerator::marble(256, 256, glm::vec4(126.0/255, 126.0/255, 126.0/255, 1.0));
+        return ImageGenerator::marble(256, 256, glm::vec4(180.0/255, 180.0/255, 180.0/255, 1.0));
     });
 
     // Async resource loading & events from window polling so it doesn't hang
@@ -273,18 +273,6 @@ int main(int argc, char *argv[]) {
     /*
      * ======= MAIN GAME LOOP =======
      */
-
-    // Test particle system:
-    auto ps = std::make_shared<ParticleSystem>(
-            glm::vec3(-50.188 , -35 , 0.0),
-            100.0f,
-            ShaderManager::load("particlesystem", true),
-            TextureManager::load("explosion.png"),
-            75
-    );
-
-    window->getScene()->lastStageRender.push_back(ps);
-
 
     /*
      * While the window is open we want to render stuff ...

@@ -27,10 +27,14 @@ in VS_OUT {
 } fs_in;
 
 uniform vec3 camera_position;
-uniform sampler2D texture_0;    // 0_marble
-uniform sampler2D texture_1;    // _APaintedTexture
-uniform sampler2D texture_2;    // Splatmap
-uniform sampler2D texture_3;    // Lightmap
+uniform sampler2D texture_0;    // Texture R
+uniform sampler2D texture_1;    // Texture G
+uniform sampler2D texture_2;    // Texture B
+uniform sampler2D texture_3;    // Texture A
+uniform sampler2D texture_4;    // Splatmap
+uniform sampler2D texture_5;    // Lightmap
+
+uniform vec4 textureScale = vec4(12, 32, 32, 1);
 
 uniform Material material;
 uniform Light light;
@@ -59,23 +63,27 @@ void main() {
     vec3 diffuseLight  = light.diffuse  * light.power / lDist;
     vec3 specularLight = light.specular * light.power / lDist;
 
-    vec4 alpha = texture2D(texture_2, fs_in.texcoord_0);
-    vec4 tex0  = texture2D(texture_0, fs_in.texcoord_0 * 10);
-    vec4 tex1  = texture2D(texture_1, fs_in.texcoord_0 * 10);
+    vec4 alpha = texture2D(texture_4, fs_in.texcoord_0);
+    vec4 tex0  = texture2D(texture_0, fs_in.texcoord_0 * textureScale.x);
+    vec4 tex1  = texture2D(texture_1, fs_in.texcoord_0 * textureScale.y);
+    vec4 tex2  = texture2D(texture_2, fs_in.texcoord_0 * textureScale.z);
+    vec4 tex3  = texture2D(texture_3, fs_in.texcoord_0 * textureScale.w);
 
-    tex0 *= alpha.r;
-    tex1  = mix(tex0, tex1, alpha.b);
-  //tex2  = mix(tex1, tex2, alpha.g);
-  //tex4  = mix(tex2, tex3, alpha.g);
+    //tex0 *= alpha.r;
+    //tex1  = mix(tex0, tex1, alpha.g);
+    //tex2  = mix(tex1, tex2, alpha.g);
+    vec4 texColor =
+        alpha.r * tex0 +
+        alpha.g * tex1 +
+        alpha.b * tex2 ;
+        //alpha.a * tex4 ;//mix(tex2, tex3, alpha.a);//tex1;
 
-    vec4 texColor = tex1;
-
-    vec3 ambient  = light.ambient * vec3(tex1);
-    vec3 diffuse  = diffuseLight  * vec3(tex1) * sDotN;// * celBrightness;
-    vec3 specular = specularLight * vec3(tex1) * spec ;// * celBrightness;
+    vec3 ambient  = light.ambient * vec3(texColor);
+    vec3 diffuse  = diffuseLight  * vec3(texColor) * sDotN;// * celBrightness;
+    vec3 specular = specularLight * vec3(texColor) * spec ;// * celBrightness;
 
     vec3 color = ambient + diffuse + specular;
-    color = color * texture2D(texture_3, fs_in.texcoord_0).xyz;
+    color = color * texture2D(texture_5, fs_in.texcoord_0).xyz;
 
     color = pow(color, vec3(1.0/screenGamma));
     FragColor = vec4(color, 1.0);

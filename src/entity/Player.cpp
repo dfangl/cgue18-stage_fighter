@@ -31,12 +31,8 @@ Player::Player(Camera &camera, Window *window, const std::shared_ptr<BulletUnive
 void Player::think(std::chrono::duration<double, std::milli> delta) {
     CameraEntity::think(delta);
 
-    //for (auto &kD : this->knockbackDirections)
-    //    BulletObject::rigidBody->applyCentralImpulse(btVector3(kD.x * 4, kD.y * 2, kD.z * 4));
-
     hud->setHealth(health);
     hud->setShield(shield);
-    //this->knockbackDirections.clear();
 }
 
 void Player::computeEnemyInView(std::vector<std::shared_ptr<Entity>> &entities) {
@@ -47,7 +43,8 @@ void Player::computeEnemyInView(std::vector<std::shared_ptr<Entity>> &entities) 
     float targetDist = FLT_MAX;
 
     for (auto &entity : entities) {
-        // TODO: Check if kind == Enemy
+        if (entity->getEntityKind() != BulletObject::ENEMY)
+            continue;
 
         const glm::vec3 distV = glm::abs(getPosition() - entity->getPosition());
         const auto distance =  distV.x + distV.y + distV.z;
@@ -77,7 +74,7 @@ void Player::collideWith(BulletObject *other) {
 
     if (other->getKind() == BulletObject::ENEMY) {
         if (window->getMouseButton(GLFW_MOUSE_BUTTON_LEFT)) {
-            logger->info("Hit with Enemy ({})!", (void*)other);
+            logger->info("Hit with Enemy ({}, {})!", (void*)other, other->getKind());
 
             auto *enemy = dynamic_cast<Entity *>(other);
             enemy->receiveDamage(1);
@@ -90,6 +87,9 @@ void Player::collideWith(BulletObject *other) {
         //this->knockbackDirections.push_back(direction);
 
         this->health -= 1;
-
     }
+}
+
+BulletObject::Kind Player::getEntityKind() {
+    return BulletObject::PLAYER;
 }

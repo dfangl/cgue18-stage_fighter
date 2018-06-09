@@ -18,7 +18,7 @@ class ParticleSystem : public Object3D {
 private:
     std::shared_ptr<Texture> texture;
     std::shared_ptr<Shader> compute;
-    std::shared_ptr<Shader> shader;
+    //std::shared_ptr<Shader> shader;
 
     GLuint VAO;
     GLuint SSBO;
@@ -37,8 +37,12 @@ protected:
     unsigned int particles;
     std::vector<Particle> data;
 
+    glm::vec2 particle_size = glm::vec2(7.0f, 7.0f);
+
     // Default == pure virtual?
     virtual void generateParticles(unsigned int count);
+
+    void loadSSBO();
 
 public:
     ParticleSystem(const glm::vec3 &position, float radius, std::shared_ptr<Shader> shader, std::shared_ptr<Texture> texture,
@@ -48,6 +52,8 @@ public:
     void render(Scene *scene) override;
 
     void draw() override;
+
+    void setSize(const glm::vec2 &);
 };
 
 
