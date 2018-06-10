@@ -2,8 +2,9 @@
 // Created by raphael on 19.03.18.
 //
 
-#include <cstdio>
+#include <cmath>
 #include <algorithm>
+#include <cmath>
 
 #include <glad/glad.h>
 #include <tiny_gltf.h>
@@ -11,7 +12,9 @@
 #include "Model3DObject.h"
 #include "../manager/TextureManager.h"
 
-#define BUFFER_OFFSET(i) ((char *)NULL + (i))
+#include "../helper/CompilerMacros.h"
+
+#define BUFFER_OFFSET(t, i) ((t *)NULL + (i))
 
 Model3DObject::Model3DObject(const glm::vec3 &position, float bsRadius,const std::shared_ptr<tinygltf::Model> &model,
                              const std::shared_ptr<Shader> &shader, int instances)
@@ -63,7 +66,7 @@ Model3DObject::Model3DObject(const glm::vec3 &position, float bsRadius,const std
 
 
     // Create space for at least x instances for each Mesh
-    for (auto &nodeIndex : scene.nodes) {
+    for (auto& UNUSED(nodeIndex) : scene.nodes) {
         std::vector<glm::mat4> instanceBuffer;
         std::vector<glm::mat4> normalBuffer;
 
@@ -75,7 +78,7 @@ Model3DObject::Model3DObject(const glm::vec3 &position, float bsRadius,const std
     }
 
     // Create for each Mesh the VAO
-    for (int idx=0; idx < meshes; idx++) {
+    for (unsigned int idx=0; idx < meshes; idx++) {
         auto &VAO = vaos[idx];
         auto &modelMatrixVBO = modelMatrixInstanceVBO[idx];
         auto &normalMatrixVBO = normalMatrixInstanceVBO[idx];
@@ -123,7 +126,7 @@ Model3DObject::Model3DObject(const glm::vec3 &position, float bsRadius,const std
                                                     static_cast<GLenum>(accessor.componentType),
                                                     static_cast<GLboolean>(accessor.normalized ? GL_TRUE : GL_FALSE),
                                                     byteStride,
-                                                    BUFFER_OFFSET(accessor.byteOffset));
+                                                    BUFFER_OFFSET(char, accessor.byteOffset));
 /*
             error = glGetError();
             if(error != GL_NO_ERROR) {
@@ -205,15 +208,15 @@ void Model3DObject::draw() {
 
         // Build instanced VBO Data of model / normal matrices
         for (auto &instance : this->modelMatrix) {
-            for (int i = 0; i<instance.second.modelMatrix.size(); i++)
+            for (auto i = 0; i<instance.second.modelMatrix.size(); i++)
                 instancedModelMatrix[i].push_back(instance.second.modelMatrix[i]);
 
-            for (int i = 0; i<instance.second.normalMatrix.size(); i++)
+            for (auto i = 0; i<instance.second.normalMatrix.size(); i++)
                 instancedNormalMatrix[i].push_back(instance.second.normalMatrix[i]);
         }
 
         // Push them to the GPU
-        for (int i=0; i<instancedModelMatrix.size(); i++) {
+        for (auto i=0; i<instancedModelMatrix.size(); i++) {
             glBindBuffer(GL_ARRAY_BUFFER, modelMatrixInstanceVBO[i]);
             glBufferData(GL_ARRAY_BUFFER, modelMatrix.size() * sizeof(glm::mat4), instancedModelMatrix.data(), GL_DYNAMIC_DRAW);
 
@@ -279,7 +282,7 @@ void Model3DObject::drawMesh(const tinygltf::Mesh &mesh, GLuint &VAO, GLenum &mo
     // Bind Texture (Error?)
     // baseColorTexture is not set every time (exporter fuckup?)
     //const auto texId = material.values["baseColorTexture"].TextureIndex();
-    for (int i=0; i<textures.size(); i++) {
+    for (auto i=0; i<textures.size(); i++) {
         auto &texture = this->textures[i];
         texture->bind(GL_TEXTURE0 + i);
         snprintf(texNameBuffer, 16, "texture_%d", i);
@@ -288,20 +291,21 @@ void Model3DObject::drawMesh(const tinygltf::Mesh &mesh, GLuint &VAO, GLenum &mo
 
     glBindVertexArray(VAO);
 
-    const tinygltf::Accessor &indexAccess = gltfModel->accessors[primitive.indices];
+    // Byte offset is 0 which differs from buffer view byte offset -> wtf?
+    const auto &indexAccess = gltfModel->accessors[primitive.indices];
     //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->vbos[indexAccess.bufferView]);
 
     if (instances == 0)
         glDrawElements(mode,
                        static_cast<GLsizei>(indexAccess.count),
                        static_cast<GLenum>(indexAccess.componentType),
-                       BUFFER_OFFSET(indexAccess.byteOffset)
+                       BUFFER_OFFSET(char, indexAccess.byteOffset)
         );
     else
         glDrawElementsInstanced(mode,
                                 static_cast<GLsizei>(indexAccess.count),
                                 static_cast<GLenum>(indexAccess.componentType),
-                                BUFFER_OFFSET(indexAccess.byteOffset),
+                                BUFFER_OFFSET(char, indexAccess.byteOffset),
                                 static_cast<GLsizei>(modelMatrix.size())
         );
 
@@ -321,7 +325,7 @@ void Model3DObject::setOrigin(const glm::vec3 &vec) {
 }
 
 void Model3DObject::prepareModelMatrices() {
-    const tinygltf::Scene &scene = this->gltfModel->scenes[gltfModel->defaultScene];
+    //const tinygltf::Scene &scene = this->gltfModel->scenes[gltfModel->defaultScene];
 
     for (auto &instance : this->modelMatrix)
         this->prepareModelMatrices(instance.second);
@@ -376,14 +380,19 @@ void Model3DObject::prepareModelMatrices(Model3DObject::Matrix &instance) {
         if(node.matrix.size() == 16) {
             glm::mat4 dataMat = glm::make_mat4(node.matrix.data());
             modelMatrix = modelMatrix * dataMat;
-        } else {
+        } //else { (removed due animation support)
 
-            if(node.translation.size() == 3) {
+        if(node.translation.size() == 3) {
+            if (!this->animDataInternal.inAnimation) {
                 const glm::vec3 &t = glm::make_vec3(node.translation.data());
                 modelMatrix = glm::translate(modelMatrix, t);
+            } else {
+                modelMatrix = glm::translate(modelMatrix, getAnimationTranslation());
             }
+        }
 
-            if(node.rotation.size() == 4) {
+        if(node.rotation.size() == 4) {
+            if (!this->animDataInternal.inAnimation) {
                 const glm::quat &q = glm::quat(
                         static_cast<float>(node.rotation[3]),
                         static_cast<float>(node.rotation[0]),
@@ -392,13 +401,17 @@ void Model3DObject::prepareModelMatrices(Model3DObject::Matrix &instance) {
                 );
 
                 modelMatrix = modelMatrix * glm::toMat4(q);
-            }
-
-            if(node.scale.size() == 3) {
-                const glm::vec3 &s = glm::make_vec3(node.scale.data());
-                modelMatrix = glm::scale(modelMatrix, s);
+            } else {
+                modelMatrix = modelMatrix * glm::toMat4(getAnimationRotation());
             }
         }
+
+        if(node.scale.size() == 3) {
+            const glm::vec3 &s = glm::make_vec3(node.scale.data());
+            modelMatrix = glm::scale(modelMatrix, s);
+        }
+
+        //}
 
         // model matrix = world matrix * gltf modelmatrix
         modelMatrix = worldMatrix * modelMatrix;
@@ -421,4 +434,123 @@ void Model3DObject::clearInstances() {
     this->instancedModelMatrix.clear();
     this->instancedNormalMatrix.clear();
     this->modelMatrix.clear();
+}
+
+void Model3DObject::enableAnimation(const Model3DObject::Animation &data) {
+    this->animationData = data;
+    this->animDataInternal.currentAnimationTime = 0.0f;
+    this->animDataInternal.inAnimation = true;
+
+    const auto &animations = this->gltfModel->animations;
+    int animationIndex = -1;
+
+    for(auto i=0; i<animations.size(); i++) {
+        if (data.name == animations[i].name) {
+            animationIndex = i;
+            break;
+        }
+    }
+
+    if (animationIndex == -1)
+        throw std::runtime_error("Unable to find Animation!");
+
+    std::map<std::string, int> samplers;
+    for (const auto &channel : animations[animationIndex].channels)
+        samplers[channel.target_path] = channel.sampler;
+
+    this->animDataInternal.translation = animations[animationIndex].samplers[samplers["translation"]];
+    this->animDataInternal.rotation    = animations[animationIndex].samplers[samplers["rotation"]];
+}
+
+void Model3DObject::disableAnimation() {
+    this->animDataInternal.inAnimation = false;
+}
+
+void Model3DObject::applyAnimation(float currentTime) {
+    if (animationData.loop) {
+        this->animDataInternal.currentAnimationTime =
+                std::fmod(currentTime + animationData.startTime, animationData.endTime);
+    } else if (currentTime < (animationData.startTime - animationData.endTime)){
+        this->animDataInternal.currentAnimationTime = currentTime;
+    }
+
+    this->prepareModelMatrices();
+}
+
+glm::vec3 Model3DObject::getAnimationTranslation() {
+    const auto &timeAccessor = this->gltfModel->accessors[animDataInternal.translation.input];
+    const auto &translationAccessor = this->gltfModel->accessors[animDataInternal.translation.output];
+
+    const auto &timeBufferView = this->gltfModel->bufferViews[timeAccessor.bufferView];
+    const auto &translationBufferView = this->gltfModel->bufferViews[translationAccessor.bufferView];
+
+    const auto &timeBuffer = this->gltfModel->buffers[timeBufferView.buffer];
+    const auto &translationBuffer = this->gltfModel->buffers[translationBufferView.buffer];
+
+    const auto *time = reinterpret_cast<const float *>(timeBuffer.data.data());
+    const auto *translationPtr = translationBuffer.data.data() + translationBufferView.byteOffset;
+
+    const auto &curTime = animDataInternal.currentAnimationTime;
+    float prevTime = time[0];
+    float nextTime = time[timeAccessor.count-1];
+    unsigned int i;
+
+    for (i=0; curTime > time[i] && i < timeAccessor.count - 1; i++);
+    prevTime = time[i];
+    nextTime = time[i+1];
+
+    const auto *prevTransPtr = reinterpret_cast<const float *>(translationPtr + i * translationBufferView.byteStride);
+    const auto *nextTransPtr = reinterpret_cast<const float *>(translationPtr + (i + 1) * translationBufferView.byteStride);
+
+    const glm::vec3 prevTranslation = glm::make_vec3(prevTransPtr);
+    const glm::vec3 nextTranslation = glm::make_vec3(nextTransPtr);
+
+    const auto transDelta = nextTranslation - prevTranslation;
+    const auto timeDelta = ((curTime - prevTime) / (nextTime - prevTime));
+
+    const auto result = prevTranslation + (transDelta * timeDelta);
+    return result;
+}
+
+glm::quat Model3DObject::getAnimationRotation() {
+    const auto &timeAccessor = this->gltfModel->accessors[animDataInternal.rotation.input];
+    const auto &rotationAccessor = this->gltfModel->accessors[animDataInternal.rotation.output];
+    const auto &translationAccessor = this->gltfModel->accessors[animDataInternal.translation.output];
+
+    const auto &timeBufferView = this->gltfModel->bufferViews[timeAccessor.bufferView];
+    const auto &rotationBufferView = this->gltfModel->bufferViews[rotationAccessor.bufferView];
+    const auto &translationBufferView = this->gltfModel->bufferViews[translationAccessor.bufferView];
+
+    const auto &timeBuffer = this->gltfModel->buffers[timeBufferView.buffer];
+    const auto &rotationBuffer = this->gltfModel->buffers[rotationBufferView.buffer];
+    const auto &translationBuffer = this->gltfModel->buffers[translationBufferView.buffer];
+
+    const auto * rFltPtw = reinterpret_cast<const float *>(rotationBuffer.data.data());
+    const auto * rRtfPtw = reinterpret_cast<const float *>(translationBuffer.data.data());
+
+    const auto *time = reinterpret_cast<const float *>(timeBuffer.data.data());
+    const auto *rotationPtr = rotationBuffer.data.data() + rotationBufferView.byteOffset;
+    const auto *translationPtr = translationBuffer.data.data() + translationBufferView.byteOffset;
+
+    const auto &curTime = animDataInternal.currentAnimationTime;
+    float prevTime = time[0];
+    float nextTime = time[timeAccessor.count-1];
+    unsigned int i;
+
+    for (i=0; curTime > time[i] && i < timeAccessor.count - 1; i++);
+    prevTime = time[i];
+    nextTime = time[i+1];
+
+    const auto *prevRotPtr = reinterpret_cast<const float *>(rotationPtr + i * rotationBufferView.byteStride);
+    const auto *nextRotPtr = reinterpret_cast<const float *>(rotationPtr + (i + 1) * rotationBufferView.byteStride);
+
+    const glm::vec4 prevRotation = glm::make_vec4(prevRotPtr);
+    const glm::vec4 nextRotation = glm::make_vec4(nextRotPtr);
+
+    const auto transDelta = nextRotation - prevRotation;
+    const auto timeDelta = ((curTime - prevTime) / (nextTime - prevTime));
+    const auto rotVector = prevRotation + (transDelta * timeDelta);
+
+    const auto result = glm::quat(rotVector.x, rotVector.y, rotVector.z, rotVector.w);
+    return result;
 }

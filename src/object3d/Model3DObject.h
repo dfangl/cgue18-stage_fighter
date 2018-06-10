@@ -23,14 +23,23 @@
 #include "Object3D.h"
 #include "../Texture.h"
 #include "../helper/Logger.h"
-
 /**
  * With this class a GLTF Model can be drawn in OpenGL
  */
 class Model3DObject : public Object3D, Logger {
+public:
+    struct Animation {
+        std::string name;
+        float startTime;
+        float endTime;
+        bool loop;
+
+        Animation() {};
+        Animation(const std::string &name, float startTime, float endTime, bool loop) :
+                name(name), startTime(startTime), endTime(endTime), loop(loop) {};
+    };
 
 private:
-
     unsigned int instanceID = 1;
     int instances = 0;
     bool recomputeInstanceBuffer = false;
@@ -43,6 +52,16 @@ private:
     GLenum *meshDrawMode;
     GLuint *modelMatrixInstanceVBO;
     GLuint *normalMatrixInstanceVBO;
+
+    struct InternalAnimationData {
+        tinygltf::AnimationSampler translation ;//= nullptr;
+        tinygltf::AnimationSampler rotation    ;//= nullptr;
+        float currentAnimationTime              = 0.0f;
+        bool inAnimation                        = false;
+    };
+
+    Animation animationData;
+    InternalAnimationData animDataInternal;
 
     struct Matrix {
         unsigned int id;
@@ -70,6 +89,9 @@ private:
     void drawNode(const int idx, const tinygltf::Node &node, Matrix &instance);
     void drawMesh(const tinygltf::Mesh &mesh, GLuint &VAO, GLenum &mode);
 
+    glm::vec3 getAnimationTranslation();
+    glm::quat getAnimationRotation();
+
 public:
     /**
      * Create a Renderable gltf Model Object
@@ -95,6 +117,10 @@ public:
 
     void updateModelMatrix() { this->prepareModelMatrices(); }
     void clearInstances();
+
+    void enableAnimation(const Animation &);
+    void disableAnimation();
+    void applyAnimation(float currentTime);
 };
 
 
