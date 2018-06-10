@@ -60,8 +60,7 @@ public:
 
     void collideWith(BulletObject *other) override;
 
-
-    void render(Scene *scene) override {}
+    virtual void render(Scene *scene) = 0;
 
     glm::vec3 isInView(const Entity *entity);
 

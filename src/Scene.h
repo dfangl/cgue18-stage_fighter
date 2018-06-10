@@ -24,7 +24,7 @@ private:
 
     unsigned int culledObjects = 0;
 
-    std::vector<std::shared_ptr<Light>> lights;
+    std::vector<Light> lights;
     std::vector<std::shared_ptr<Object3DAbstract>> objects;
     std::vector<std::shared_ptr<ParticleSystem>> particles;
 
@@ -32,8 +32,8 @@ private:
 
     std::chrono::duration<double, std::milli> deltaT;
 
-    GLuint vbo,vao;
-    std::vector<std::shared_ptr<Cube>> vfDc;
+    GLuint lightVBO;
+    bool dirtyLights = false;
 
 protected:
     Camera::FrustumLocation isSphereInFrustum(const glm::vec3 &position, float radius);
@@ -47,8 +47,8 @@ public:
     void addObject(const std::shared_ptr<Object3DAbstract> &object3D);
     void removeObject(const std::shared_ptr<Object3DAbstract> &object3D);
 
-    void addLight(const std::shared_ptr<Light> &light);
-    void removeLight(const std::shared_ptr<Light> &light);
+    void addLight(const Light &light);
+    void removeLight(const Light &light);
 
     void addParticleSystem(const std::shared_ptr<ParticleSystem> &);
     void removeParticleSystem(const std::shared_ptr<ParticleSystem> &);
@@ -59,7 +59,7 @@ public:
 
     std::shared_ptr<GLDebugDrawer> bulletDebugDrawer;
 
-    std::vector<std::shared_ptr<Light>> &getLights();
+    std::vector<Light> &getLights();
     Camera &getCamera();
 
     float gamma = 1.0f;
@@ -68,6 +68,8 @@ public:
     unsigned int getCulledObjectCount() const { return this->culledObjects; }
 
     std::chrono::duration<double, std::milli> &getFrameTime() { return this->deltaT; }
+
+    bool const areLightsDirty() { return this->dirtyLights; }
 };
 
 #endif //STAGE_FIGHTER_SCENE_H

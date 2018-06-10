@@ -17,6 +17,8 @@
 #include "../manager/ModelManager.h"
 #include "../manager/TextureManager.h"
 
+#include "../helper/CompilerMacros.h"
+
 // ********************
 // ==== Glm Vectors ===
 // ********************
@@ -75,7 +77,7 @@ public:
     const LuaVec4 rotation;
 
     LuaBtCollisionShape(LuaVec3 const &pos, LuaVec4 const &rot, const double mass) :
-            position(pos), rotation(rot), mass(mass) {}
+            mass(mass), position(pos), rotation(rot) {}
 
     virtual btCollisionShape *generateShape() const = 0;
 
@@ -126,7 +128,7 @@ private:
 public:
     LuaStaticObject(const std::string model, const std::string shader, const LuaVec3 position, float bsRadius,
                     const LuaVec4 rotation, const kaguya::LuaTable bullet, kaguya::LuaTable texO)
-            : position(position), model(model), shader(shader), bullet(bullet), rotation(rotation), texOverride(texO),
+            :  model(model), shader(shader), position(position),  rotation(rotation), bullet(bullet), texOverride(texO),
                 bsRadius(bsRadius) {}
 
     std::shared_ptr<Model3DObject> toModel() const {
@@ -136,7 +138,7 @@ public:
         ret->updateModelMatrix();
 
         if (texOverride.size() > 0 )
-            for (auto &texture : texOverride.map<int, std::string>()) {
+            for (auto &texture : texOverride.map<unsigned int, std::string>()) {
                 if (ret->getTextures().size() > texture.first) {
                     ret->getTextures()[texture.first] = TextureManager::load(texture.second);
                 } else {
@@ -205,8 +207,8 @@ protected:
     float mass;
 
 public:
-    /* don't use */ //LuaProjectile() : model("__NAN__"), hitbox(nullptr) {};
-    LuaProjectile(std::string model, float speed, float mass, const LuaBtCollisionShape &hitbox) : model(model), speed(speed) {
+    LuaProjectile(std::string model, float speed, float UNUSED(mass), const LuaBtCollisionShape &hitbox) :
+            model(model), speed(speed) {
         this->hitbox = hitbox.generateShape();
     }
 

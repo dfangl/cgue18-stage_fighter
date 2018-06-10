@@ -98,6 +98,7 @@ void Level::start(Window *window) {
     auto past = std::chrono::high_resolution_clock::now();
 
     this->player = std::make_shared<Player>(window->getScene()->getCamera(), window, world);
+    this->playerWitcheryPointer = std::shared_ptr<Object3DAbstract>(dynamic_cast<Object3DAbstract *>(this->player.get()));
 
     /*
      * Enable the Debugging Stuff of bullet if debugging is enabled
@@ -271,6 +272,7 @@ void Level::hide() {
 
     this->window->removeWidget(player->getHud());
     this->window->removeWidget(winLoseLabel);
+    this->window->getScene()->removeObject(this->playerWitcheryPointer);
 }
 
 void Level::show() {
@@ -283,6 +285,8 @@ void Level::show() {
     if (levelState != PLAYING) {
         this->window->addWidget(winLoseLabel);
     }
+
+    this->window->getScene()->addObject(this->playerWitcheryPointer);
 }
 
 void Level::pause() {

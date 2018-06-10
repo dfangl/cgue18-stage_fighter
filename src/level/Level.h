@@ -58,6 +58,7 @@ private:
     LuaVec3 lookAt {0.0f, 0.0f, 0.0f};
 
     std::shared_ptr<Player> player;
+    std::shared_ptr<Object3DAbstract> playerWitcheryPointer;
     int playerInputCallbackID;
 
     std::shared_ptr<BulletUniverse> world;

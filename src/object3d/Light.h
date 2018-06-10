@@ -8,18 +8,18 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-class Light {
-
-public:
+struct Light {
     Light(const glm::vec3 &pos, const glm::vec3 &ambient, const glm::vec3 &diffuse, const glm::vec3 &specular, const float power = 40.0f) :
-        position(pos), ambient(ambient), diffuse(diffuse), specular(specular), power(power) {
+        position(pos, 0.0f), ambient(ambient, 0.0f), diffuse(diffuse, 0.0f), specular(specular, 0.0f), power(power) {
     }
 
+    glm::vec4 position;
+    glm::vec4 ambient;
+    glm::vec4 diffuse;
+    glm::vec4 specular;
     float power;
-    glm::vec3 position;
-    glm::vec3 ambient;
-    glm::vec3 diffuse;
-    glm::vec3 specular;
+
+    float __PADDING__[] = {0,0,0};
 };
 
 #endif //STAGE_FIGHTER_LIGHT_H

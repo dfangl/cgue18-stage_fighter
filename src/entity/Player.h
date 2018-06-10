@@ -10,6 +10,7 @@
 
 #include "../controller/CameraController.h"
 #include "../widget/PlayerHud.h"
+#include "../object3d/Model3DObject.h"
 
 class Player : public CameraEntity, public Logger {
 
@@ -20,7 +21,10 @@ private:
     std::shared_ptr<Entity> selectedEnemy = nullptr;
     Window *window;
 
-    //std::vector<glm::vec3> knockbackDirections;
+    std::shared_ptr<Model3DObject> shieldModel;
+    std::shared_ptr<Model3DObject> weaponModel;
+
+    float shieldAnimationTime = 0.0f;
 
 public:
     Player(Camera &camera, Window *window, const std::shared_ptr<BulletUniverse> &world);
@@ -31,6 +35,8 @@ public:
     void computeEnemyInView(std::vector<std::shared_ptr<Entity>> &entities);
 
     void collideWith(BulletObject *other) override;
+
+    void render(Scene *scene) override;
 
     Kind getEntityKind() override;
 };

@@ -3,7 +3,7 @@
 //
 
 #include "Window.h"
-#include "helper/Callback.h"
+#include "helper/CompilerMacros.h"
 
 #include <algorithm>
 #include <iostream>
@@ -260,7 +260,7 @@ void Window::removeWidget(const std::shared_ptr<Widget> &widget) {
     );
 }
 
-void Window::glfwMouseButtonCallback(int button, int action, int mods) {
+void Window::glfwMouseButtonCallback(int button, int action, int UNUSED(mods)) {
     // TODO: implement me
     logger->info("Mouse Button: {}, action: {}", button, action);
 }
@@ -322,7 +322,7 @@ void mbtn_callback(GLFWwindow *window, int a, int b, int c) {
     static_cast<Window *>(glfwGetWindowUserPointer(window))->glfwMouseButtonCallback(a, b, c);
 }
 
-
+/*
 // OpenGL Debug Function:
 void APIENTRY glDebugOutput(GLenum source,
                             GLenum type,
@@ -370,3 +370,4 @@ void APIENTRY glDebugOutput(GLenum source,
     } std::cout << std::endl;
     std::cout << std::endl;
 }
+ */

@@ -10,6 +10,7 @@
 #include <glm/glm.hpp>
 
 #include "../object3d/Object3D.h"
+#include "../helper/CompilerMacros.h"
 class Level; //#include "../level/Level.h"
 
 class Entity : public Object3DAbstract {
@@ -18,8 +19,8 @@ protected:
     std::string name;
 
     int health, maxHealth;
-    double lastDmgTime;
     double dmgTimeout = 100; // ms
+    double lastDmgTime = dmgTimeout;
 
 public:
     virtual ~Entity() = default;
@@ -28,7 +29,7 @@ public:
     virtual float getBoundingSphereRadius() = 0;
     virtual const glm::vec3 &getPosition() const = 0;
 
-    virtual void think(Level *level, std::chrono::duration<double, std::milli> delta) { think(delta); }
+    virtual void think(Level* UNUSED(level), std::chrono::duration<double, std::milli> delta) { think(delta); }
     virtual void think(std::chrono::duration<double, std::milli> delta) = 0;
 
     virtual void render(Scene *scene) = 0;
@@ -37,7 +38,12 @@ public:
     int getHealth() const { return health; }
     int getMaxHealth() const { return maxHealth; }
 
-    void receiveDamage(int points) {  if (lastDmgTime <= 0.0) this->health = std::max(this->health - points, 0); }
+    void receiveDamage(int points) {
+        if (lastDmgTime < 0.0) {
+            lastDmgTime = dmgTimeout;
+            this->health = std::max(this->health - points, 0);
+        }
+    }
 
     bool mustBeKilled = false;
 

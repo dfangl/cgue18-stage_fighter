@@ -8,39 +8,43 @@
 #include <future>
 
 #include <btBulletDynamicsCommon.h>
-
+#include <kaguya/kaguya.hpp>
+#include <spdlog/spdlog.h>
 
 #include "Window.h"
 #include "BulletUniverse.h"
+#include "CubemapTexture.h"
+
 #include "manager/ShaderManager.h"
 #include "manager/TextureManager.h"
-#include "object3d/Cube.h"
-#include "controller/CameraController.h"
 #include "manager/ModelManager.h"
+#include "manager/FontManager.h"
+
+#include "object3d/Cube.h"
 #include "object3d/Model3DObject.h"
 #include "object3d/StaticBulletModelObject.h"
+#include "object3d/Skybox.h"
+#include "object3d/ParticleSystem.h"
+
+#include "controller/CameraController.h"
+
 #include "level/Level.h"
-#include "manager/FontManager.h"
+
 #include "widget/Label.h"
 #include "widget/NuklearCtx.h"
 #include "widget/GameMenu.h"
 #include "widget/PlayerHud.h"
 #include "widget/DebugTextHud.h"
 #include "widget/HelpMenu.h"
+
 #include "helper/ImageGenerator.h"
-#include "CubemapTexture.h"
-#include "object3d/Skybox.h"
-#include "object3d/ParticleSystem.h"
-
-#include <kaguya/kaguya.hpp>
-#include <spdlog/spdlog.h>
-
+#include "helper/CompilerMacros.h"
 
 /*
  * main.cpp of Stage Fighter, this File contains the entry point of the executable and does bootstrap
  * all needed Classes and Settings from Files that the Game can create a Window and start ...
  */
-int main(int argc, char *argv[]) {
+int main(int UNUSED(argc), char** UNUSED(argv)) {
     /*
      * Setup async logger with a buffer size of 8192 Messages, the default logger will be named
      * "console" and can be received by spdlog::get("console") everywhere in the program
@@ -203,16 +207,14 @@ int main(int argc, char *argv[]) {
     window->processCameraMouseMovement(true);
     window->processCameraKeyMovement(false);
 
-
     // Toggle Free flying camera:
-    level->getPlayer()->disable();
-    window->getScene()->getCamera().enableUpdate = true;
-    window->getScene()->getCamera().keySensitivity = 0.05;
-    window->processCameraKeyMovement(true);
+    //level->getPlayer()->disable();
+    //window->getScene()->getCamera().enableUpdate = true;
+    //window->getScene()->getCamera().keySensitivity = 0.05;
+    //window->processCameraKeyMovement(true);
 
-    //window->getScene()->initFustrumDEBUG();
-    window->getScene()->frustumCulling = false; // Does not work
-
+    // Does not work
+    window->getScene()->frustumCulling = false;
 
     /*
      * Create a Label which displays the FPS counter on the Screen, better than just spamming the console with
@@ -236,7 +238,7 @@ int main(int argc, char *argv[]) {
      * Add a Key Callback to the window so the GUI can be shown & hidden by the ESC key
      */
     nuklear->enabled = false;
-    window->registerKeyCallback([nuklear, helpMenu, level, gameMenu, window](int key, int scancode, int action, int mods){
+    window->registerKeyCallback([nuklear, helpMenu, level, gameMenu, window](int key, int UNUSED(scancode), int action, int UNUSED(mods)){
         if(key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE) {
             if (gameMenu->isVisible()){
                 nuklear->enabled = false;

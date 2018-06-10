@@ -6,6 +6,9 @@
 #define STAGE_FIGHTER_BULLETOBJECT_H
 
 #include <btBulletDynamicsCommon.h>
+
+#include "../helper/CompilerMacros.h"
+
 #include "Object3D.h"
 
 class BulletObject {
@@ -31,7 +34,7 @@ public:
     btRigidBody *getRigidBody() { return this->rigidBody; }
     btTransform getTransformation();
 
-    virtual void collideWith(BulletObject *other) {};
+    virtual void collideWith(BulletObject* UNUSED(other)) {};
 
     Kind getKind() const { return this->kind; }
 };

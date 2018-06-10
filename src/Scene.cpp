@@ -15,6 +15,12 @@ void Scene::render(std::chrono::duration<double, std::milli> &delta) {
     this->deltaT = delta;
     this->culledObjects = 0;
 
+    if (dirtyLights) {
+        glBindBuffer(GL_ARRAY_BUFFER, this->lightVBO);
+        glBufferData(GL_ARRAY_BUFFER, lights.size() * sizeof(Light), lights.data(), GL_STATIC_DRAW);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+    }
+
     for (auto &obj : this->objects) {
 
         if (frustumCulling &&
@@ -50,6 +56,7 @@ void Scene::render(std::chrono::duration<double, std::milli> &delta) {
         }
     }
 
+    dirtyLights = false;
 }
 
 Camera::FrustumLocation Scene::isSphereInFrustum(const glm::vec3 &position, float radius) {
@@ -92,24 +99,26 @@ void Scene::removeObject(const std::shared_ptr<Object3DAbstract> &object3D) {
     );
 }
 
-void Scene::addLight(const std::shared_ptr<Light> &light) {
+void Scene::addLight(const Light &light) {
+    this->dirtyLights = true;
     this->lights.push_back(light);
 }
 
-void Scene::removeLight(const std::shared_ptr<Light> &light) {
+void Scene::removeLight(const Light &light) {
+    this->dirtyLights = true;
     this->lights.erase(
             std::remove_if(
                     this->lights.begin(),
                     this->lights.end(),
-                    [light](std::shared_ptr<Light> current) -> bool {
-                        return current == light;
+                    [&light](Light &current) -> bool {
+                        return current.position == light.position;
                     }
             ),
             this->lights.end()
     );
 }
 
-std::vector<std::shared_ptr<Light>> &Scene::getLights() {
+std::vector<Light> &Scene::getLights() {
     return this->lights;
 }
 

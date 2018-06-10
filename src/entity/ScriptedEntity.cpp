@@ -7,8 +7,11 @@
 #include "ScriptedEntity.h"
 
 #include "../manager/ModelManager.h"
+
 #include "../level/Level.h"
 #include "../level/LuaClassWrapper.h"
+
+#include "../helper/CompilerMacros.h"
 
 ScriptedEntity::ScriptedEntity(const std::string &name, int health, const btVector3 &pos, float bsRadius, const btQuaternion &rot,
                                std::string model, float mass, glm::vec3 collisionOffset, btCollisionShape *hitbox,
@@ -44,9 +47,9 @@ ScriptedEntity::ScriptedEntity(const std::string &name, int health, const btVect
     this->environment["getPosition"] = kaguya::function([this]() -> LuaVec3 { return LuaVec3(this->position); });
 
 
-    this->position = glm::vec3(pos.x(), pos.y(), pos.z()) + collisionOffset;
+    this->position = glm::vec3(pos.x(), pos.y(), pos.z());
     Model3DObject::setRotation(glm::quat(rot.w(), rot.x(), rot.y(), rot.z()));
-    Model3DObject::setOrigin(position);
+    Model3DObject::setOrigin(position + collisionOffset);
 
     world->addRigidBody(BulletObject::rigidBody);
 }
@@ -75,21 +78,18 @@ void ScriptedEntity::think(Level *level, std::chrono::duration<double, std::mill
         this->scriptTimeout = 0;
     }
 
-    if (lastDmgTime > 0.0)
-        lastDmgTime -= delta.count();
+    //if (lastDmgTime > 0.0)
+    lastDmgTime -= delta.count();
 }
 
 void ScriptedEntity::setPosition(const glm::vec3 &vec, const glm::quat &rot) {
     this->position = vec;
-    Model3DObject::setOrigin(vec);
+    Model3DObject::setOrigin(vec + collisionOffset);
     BulletObject::setOrigin(btVector3(vec.x, vec.y, vec.z), btQuaternion(rot.x, rot.y, rot.z, rot.w));
 }
 
-void ScriptedEntity::collideWith(BulletObject *other) {
-
-}
-
-void ScriptedEntity::think(std::chrono::duration<double, std::milli> delta) {}
+void ScriptedEntity::collideWith(BulletObject* UNUSED(other)) {}
+void ScriptedEntity::think(std::chrono::duration<double, std::milli> UNUSED(delta)) {}
 
 void ScriptedEntity::render(Scene *scene) {
     Model3DObject::render(scene);

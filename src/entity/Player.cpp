@@ -5,9 +5,14 @@
 #include <cfloat>
 
 #include "Player.h"
+
 #include "../manager/FontManager.h"
+#include "../manager/ModelManager.h"
+
 #include "BulletEntity.h"
 #include "ScriptedEntity.h"
+
+#include "../helper/QuatUtils.h"
 
 Player::Player(Camera &camera, Window *window, const std::shared_ptr<BulletUniverse> &world) :
         CameraEntity(camera, world, new btSphereShape(0.7f), 1.0f),
@@ -24,12 +29,28 @@ Player::Player(Camera &camera, Window *window, const std::shared_ptr<BulletUnive
 
     this->entitySpeed = 5.5f;
 
-    //BulletObject::rigidBody->setCcdMotionThreshold(7.0f);
-    //BulletObject::rigidBody->setCcdSweptSphereRadius(0.5f);
+    this->shieldModel = std::make_shared<Model3DObject>(
+            camera.getPosition(),
+            1.0f,
+            ModelManager::load("shield"),
+            ShaderManager::load("standard")
+    );
+
+    this->shieldModel->enableAnimation(Model3DObject::Animation(
+        std::string("Cube_CubeAction"), 0.0f, 1.25f, true
+    ));
+
+
 }
 
 void Player::think(std::chrono::duration<double, std::milli> delta) {
     CameraEntity::think(delta);
+
+    shieldModel->setOrigin(camera.getPosition());
+    //shieldModel->setRotation(Quat::toQuaternion(camera.getPitch(), 90.0f, camera.getYaw()));
+    shieldAnimationTime += delta.count() / 1000;
+
+    this->shieldModel->applyAnimation(shieldAnimationTime);
 
     hud->setHealth(health);
     hud->setShield(shield);
@@ -74,7 +95,7 @@ void Player::collideWith(BulletObject *other) {
 
     if (other->getKind() == BulletObject::ENEMY) {
         if (window->getMouseButton(GLFW_MOUSE_BUTTON_LEFT)) {
-            logger->info("Hit with Enemy ({}, {})!", (void*)other, other->getKind());
+            logger->info("Hit with Enemy ({})!", (void*)other);
 
             auto *enemy = dynamic_cast<Entity *>(other);
             enemy->receiveDamage(1);
@@ -82,14 +103,14 @@ void Player::collideWith(BulletObject *other) {
     }
 
     if (other->getKind() == BulletObject::BULLET) {
-        //const auto *bullet = (const BulletEntity *)(other);
-        //const glm::vec3 direction = glm::normalize(position - bullet->getEntityPosition());
-        //this->knockbackDirections.push_back(direction);
-
         this->health -= 1;
     }
 }
 
 BulletObject::Kind Player::getEntityKind() {
     return BulletObject::PLAYER;
+}
+
+void Player::render(Scene *scene) {
+    this->shieldModel->render(scene);
 }

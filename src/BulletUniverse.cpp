@@ -4,6 +4,7 @@
 
 #include "BulletUniverse.h"
 #include "object3d/BulletObject.h"
+#include "helper/CompilerMacros.h"
 
 bool BulletUniverse::debuggingFlag = false;
 void simulationTickCallback(btDynamicsWorld *dynamicsWorld, btScalar timeStep);
@@ -38,7 +39,7 @@ void BulletUniverse::addRigidBody(btRigidBody *body) {
     this->dynamicsWorld->addRigidBody(body);
 }
 
-void simulationTickCallback(btDynamicsWorld *dynamicsWorld, btScalar timeStep) {
+void simulationTickCallback(btDynamicsWorld *dynamicsWorld, btScalar UNUSED(timeStep)) {
     /*
      * Get all the collisions of the world and call the objects to invoke the logic
      */

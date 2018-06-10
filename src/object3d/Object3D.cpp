@@ -22,12 +22,12 @@ void Object3D::render(Scene *scene) {
     this->shader->setUniformIfNeeded("screenGamma", scene->gamma);
 
     // TODO: support multiple lights with #DEFINE_MAX_LIGHTS
-    if (!scene->getLights().empty()) {
-        this->shader->setUniform("light.position", scene->getLights()[0]->position);
-        this->shader->setUniform("light.diffuse", scene->getLights()[0]->diffuse);
-        this->shader->setUniform("light.ambient", scene->getLights()[0]->ambient);
-        this->shader->setUniform("light.specular", scene->getLights()[0]->specular);
-        this->shader->setUniform("light.power", scene->getLights()[0]->power);
+    if (scene->areLightsDirty()) {
+        this->shader->setUniform("light.position", scene->getLights()[0].position);
+        this->shader->setUniform("light.diffuse", scene->getLights()[0].diffuse);
+        this->shader->setUniform("light.ambient", scene->getLights()[0].ambient);
+        this->shader->setUniform("light.specular", scene->getLights()[0].specular);
+        this->shader->setUniform("light.power", scene->getLights()[0].power);
     }
 
     this->draw();

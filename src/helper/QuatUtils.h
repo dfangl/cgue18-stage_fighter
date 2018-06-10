@@ -54,6 +54,24 @@ public:
     }
 
 
+    //https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
+    static glm::quat toQuaternion(float pitch, float roll, float yaw) {
+        // Abbreviations for the various angular functions
+        float cy = glm::cos(glm::radians(yaw  ) * 0.5f);
+        float sy = glm::sin(glm::radians(yaw  ) * 0.5f);
+        float cr = glm::cos(glm::radians(roll ) * 0.5f);
+        float sr = glm::sin(glm::radians(roll ) * 0.5f);
+        float cp = glm::cos(glm::radians(pitch) * 0.5f);
+        float sp = glm::sin(glm::radians(pitch) * 0.5f);
+
+        return glm::quat(
+                sy * cr * cp - cy * sr * sp, // W
+                cy * cr * cp + sy * sr * sp, // X
+                cy * sr * cp - sy * cr * sp, // Y
+                cy * cr * sp + sy * sr * cp  // Z
+        );
+    }
+
 };
 
 

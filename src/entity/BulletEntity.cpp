@@ -44,7 +44,7 @@ protected:
                 -direction.z * 0.286695f/2);
         const glm::vec3 vec = -direction * 0.025f * 1.0f/60.0f; // trust me, just a magic number
 
-        for (int i = 0; i < count; i++) {
+        for (unsigned int i = 0; i < count; i++) {
             const float ttl = distribution(generator);
 
             data.emplace_back(
@@ -132,7 +132,7 @@ void BulletEntity::setPosition(const glm::vec3 &vec, const glm::quat &rot) {
 }
 
 // Never called
-void BulletEntity::think(std::chrono::duration<double, std::milli> delta) {}
+void BulletEntity::think(std::chrono::duration<double, std::milli> UNUSED(delta)) {}
 
 void BulletEntity::render(Scene *scene) {
     Model3DObject::render(scene);
