@@ -31,7 +31,7 @@ DebugTextHud::DebugTextHud(const std::shared_ptr<Scene> &scene) : Logger("DebugH
                 case GLFW_KEY_F6: toggleEffect(2); break;
                 case GLFW_KEY_F7: toggleEffect(3); break;
                 case GLFW_KEY_F8: viewFrustumCulling = !viewFrustumCulling; scene->frustumCulling = viewFrustumCulling; break;
-                case GLFW_KEY_F12: ShaderManager::recompileAll(); break;
+                case GLFW_KEY_F11: ShaderManager::recompileAll(); this->scene->makeLightsDirty(); break;
                 default: { /* Nope no default handling here */ }
             }
     };

@@ -50,10 +50,10 @@ void GameMenu::render() {
 
     this->ctx->window()->setScreenGamma(this->gamma);
     auto &l = this->ctx->window()->getScene()->getLights()[0];
-    l->ambient = glm::vec3(ambient);
-    l->specular = glm::vec3(specular);
-    l->diffuse = glm::vec3(diffuse);
-    l->power = power;
+    l.ambient = glm::vec3(ambient);
+    l.specular = glm::vec3(specular);
+    l.diffuse = glm::vec3(diffuse);
+    l.power = power;
 }
 
 void GameMenu::resize(float x, float y) {
@@ -63,10 +63,10 @@ void GameMenu::resize(float x, float y) {
 
 void GameMenu::show() {
     auto &l = this->ctx->window()->getScene()->getLights()[0];
-    ambient = l->ambient.x;
-    specular = l->specular.x;
-    diffuse = l->diffuse.x;
-    power = l->power;
+    ambient = l.ambient.x;
+    specular = l.specular.x;
+    diffuse = l.diffuse.x;
+    power = l.power;
 
     this->ctx->hideAll();
 

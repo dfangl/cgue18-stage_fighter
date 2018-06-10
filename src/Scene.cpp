@@ -15,10 +15,39 @@ void Scene::render(std::chrono::duration<double, std::milli> &delta) {
     this->deltaT = delta;
     this->culledObjects = 0;
 
+    {
+        auto error = glGetError();
+        if(error != GL_NO_ERROR) {
+            spdlog::get("console")->error("[Scene Entry] OpenGL Error Code: {}", error);
+        }
+    }
+
+
     if (dirtyLights) {
         glBindBuffer(GL_ARRAY_BUFFER, this->lightVBO);
+        {
+            auto error = glGetError();
+            if(error != GL_NO_ERROR) {
+                spdlog::get("console")->error("[lightVBO] OpenGL Error Code: {}", error);
+            }
+        }
+
         glBufferData(GL_ARRAY_BUFFER, lights.size() * sizeof(Light), lights.data(), GL_STATIC_DRAW);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+        {
+            auto error = glGetError();
+            if(error != GL_NO_ERROR) {
+                spdlog::get("console")->error("[lightVBO] OpenGL Error Code: {}", error);
+            }
+        }
+                glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+        {
+            auto error = glGetError();
+            if(error != GL_NO_ERROR) {
+                spdlog::get("console")->error("[lightVBO] OpenGL Error Code: {}", error);
+            }
+        }
     }
 
     for (auto &obj : this->objects) {
@@ -33,6 +62,13 @@ void Scene::render(std::chrono::duration<double, std::milli> &delta) {
             //glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         } else {
             obj->render(this);
+        }
+
+        {
+            auto error = glGetError();
+            if(error != GL_NO_ERROR) {
+                spdlog::get("console")->error("[obj] OpenGL Error Code: {}", error);
+            }
         }
     }
 
@@ -53,6 +89,13 @@ void Scene::render(std::chrono::duration<double, std::milli> &delta) {
             continue;
         } else {
             obj->render(this);
+        }
+
+        {
+            auto error = glGetError();
+            if(error != GL_NO_ERROR) {
+                spdlog::get("console")->error("[particle system] OpenGL Error Code: {}", error);
+            }
         }
     }
 
@@ -146,4 +189,15 @@ void Scene::removeParticleSystem(const std::shared_ptr<ParticleSystem> &s) {
             ),
             this->particles.end()
     );
+}
+
+void Scene::initOpenGLContext() {
+    glGenBuffers(1, &this->lightVBO);
+
+    {
+        auto error = glGetError();
+        if(error != GL_NO_ERROR) {
+            spdlog::get("console")->error("[oglInit] OpenGL Error Code: {}", error);
+        }
+    }
 }

@@ -18,13 +18,12 @@
 class Label : public Widget {
 
 private:
-    GLuint VAO, VBO;
+    GLuint VAO = 0, VBO = 0;
     glm::vec3 color;
     std::string text;
     float x,y,scale,w;
     std::shared_ptr<Font> font;
     std::shared_ptr<Shader> shader;
-
 
     struct Quad {
         GLfloat vertices[6][4];
@@ -36,12 +35,17 @@ public:
     Label(std::string text, std::shared_ptr<Font> font, float x, float y, float scale, glm::vec3 color);
     virtual ~Label();
 
+    // This Class contains OpenGL resources,
+    // so disable copy const. and = operator
+    Label(const Label&) = delete;
+    Label &operator=(const Label &) = delete;
+
     void render(const glm::mat4 &projection) override;
     void resize(float x, float y) override;
 
     float getWidth();
     void setPosition(float x, float y);
-    void setText(std::basic_string<char> text);
+    void setText(const std::string &text);
 
 };
 

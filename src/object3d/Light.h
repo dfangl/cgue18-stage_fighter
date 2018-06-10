@@ -10,16 +10,23 @@
 
 struct Light {
     Light(const glm::vec3 &pos, const glm::vec3 &ambient, const glm::vec3 &diffuse, const glm::vec3 &specular, const float power = 40.0f) :
-        position(pos, 0.0f), ambient(ambient, 0.0f), diffuse(diffuse, 0.0f), specular(specular, 0.0f), power(power) {
+        position(pos), ambient(ambient), diffuse(diffuse), specular(specular), power(power) {
     }
 
-    glm::vec4 position;
-    glm::vec4 ambient;
-    glm::vec4 diffuse;
-    glm::vec4 specular;
-    float power;
+    glm::vec3 position;
+    float __PADDING_1 = 0;
 
-    float __PADDING__[] = {0,0,0};
+    glm::vec3 ambient;
+    float __PADDING_2 = 0;
+
+    glm::vec3 diffuse;
+    float __PADDING_3 = 0;
+
+    glm::vec3 specular;
+    float __PADDING_4 = 0;
+
+    float power;
+    float __PADDING_5[3] = {0,0,0};
 };
 
 #endif //STAGE_FIGHTER_LIGHT_H

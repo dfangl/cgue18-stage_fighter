@@ -59,10 +59,14 @@ ScriptedEntity::~ScriptedEntity() {
 }
 
 void ScriptedEntity::think(Level *level, std::chrono::duration<double, std::milli> delta) {
+    opengl_check_error(spdlog::get("console"), "scripted entity function head");
+
     if (this->health <= 0) {
         level->despawn(this);
         return;
     }
+
+    opengl_check_error(spdlog::get("console"), "after health check"); // <-- doesn't trigger
 
     auto bT = BulletObject::getTransformation();
     auto o = bT.getOrigin();
@@ -72,10 +76,16 @@ void ScriptedEntity::think(Level *level, std::chrono::duration<double, std::mill
     Model3DObject::setRotation(glm::quat(r.w(), r.x(), r.y(), r.z()));
     Model3DObject::setOrigin(position + collisionOffset);
 
+    opengl_check_error(spdlog::get("console"), "after setting positions"); // <-- doesn't trigger
+
     this->scriptTimeout += delta.count();
     if (this->scriptTimeout >= SCRIPT_THINK_TIMEOUT) {
+        opengl_check_error(spdlog::get("console"), "before lua.think"); // <-- doesn't trigger
+
         this->environment["think"].call<void>(environment, delta.count());
         this->scriptTimeout = 0;
+
+        opengl_check_error(spdlog::get("console"), "after lua.think"); // <-- does trigger
     }
 
     //if (lastDmgTime > 0.0)

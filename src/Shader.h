@@ -110,6 +110,8 @@ public:
     void disableVAO(const std::string &name);
 
     void recompile();
+
+    bool hasLightDataSet = false;
 };
 
 

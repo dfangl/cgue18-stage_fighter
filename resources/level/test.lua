@@ -2,8 +2,8 @@
 --- Test Level File ---
 
 -- Header of the Level file
-levelResourceName = "test"
-levelResourcePath = "level/"..levelResourceName.."/"
+levelResourceName = "test";
+levelResourcePath = "level/"..levelResourceName.."/";
 
 -- Import all Objects which are available
 dofile("../resources/objects/index.lua")

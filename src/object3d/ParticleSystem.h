@@ -20,8 +20,8 @@ private:
     std::shared_ptr<Shader> compute;
     //std::shared_ptr<Shader> shader;
 
-    GLuint VAO;
-    GLuint SSBO;
+    GLuint VAO  = 0;
+    GLuint SSBO = 0;
 
 protected:
     struct Particle {

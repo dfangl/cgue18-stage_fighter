@@ -44,14 +44,18 @@ private:
     int instances = 0;
     bool recomputeInstanceBuffer = false;
 
-    std::vector<std::vector<glm::mat4>> instancedModelMatrix;
-    std::vector<std::vector<glm::mat4>> instancedNormalMatrix;
+    std::map<unsigned long, size_t> instanceMapping;
+    std::vector<glm::mat4> instancedModelMatrix;
+    std::vector<glm::mat4> instancedNormalMatrix;
+    std::vector<glm::vec3> instancedTranslation;
+    std::vector<glm::quat> instancedRotation;
 
+    unsigned long gltfNodeIndex;
     std::vector<GLuint> vbos;
-    GLuint *vaos;
-    GLenum *meshDrawMode;
-    GLuint *modelMatrixInstanceVBO;
-    GLuint *normalMatrixInstanceVBO;
+    GLuint VAO;
+    GLenum meshDrawMode;
+    GLuint modelMatrixInstanceVBO;
+    GLuint normalMatrixInstanceVBO;
 
     struct InternalAnimationData {
         tinygltf::AnimationSampler translation ;//= nullptr;
@@ -63,31 +67,16 @@ private:
     Animation animationData;
     InternalAnimationData animDataInternal;
 
-    struct Matrix {
-        unsigned int id;
-
-        std::vector<glm::mat4> modelMatrix;
-        std::vector<glm::mat4> normalMatrix;
-
-        glm::vec3 translation;
-        glm::quat rotation;
-
-        /* don't use*/ Matrix() : id(0) {};
-        Matrix(unsigned  int id, glm::vec3 translation, glm::quat rotation) :
-                id(id),
-                translation(translation),
-                rotation(rotation) {}
-    };
-
     std::shared_ptr<tinygltf::Model> gltfModel;
     std::vector<std::shared_ptr<Texture>> textures;
-    std::map<unsigned  int, Matrix> modelMatrix;
 
     void prepareModelMatrices();
-    void prepareModelMatrices(Matrix &instance);
+    void prepareModelMatrices(const unsigned long pos);
 
-    void drawNode(const int idx, const tinygltf::Node &node, Matrix &instance);
+    void drawNode(const tinygltf::Node &node);
     void drawMesh(const tinygltf::Mesh &mesh, GLuint &VAO, GLenum &mode);
+
+    glm::mat4 getNodeMatrix();
 
     glm::vec3 getAnimationTranslation();
     glm::quat getAnimationRotation();
@@ -101,7 +90,6 @@ public:
      */
     Model3DObject(const glm::vec3 &position, float bsRadius, const std::shared_ptr<tinygltf::Model> &model,
                   const std::shared_ptr<Shader> &shader, int instances = 0);
-    ~Model3DObject();
 
     std::vector<std::shared_ptr<Texture>> &getTextures() { return this->textures; }
 

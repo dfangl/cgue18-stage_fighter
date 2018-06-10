@@ -102,6 +102,8 @@ public:
     void setGamma(float gamma);
     bool canSetGamma() const { return monitor != nullptr; }
 
+    void requestFocus();
+
     /**
      * Sets gamma correction but needs Shader support instead of GLFW support
      * @param gamma between 0.0 and + infinity

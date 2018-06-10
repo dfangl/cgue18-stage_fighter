@@ -14,20 +14,48 @@
 
 void Object3D::render(Scene *scene) {
     this->shader->use();
+    {
+        auto error = glGetError();
+        if(error != GL_NO_ERROR) {
+            spdlog::get("console")->error("[nModel] OpenGL Error Code: {}", error);
+        }
+    }
+
     this->shader->setUniform("model", this->model);
     this->shader->setUniform("view", scene->getCamera().getViewMatrix());
     this->shader->setUniform("projection", scene->getCamera().getProjectionMatrix());
+    {
+        auto error = glGetError();
+        if(error != GL_NO_ERROR) {
+            spdlog::get("console")->error("[nModel] OpenGL Error Code: {}", error);
+        }
+    }
 
     this->shader->setUniformIfNeeded("camera_position", scene->getCamera().getPosition());
     this->shader->setUniformIfNeeded("screenGamma", scene->gamma);
+    {
+        auto error = glGetError();
+        if(error != GL_NO_ERROR) {
+            spdlog::get("console")->error("[nModel] OpenGL Error Code: {}", error);
+        }
+    }
 
     // TODO: support multiple lights with #DEFINE_MAX_LIGHTS
-    if (scene->areLightsDirty()) {
+    if (scene->areLightsDirty() || !shader->hasLightDataSet) {
         this->shader->setUniform("light.position", scene->getLights()[0].position);
         this->shader->setUniform("light.diffuse", scene->getLights()[0].diffuse);
         this->shader->setUniform("light.ambient", scene->getLights()[0].ambient);
         this->shader->setUniform("light.specular", scene->getLights()[0].specular);
         this->shader->setUniform("light.power", scene->getLights()[0].power);
+
+        this->shader->hasLightDataSet = true;
+
+        {
+            auto error = glGetError();
+            if(error != GL_NO_ERROR) {
+                spdlog::get("console")->error("[nModel] OpenGL Error Code: {}", error);
+            }
+        }
     }
 
     this->draw();

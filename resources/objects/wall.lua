@@ -1,5 +1,5 @@
 statics.wall =
-function (position, rotation)
+function (position, rotation, lightmap_orientation)
     return StaticObject(
             "wall",
             "standard",

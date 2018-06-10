@@ -23,6 +23,8 @@ void ModelManager::destroy() {
 
 std::shared_ptr<tinygltf::Model> ModelManager::load(const std::string &name) {
     if(models.find(name) == models.end()) {
+        logger->info("Loading {}.gltf model file", name);
+
         std::string error;
         auto model = new tinygltf::Model();
         auto ret = loader.LoadASCIIFromFile(model, &error, (root + name + ".gltf"));

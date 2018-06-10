@@ -32,7 +32,7 @@ private:
 
     std::chrono::duration<double, std::milli> deltaT;
 
-    GLuint lightVBO;
+    GLuint lightVBO  = -1;
     bool dirtyLights = false;
 
 protected:
@@ -41,6 +41,8 @@ protected:
 
 public:
     explicit Scene(Camera &camera);
+
+    void initOpenGLContext();
 
     void render(std::chrono::duration<double, std::milli> &delta);
 
@@ -69,7 +71,8 @@ public:
 
     std::chrono::duration<double, std::milli> &getFrameTime() { return this->deltaT; }
 
-    bool const areLightsDirty() { return this->dirtyLights; }
+    bool areLightsDirty() const { return this->dirtyLights; }
+    void makeLightsDirty() { this->dirtyLights = true; }
 };
 
 #endif //STAGE_FIGHTER_SCENE_H

@@ -45,139 +45,121 @@ Model3DObject::Model3DObject(const glm::vec3 &position, float bsRadius,const std
         this->vbos.push_back(vbo);
     }
 
+    // Reserve memory for instances:
+    const auto instanceMemory = static_cast<unsigned long long int>(instances + 1);
+    instancedModelMatrix.reserve(instanceMemory);
+    instancedNormalMatrix.reserve(instanceMemory);
+    instancedTranslation.reserve(instanceMemory);
+    instancedRotation.reserve(instanceMemory);
+
     // Set position and rotation for at least the main instance of the object
-    modelMatrix[0] = Matrix(0, glm::vec3(0,0,0), glm::quat(1.0f,0.0f,0.0f,0.0f));
+    instancedTranslation.emplace_back(0.0f, 0.0f, 0.0f);
+    instancedRotation.emplace_back(1.0f, 0.0f, 0.0f, 0.0f);
 
     // Get Mesh count:
     const tinygltf::Scene &scene = this->gltfModel->scenes[gltfModel->defaultScene];
     const auto meshes = scene.nodes.size();
 
-    // Generate VAOs and instanced VBOs for each mesh
-    vaos = new GLuint[meshes];
-    glGenVertexArrays(meshes, vaos);
+    // Check for only one mesh in scene,
+    // this reduces complexity for instancing
+    if (meshes > 1)
+        throw std::runtime_error("Multiple meshes are not supported!");
 
-    modelMatrixInstanceVBO = new GLuint[meshes];
-    glGenBuffers(meshes, modelMatrixInstanceVBO);
+    unsigned long nodeID = 0;
+    for (nodeID = 0; gltfModel->nodes[nodeID].mesh != 0 && nodeID < scene.nodes.size(); nodeID++);
+    if (nodeID == (nodeID < scene.nodes.size()))
+        throw std::runtime_error("Unable to find mesh with 0 in default scene!");
 
-    normalMatrixInstanceVBO = new GLuint[meshes];
-    glGenBuffers(meshes, normalMatrixInstanceVBO);
+    this->gltfNodeIndex = nodeID;
 
-    meshDrawMode = new GLenum[meshes];
+    // Generate VAO and instanced VBO for the mesh
+    glGenVertexArrays(1, &VAO);
+    glGenBuffers(1, &modelMatrixInstanceVBO);
+    glGenBuffers(1, &normalMatrixInstanceVBO);
 
+    auto &mesh = this->gltfModel->meshes[0];
+    auto &primitive = mesh.primitives[0];
 
-    // Create space for at least x instances for each Mesh
-    for (auto& UNUSED(nodeIndex) : scene.nodes) {
-        std::vector<glm::mat4> instanceBuffer;
-        std::vector<glm::mat4> normalBuffer;
+    // Error on a mesh without primitives
+    if (primitive.indices < 0)
+        throw std::runtime_error("This mesh does not have any primitives!");
 
-        instanceBuffer.reserve(instances + 1);
-        normalBuffer.reserve(instances + 1);
+    if (mesh.primitives.size() > 1)
+        throw std::runtime_error("Mesh with multiple primitives is not supported!");
 
-        instancedModelMatrix.push_back(instanceBuffer);
-        instancedNormalMatrix.push_back(normalBuffer);
+    glBindVertexArray(VAO);
+
+    // Prepare attributes
+    for (auto &attribute : primitive.attributes) {
+        const tinygltf::Accessor &accessor = gltfModel->accessors[attribute.second];
+
+        size_t size;
+        switch(accessor.type) {
+            case TINYGLTF_TYPE_SCALAR: size = 1; break;
+            case TINYGLTF_TYPE_VEC2  : size = 2; break;
+            case TINYGLTF_TYPE_VEC3  : size = 3; break;
+            case TINYGLTF_TYPE_VEC4  : size = 4; break;
+            default: throw std::runtime_error("Unknown accessor type!");
+        }
+
+        // Some of these attributes are read from gltf
+        /*      JOINTS_0, NORMAL, POSITION, TEXCOORD_0, WEIGHTS_0 */
+        std::string attrName = attribute.first;
+        std::transform(attrName.begin(), attrName.end(), attrName.begin(), ::tolower);
+
+        auto byteStride = accessor.ByteStride(gltfModel->bufferViews[accessor.bufferView]);
+        glBindBuffer(GL_ARRAY_BUFFER, this->vbos[accessor.bufferView]);
+        this->shader->setVertexAttributePointer(attrName,
+                                                static_cast<GLuint>(size),
+                                                static_cast<GLenum>(accessor.componentType),
+                                                static_cast<GLboolean>(accessor.normalized ? GL_TRUE : GL_FALSE),
+                                                byteStride,
+                                                BUFFER_OFFSET(char, accessor.byteOffset));
+        this->shader->setVertexAttribDivisor(attrName, 0);
     }
 
-    // Create for each Mesh the VAO
-    for (unsigned int idx=0; idx < meshes; idx++) {
-        auto &VAO = vaos[idx];
-        auto &modelMatrixVBO = modelMatrixInstanceVBO[idx];
-        auto &normalMatrixVBO = normalMatrixInstanceVBO[idx];
-        auto &mesh = this->gltfModel->meshes[idx];
-        auto &primitive = mesh.primitives[0];
+    // Bind EBO (indices) to the VAO
+    const tinygltf::Accessor &indexAccess = gltfModel->accessors[primitive.indices];
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->vbos[indexAccess.bufferView]);
 
-        // Ignore a mesh without primitives
-        if (primitive.indices < 0)
-            continue;
-
-        if (mesh.primitives.size() > 1)
-            throw std::runtime_error("Mesh with multiple primitives is not supported!");
-
-
-        glBindVertexArray(VAO);
-        /*
-        auto error = glGetError();
-        if(error != GL_NO_ERROR) {
-            spdlog::get("console")->error("[Bind VAO] OpenGL Error Code: {}", error);
-        }
-         */
-
-        // Prepare attributes
-        for (auto &attribute : primitive.attributes) {
-            const tinygltf::Accessor &accessor = gltfModel->accessors[attribute.second];
-
-            size_t size;
-            switch(accessor.type) {
-                case TINYGLTF_TYPE_SCALAR: size = 1; break;
-                case TINYGLTF_TYPE_VEC2  : size = 2; break;
-                case TINYGLTF_TYPE_VEC3  : size = 3; break;
-                case TINYGLTF_TYPE_VEC4  : size = 4; break;
-                default: throw std::runtime_error("Unknown accessor type!");
-            }
-
-            // Some of these attributes are read from gltf
-            /*      JOINTS_0, NORMAL, POSITION, TEXCOORD_0, WEIGHTS_0 */
-            std::string attrName = attribute.first;
-            std::transform(attrName.begin(), attrName.end(), attrName.begin(), ::tolower);
-
-            auto byteStride = accessor.ByteStride(gltfModel->bufferViews[accessor.bufferView]);
-            glBindBuffer(GL_ARRAY_BUFFER, this->vbos[accessor.bufferView]);
-            this->shader->setVertexAttributePointer(attrName,
-                                                    static_cast<GLuint>(size),
-                                                    static_cast<GLenum>(accessor.componentType),
-                                                    static_cast<GLboolean>(accessor.normalized ? GL_TRUE : GL_FALSE),
-                                                    byteStride,
-                                                    BUFFER_OFFSET(char, accessor.byteOffset));
-/*
-            error = glGetError();
-            if(error != GL_NO_ERROR) {
-                spdlog::get("consoe")->error("[setVertexAtrributePointer] OpenGL Error Code: {}", error);
-            }
-*/
-        }
-
-        // Bind EBO (indices) to the VAO
-        const tinygltf::Accessor &indexAccess = gltfModel->accessors[primitive.indices];
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->vbos[indexAccess.bufferView]);
-
-        GLenum mode;
-        switch(primitive.mode) {
-            case TINYGLTF_MODE_TRIANGLES        : mode = GL_TRIANGLES;      break;
-            case TINYGLTF_MODE_TRIANGLE_STRIP   : mode = GL_TRIANGLE_STRIP; break;
-            case TINYGLTF_MODE_TRIANGLE_FAN     : mode = GL_TRIANGLE_FAN;   break;
-            case TINYGLTF_MODE_POINTS           : mode = GL_POINTS;         break;
-            case TINYGLTF_MODE_LINE             : mode = GL_LINE;           break;
-            case TINYGLTF_MODE_LINE_LOOP        : mode = GL_LINE_LOOP;      break;
-            default: throw std::runtime_error("Unknown primitive mode!");
-        }
-
-        meshDrawMode[idx] = mode;
-
-        // Only to the following part if instances are used, otherwise these values will be set per uniform
-        if (instances > 0) {
-            const auto mLoc = shader->getLocation("model");
-            glBindBuffer(GL_ARRAY_BUFFER, modelMatrixVBO);
-            shader->setVertexAttributePointer(mLoc + 0, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(0 * sizeof(glm::vec4)));
-            shader->setVertexAttributePointer(mLoc + 1, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(1 * sizeof(glm::vec4)));
-            shader->setVertexAttributePointer(mLoc + 2, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
-            shader->setVertexAttributePointer(mLoc + 3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(3 * sizeof(glm::vec4)));
-            shader->setVertexAttribDivisor(mLoc, 4, 1);
-
-            const auto nLoc = shader->getLocation("nModel");
-            glBindBuffer(GL_ARRAY_BUFFER, normalMatrixVBO);
-            shader->setVertexAttributePointer(nLoc + 0, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(0 * sizeof(glm::vec4)));
-            shader->setVertexAttributePointer(nLoc + 1, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(1 * sizeof(glm::vec4)));
-            shader->setVertexAttributePointer(nLoc + 2, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
-            shader->setVertexAttributePointer(nLoc + 3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(3 * sizeof(glm::vec4)));
-            shader->setVertexAttribDivisor(nLoc, 4, 1);
-        }
-
-        glBindVertexArray(0);
+    GLenum mode;
+    switch(primitive.mode) {
+        case TINYGLTF_MODE_TRIANGLES        : mode = GL_TRIANGLES;      break;
+        case TINYGLTF_MODE_TRIANGLE_STRIP   : mode = GL_TRIANGLE_STRIP; break;
+        case TINYGLTF_MODE_TRIANGLE_FAN     : mode = GL_TRIANGLE_FAN;   break;
+        case TINYGLTF_MODE_POINTS           : mode = GL_POINTS;         break;
+        case TINYGLTF_MODE_LINE             : mode = GL_LINE;           break;
+        case TINYGLTF_MODE_LINE_LOOP        : mode = GL_LINE_LOOP;      break;
+        default: throw std::runtime_error("Unknown primitive mode!");
     }
 
+    meshDrawMode = mode;
+
+    // Only to the following part if instances are used, otherwise these values will be set per uniform
+    if (instances > 0) {
+        const auto mLoc = shader->getLocation("model");
+        glBindBuffer(GL_ARRAY_BUFFER, modelMatrixInstanceVBO);
+        shader->setVertexAttributePointer(mLoc + 0, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(0 * sizeof(glm::vec4)));
+        shader->setVertexAttributePointer(mLoc + 1, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(1 * sizeof(glm::vec4)));
+        shader->setVertexAttributePointer(mLoc + 2, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
+        shader->setVertexAttributePointer(mLoc + 3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(3 * sizeof(glm::vec4)));
+        shader->setVertexAttribDivisor(mLoc, 4, 1);
+
+        const auto nLoc = shader->getLocation("nModel");
+        glBindBuffer(GL_ARRAY_BUFFER, normalMatrixInstanceVBO);
+        shader->setVertexAttributePointer(nLoc + 0, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(0 * sizeof(glm::vec4)));
+        shader->setVertexAttributePointer(nLoc + 1, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(1 * sizeof(glm::vec4)));
+        shader->setVertexAttributePointer(nLoc + 2, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
+        shader->setVertexAttributePointer(nLoc + 3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(3 * sizeof(glm::vec4)));
+        shader->setVertexAttribDivisor(nLoc, 4, 1);
+
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+    }
+
+    glBindVertexArray(0);
 
     // Prepare Static Node matrices:
-    prepareModelMatrices();
-    setOrigin(position);
+    prepareModelMatrices(0);
 
     // Load Textures
     for (auto &texture : gltfModel->textures) {
@@ -191,71 +173,53 @@ Model3DObject::Model3DObject(const glm::vec3 &position, float bsRadius,const std
         spdlog::get("console")->critical(".glft Model did not contain any textures, loading fallback one");
         this->textures.push_back(TextureManager::load("wall.jpg"));
     }
+
+    opengl_check_error(spdlog::get("console"), "Model3DObject Constructor");
 }
 
 void Model3DObject::draw() {
-    //Support for more than one scene necessary?
-    const auto &scene = this->gltfModel->scenes[gltfModel->defaultScene];
-
-    // Check if there are instances which should be drawn:
-    if (modelMatrix.empty())
-        return;
-
     // Re-construct the VBOs only if a instance has moved
     if (instances > 0 && recomputeInstanceBuffer) {
-        instancedModelMatrix.clear();
-        instancedNormalMatrix.clear();
-
-        // Build instanced VBO Data of model / normal matrices
-        for (auto &instance : this->modelMatrix) {
-            for (auto i = 0; i<instance.second.modelMatrix.size(); i++)
-                instancedModelMatrix[i].push_back(instance.second.modelMatrix[i]);
-
-            for (auto i = 0; i<instance.second.normalMatrix.size(); i++)
-                instancedNormalMatrix[i].push_back(instance.second.normalMatrix[i]);
-        }
-
         // Push them to the GPU
-        for (auto i=0; i<instancedModelMatrix.size(); i++) {
-            glBindBuffer(GL_ARRAY_BUFFER, modelMatrixInstanceVBO[i]);
-            glBufferData(GL_ARRAY_BUFFER, modelMatrix.size() * sizeof(glm::mat4), instancedModelMatrix.data(), GL_DYNAMIC_DRAW);
+        glBindBuffer(GL_ARRAY_BUFFER, modelMatrixInstanceVBO);
+        glBufferData(GL_ARRAY_BUFFER, instancedTranslation.size() * sizeof(glm::mat4), instancedModelMatrix.data(), GL_DYNAMIC_DRAW);
 
-            glBindBuffer(GL_ARRAY_BUFFER, normalMatrixInstanceVBO[i]);
-            glBufferData(GL_ARRAY_BUFFER, modelMatrix.size() * sizeof(glm::mat4), instancedNormalMatrix.data(), GL_DYNAMIC_DRAW);
-        }
+        glBindBuffer(GL_ARRAY_BUFFER, normalMatrixInstanceVBO);
+        glBufferData(GL_ARRAY_BUFFER, instancedTranslation.size() * sizeof(glm::mat4), instancedNormalMatrix.data(), GL_DYNAMIC_DRAW);
 
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
         recomputeInstanceBuffer = false;
     }
 
-    // Render all the instances with all nodes and meshes ...
-    for (auto &instance : this->modelMatrix)
-        for (auto &node : scene.nodes) {
-            this->drawNode(node, gltfModel->nodes[node], instance.second);
-        }
+    // Render all the instances with nodes to first mesh in default scene
+    this->drawNode(gltfModel->nodes[gltfNodeIndex]);
 }
 
-void Model3DObject::drawNode(const int idx, const tinygltf::Node &node, Matrix &instance) {
-    if(node.mesh != -1) {
-        auto &mesh = this->gltfModel->meshes[node.mesh];
+void Model3DObject::drawNode(const tinygltf::Node &node) {
+    //if(node.mesh != -1) {
+    auto &mesh = this->gltfModel->meshes[node.mesh];
 
-        // If no instances are used, set the uniforms since it's faster than instanced drawing
-        if (instances == 0) {
-            shader->setUniform("model", instance.modelMatrix[idx]);
-            shader->setUniform("nModel", instance.normalMatrix[idx]);
+    // If no instances are used, set the uniforms since it's faster than instanced drawing
+    if (instances == 0) {
+        // model will be set by Object if no instances are used
+        shader->setUniform("nModel", instancedNormalMatrix[0]);
+        {
+            auto error = glGetError();
+            if(error != GL_NO_ERROR) {
+                spdlog::get("console")->error("[nModel] OpenGL Error Code: {}", error);
+            }
         }
-
-        this->drawMesh(mesh, vaos[node.mesh], meshDrawMode[node.mesh]);
     }
+
+    this->drawMesh(mesh, VAO, meshDrawMode);
+    //}
 }
 
 void Model3DObject::drawMesh(const tinygltf::Mesh &mesh, GLuint &VAO, GLenum &mode) {
     char texNameBuffer[16];
-
     auto &primitive = mesh.primitives[0];
-    if(primitive.indices < 0)
-        return;
 
-    // Process Material:
+    // Process Material (is this already parsed ?):
     auto &material = this->gltfModel->materials[primitive.material];
     if (!material.values["doubleSided"].bool_value)     glEnable(GL_CULL_FACE);
     else                                                glDisable(GL_CULL_FACE);
@@ -264,14 +228,6 @@ void Model3DObject::drawMesh(const tinygltf::Mesh &mesh, GLuint &VAO, GLenum &mo
     auto baseColorFactor = material.values["baseColorFactor"].number_array;
     auto metallicFactor = material.values["metallicFactor"].Factor();
     auto roughnessFactor = material.values["roughnessFactor"].Factor();
-
-    /*
-    if (emissiveFactor.empty()) {
-        emissiveFactor.push_back(0.0f);
-        emissiveFactor.push_back(0.0f);
-        emissiveFactor.push_back(0.0f);
-    }
-     */
 
     const glm::vec3 baseColor = glm::vec3(baseColorFactor[0],baseColorFactor[1],baseColorFactor[2]);
 
@@ -285,11 +241,30 @@ void Model3DObject::drawMesh(const tinygltf::Mesh &mesh, GLuint &VAO, GLenum &mo
     for (auto i=0; i<textures.size(); i++) {
         auto &texture = this->textures[i];
         texture->bind(GL_TEXTURE0 + i);
+        {
+            auto error = glGetError();
+            if(error != GL_NO_ERROR) {
+                spdlog::get("console")->error("[texture->bind({})] OpenGL Error Code: {}", i, error);
+            }
+        }
+
         snprintf(texNameBuffer, 16, "texture_%d", i);
         shader->setUniform(texNameBuffer, i);
+        {
+            auto error = glGetError();
+            if(error != GL_NO_ERROR) {
+                spdlog::get("console")->error("[setUniform({}, {})] OpenGL Error Code: {}", texNameBuffer, i, error);
+            }
+        }
     }
 
     glBindVertexArray(VAO);
+    {
+        auto error = glGetError();
+        if(error != GL_NO_ERROR) {
+            spdlog::get("console")->error("[glBindVAO] OpenGL Error Code: {}", error);
+        }
+    }
 
     // Byte offset is 0 which differs from buffer view byte offset -> wtf?
     const auto &indexAccess = gltfModel->accessors[primitive.indices];
@@ -306,134 +281,154 @@ void Model3DObject::drawMesh(const tinygltf::Mesh &mesh, GLuint &VAO, GLenum &mo
                                 static_cast<GLsizei>(indexAccess.count),
                                 static_cast<GLenum>(indexAccess.componentType),
                                 BUFFER_OFFSET(char, indexAccess.byteOffset),
-                                static_cast<GLsizei>(modelMatrix.size())
+                                static_cast<GLsizei>(instancedTranslation.size())
         );
 
-    /*
-    auto error = glGetError();
-    if(error != GL_NO_ERROR) {
-        spdlog::get("console")->error("[glDrawElements] OpenGL Error Code: {}", error);
+    {
+        auto error = glGetError();
+        if(error != GL_NO_ERROR) {
+            spdlog::get("console")->error("[{}] OpenGL Error Code: {}", instances == 0 ? "glDrawElements" : "glDrawElementsInstanced", error);
+        }
     }
-     */
 
     glBindVertexArray(0);
 }
 
 void Model3DObject::setOrigin(const glm::vec3 &vec) {
-    modelMatrix[0].translation = vec;
-    prepareModelMatrices(modelMatrix[0]);
+   instancedTranslation[0] = vec;
+   prepareModelMatrices(0);
+
+   this->model = instancedModelMatrix[0];
 }
 
 void Model3DObject::prepareModelMatrices() {
-    //const tinygltf::Scene &scene = this->gltfModel->scenes[gltfModel->defaultScene];
-
-    for (auto &instance : this->modelMatrix)
-        this->prepareModelMatrices(instance.second);
+    for (auto i=0; i < instancedTranslation.size(); i++)
+        this->prepareModelMatrices(i);
 }
 
 void Model3DObject::setRotation(const glm::quat &rot) {
-    modelMatrix[0].rotation = rot;
+    instancedRotation[0] = rot;
 }
 
 unsigned int Model3DObject::addInstance(const glm::vec3 &vec, const glm::quat &rot) {
-    auto ID = this->instanceID++;
+    const auto ID  = this->instanceID++;
+    const auto end = instancedTranslation.size();
+    instanceMapping[ID] = end;
 
-    modelMatrix[ID] = Matrix(this->instanceID++, vec, rot);
-    prepareModelMatrices(modelMatrix[ID]);
+    instancedTranslation.push_back(vec);
+    instancedRotation.push_back(rot);
+    instancedModelMatrix.emplace_back(1.0f);
+    instancedNormalMatrix.emplace_back(1.0f);
 
+    prepareModelMatrices(end);
     return ID;
 }
 
 void Model3DObject::removeInstance(unsigned int id) {
-    modelMatrix.erase(id);
-    recomputeInstanceBuffer = true;
-}
+    const auto &old = instanceMapping[id];
+    const auto end = instancedTranslation.size() - 1;
+    unsigned long last = 0;
 
-void Model3DObject::setInstance(unsigned int  id, const glm::vec3 &vec, const glm::quat &rot) {
-    auto &matrix = modelMatrix[id];
-
-    matrix.translation = vec;
-    matrix.rotation = rot;
-
-    prepareModelMatrices(matrix);
-}
-
-void Model3DObject::prepareModelMatrices(Model3DObject::Matrix &instance) {
-    recomputeInstanceBuffer = true;
-    const tinygltf::Scene &scene = this->gltfModel->scenes[gltfModel->defaultScene];
-
-    instance.modelMatrix.clear();
-    instance.normalMatrix.clear();
-
-    for (auto &nodeIndex : scene.nodes) {
-        auto &node = gltfModel->nodes[nodeIndex];
-        glm::mat4 worldMatrix(1.0f);
-
-        // Local Modifications:
-        // TODO: support Object Scaling
-        worldMatrix = glm::translate(worldMatrix, instance.translation);
-        worldMatrix = worldMatrix * glm::toMat4(instance.rotation);
-
-        glm::mat4 modelMatrix(1.0f);
-
-        // Gltf World:
-        if(node.matrix.size() == 16) {
-            glm::mat4 dataMat = glm::make_mat4(node.matrix.data());
-            modelMatrix = modelMatrix * dataMat;
-        } //else { (removed due animation support)
-
-        if(node.translation.size() == 3) {
-            if (!this->animDataInternal.inAnimation) {
-                const glm::vec3 &t = glm::make_vec3(node.translation.data());
-                modelMatrix = glm::translate(modelMatrix, t);
-            } else {
-                modelMatrix = glm::translate(modelMatrix, getAnimationTranslation());
-            }
-        }
-
-        if(node.rotation.size() == 4) {
-            if (!this->animDataInternal.inAnimation) {
-                const glm::quat &q = glm::quat(
-                        static_cast<float>(node.rotation[3]),
-                        static_cast<float>(node.rotation[0]),
-                        static_cast<float>(node.rotation[1]),
-                        static_cast<float>(node.rotation[2])
-                );
-
-                modelMatrix = modelMatrix * glm::toMat4(q);
-            } else {
-                modelMatrix = modelMatrix * glm::toMat4(getAnimationRotation());
-            }
-        }
-
-        if(node.scale.size() == 3) {
-            const glm::vec3 &s = glm::make_vec3(node.scale.data());
-            modelMatrix = glm::scale(modelMatrix, s);
-        }
-
-        //}
-
-        // model matrix = world matrix * gltf modelmatrix
-        modelMatrix = worldMatrix * modelMatrix;
-        glm::mat4 normalMatrix = glm::transpose(glm::inverse(modelMatrix));
-
-        instance.modelMatrix.push_back(modelMatrix);
-        instance.normalMatrix.push_back(normalMatrix);
+    // find last element:
+    for (const auto &inst : instanceMapping) {
+        if (inst.second == instancedTranslation.size() - 1)
+            last = inst.first;
     }
+
+    // re-map the instance
+    instanceMapping[last] = old;
+    instancedTranslation[old] = instancedTranslation[end];
+    instancedRotation[old] = instancedRotation[end];
+
+    // shrink arrays:
+    instancedTranslation.pop_back();
+    instancedRotation.pop_back();
+    instancedNormalMatrix.pop_back();
+    instancedModelMatrix.pop_back();
+
+    // matrices are going to be recomputed
+    recomputeInstanceBuffer = true;
 }
 
-Model3DObject::~Model3DObject() {
-    delete vaos;
-    delete meshDrawMode;
-    delete modelMatrixInstanceVBO;
-    delete normalMatrixInstanceVBO;
+void Model3DObject::setInstance(unsigned int id, const glm::vec3 &vec, const glm::quat &rot) {
+    const auto &pos = instanceMapping[id];
+    instancedTranslation[pos] = vec;
+    instancedRotation[pos] = rot;
 
+    prepareModelMatrices(static_cast<const unsigned long>(pos));
+}
+
+glm::mat4 Model3DObject::getNodeMatrix() {
+    auto &node = gltfModel->nodes[this->gltfNodeIndex];
+    glm::mat4 modelMatrix(1.0f);
+
+    // Gltf World:
+    if(node.matrix.size() == 16) {
+        glm::mat4 dataMat = glm::make_mat4(node.matrix.data());
+        modelMatrix = modelMatrix * dataMat;
+    } //else { (removed due animation support)
+
+    // Extract translation and rotation in the gltf
+    // scene with the correct animation timestamp
+    if(node.translation.size() == 3) {
+        if (!this->animDataInternal.inAnimation) {
+            const glm::vec3 &t = glm::make_vec3(node.translation.data());
+            modelMatrix = glm::translate(modelMatrix, t);
+        } else {
+            modelMatrix = glm::translate(modelMatrix, getAnimationTranslation());
+        }
+    }
+
+    if(node.rotation.size() == 4) {
+        if (!this->animDataInternal.inAnimation) {
+            const glm::quat &q = glm::quat(
+                    static_cast<float>(node.rotation[3]),
+                    static_cast<float>(node.rotation[0]),
+                    static_cast<float>(node.rotation[1]),
+                    static_cast<float>(node.rotation[2])
+            );
+
+            modelMatrix = modelMatrix * glm::toMat4(q);
+        } else {
+            modelMatrix = modelMatrix * glm::toMat4(getAnimationRotation());
+        }
+    }
+
+    if(node.scale.size() == 3) {
+        const glm::vec3 &s = glm::make_vec3(node.scale.data());
+        modelMatrix = glm::scale(modelMatrix, s);
+    }
+
+    return modelMatrix;
+}
+
+void Model3DObject::prepareModelMatrices(const unsigned long pos) {
+    recomputeInstanceBuffer = true;
+
+    auto &node = gltfModel->nodes[this->gltfNodeIndex];
+    glm::mat4 worldMatrix(1.0f);
+
+    // Local Modifications:
+    // TODO: support Object Scaling
+    worldMatrix = glm::translate(worldMatrix, instancedTranslation[pos]);
+    worldMatrix = worldMatrix * glm::toMat4(instancedRotation[pos]); // <-- maybe save as mat4 ?
+
+    // Gltf scene position / rotation and scale:
+    glm::mat4 modelMatrix = this->getNodeMatrix();
+
+    // Apply world and model matrix
+    modelMatrix = worldMatrix * modelMatrix;
+    glm::mat4 normalMatrix = glm::transpose(glm::inverse(modelMatrix));
+
+    instancedModelMatrix[pos] = modelMatrix;
+    instancedNormalMatrix[pos] = normalMatrix;
 }
 
 void Model3DObject::clearInstances() {
     this->instancedModelMatrix.clear();
     this->instancedNormalMatrix.clear();
-    this->modelMatrix.clear();
+    this->instancedRotation.clear();
+    this->instancedTranslation.clear();
 }
 
 void Model3DObject::enableAnimation(const Model3DObject::Animation &data) {

@@ -1,11 +1,12 @@
 //
 // Created by Raphael on 01.04.2018.
 //
+#include <utility>
 
 #include "Label.h"
-#include "../manager/ShaderManager.h"
 
-#include <utility>
+#include "../manager/ShaderManager.h"
+#include "../helper/CompilerMacros.h"
 
 Label::Label(std::string text, std::shared_ptr<Font> font, float x, float y, float scale, glm::vec3 color)
         : color(color), x(x), y(y), scale(scale), font(std::move(font)), text(text) {
@@ -17,16 +18,16 @@ Label::Label(std::string text, std::shared_ptr<Font> font, float x, float y, flo
     this->vboData.clear();
 
     glBindVertexArray(VAO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    buildVBO();
 
-    glEnableVertexAttribArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), nullptr);
+    glEnableVertexAttribArray(0);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
     this->shader = ShaderManager::load("font");
-    buildVBO();
 }
 
 Label::~Label() {
@@ -44,17 +45,17 @@ void Label::render(const glm::mat4 &projection) {
     glBlendEquation(GL_FUNC_ADD);
 
     glBindVertexArray(VAO);
-    //glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
     // Bind Texture atlas
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, font->getAtlasTexID());
+    opengl_check_error(spdlog::get("console"), "Font: bind data");
 
     // Render quads
     glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(vboData.size() * 6));
+    opengl_check_error(spdlog::get("console"), "Font: glDrawArrays");
 
-    //glBindTexture(GL_TEXTURE_2D, 0);
-    //glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindTexture(GL_TEXTURE_2D, 0);
     glBindVertexArray(0);
 
     glDisable(GL_BLEND);
@@ -70,15 +71,17 @@ void Label::setPosition(float x, float y) {
         this->y = y;
 
         buildVBO();
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
     }
 }
 
-void Label::resize(float x, float y) {}
+void Label::resize(float UNUSED(x), float UNUSED(y)) {}
 
-void Label::setText(std::string text) {
+void Label::setText(const std::string &text) {
     if (this->text != text) {
         this->text = text;
         buildVBO();
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
     }
 }
 
@@ -88,6 +91,8 @@ void Label::buildVBO() {
     this->w = 0;
 
     vboData.clear();
+    vboData.reserve(this->text.size());
+
     for (auto &c : this->text) {
         Font::Character ch = font->get((unsigned long) c);
 
@@ -116,15 +121,11 @@ void Label::buildVBO() {
 
     w = x - this->x;
 
-    glBindVertexArray(VAO);
+    opengl_check_error(spdlog::get("console"), "Font: build VBO, bind data");
+
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    opengl_check_error(spdlog::get("console"), "Font: build VBO, bind data");
 
-    glBufferData(GL_ARRAY_BUFFER,
-                 vboData.size() * sizeof(Quad),
-                 vboData.data(),
-                 GL_DYNAMIC_DRAW
-    );
-
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
+    glBufferData(GL_ARRAY_BUFFER, vboData.size() * sizeof(Quad), vboData.data(), GL_DYNAMIC_DRAW);
+    opengl_check_error(spdlog::get("console"), "Font: build VBO, bind data");
 }

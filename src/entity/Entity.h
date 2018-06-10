@@ -10,6 +10,7 @@
 #include <glm/glm.hpp>
 
 #include "../object3d/Object3D.h"
+#include "../object3d/BulletObject.h"
 #include "../helper/CompilerMacros.h"
 class Level; //#include "../level/Level.h"
 

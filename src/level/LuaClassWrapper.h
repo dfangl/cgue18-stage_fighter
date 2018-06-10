@@ -177,24 +177,24 @@ public:
 
 class LuaLight {
 protected:
-    LuaVec3 position;
-    LuaVec3 diffuse;
-    LuaVec3 specular;
-    LuaVec3 ambient;
-    float power;
+    const LuaVec3 position;
+    const LuaVec3 diffuse;
+    const LuaVec3 specular;
+    const LuaVec3 ambient;
+    const float power;
 
 public:
     LuaLight(LuaVec3 &pos,LuaVec3 &dif,LuaVec3 &spec,LuaVec3 &amb, float power) :
             position(pos), diffuse(dif), specular(spec), ambient(amb), power(power) {}
 
-    std::shared_ptr<Light> toLight() {
-        return std::make_shared<Light>(
-                    position.pos,
-                    diffuse.pos,
-                    specular.pos,
-                    ambient.pos,
-                    power
-                );
+    Light const toLight() {
+        return Light(
+                position.pos,
+                diffuse.pos,
+                specular.pos,
+                ambient.pos,
+                power
+        );
     }
 
 };
@@ -213,6 +213,7 @@ public:
     }
 
     std::shared_ptr<BulletEntity> toBulletEntity(const LuaVec3 &pos, const LuaVec3 &target, std::shared_ptr<BulletUniverse> &world) const {
+        opengl_check_error(spdlog::get("console"), "toBulletEntity function head");
         return std::make_shared<BulletEntity>(pos.toVector3(), target.toVector3(), world);
     }
 };

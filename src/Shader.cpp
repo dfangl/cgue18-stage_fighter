@@ -201,6 +201,8 @@ void Shader::recompile() {
         return;
     }
 
+    this->hasLightDataSet = false;
+
     GLuint oldShader;
     if (this->computeFilePath.empty()) {
         logger->info("Recompiling Shader ({}, {}, {})", this->vertexFilePath, this->fragmentFilePath, this->geometryFilePath);

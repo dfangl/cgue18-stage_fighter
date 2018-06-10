@@ -15,9 +15,10 @@
 #include "../helper/QuatUtils.h"
 
 Player::Player(Camera &camera, Window *window, const std::shared_ptr<BulletUniverse> &world) :
+        Logger("Player"),
         CameraEntity(camera, world, new btSphereShape(0.7f), 1.0f),
-        hud(std::make_shared<PlayerHud>(FontManager::get("Lato-24"), camera.getViewPort().z, camera.getViewPort().w)),
-        Logger("Player") {
+        hud(std::make_shared<PlayerHud>(FontManager::get("Lato-24"), camera.getViewPort().z, camera.getViewPort().w))
+        {
 
     this->window = window;
 
@@ -48,9 +49,9 @@ void Player::think(std::chrono::duration<double, std::milli> delta) {
 
     shieldModel->setOrigin(camera.getPosition());
     //shieldModel->setRotation(Quat::toQuaternion(camera.getPitch(), 90.0f, camera.getYaw()));
-    shieldAnimationTime += delta.count() / 1000;
-
-    this->shieldModel->applyAnimation(shieldAnimationTime);
+    //shieldAnimationTime += delta.count() / 1000;
+    //this->shieldModel->applyAnimation(shieldAnimationTime);
+    opengl_check_error(spdlog::get("console"), "Player: think()");
 
     hud->setHealth(health);
     hud->setShield(shield);

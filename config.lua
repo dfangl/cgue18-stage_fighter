@@ -40,5 +40,5 @@ camera = {
 --      true to enable debugging or false to disable debuggiing
 debug = {
     bullet=false,        -- Create a Bullet Debug Context and draw all the Bounding Boxes as Lines to the screen
-    opengl=false         -- Debug OpenGL Context and enable error outputs for OpenGL
+    opengl=true         -- Debug OpenGL Context and enable error outputs for OpenGL
 }

@@ -166,6 +166,7 @@ int main(int UNUSED(argc), char** UNUSED(argv)) {
         std::chrono::duration<double, std::milli> deltaT = _curTick - lastTick;
 
         window->render(deltaT);
+        opengl_check_error(console, "async render");
 
         lastTick = _curTick;
     }
@@ -192,6 +193,7 @@ int main(int UNUSED(argc), char** UNUSED(argv)) {
      */
     auto level = std::make_shared<Level>("../resources/level/test.lua");
     window->hideCursor();
+    window->requestFocus();
 
     /*
      * Start the Level
@@ -276,6 +278,8 @@ int main(int UNUSED(argc), char** UNUSED(argv)) {
      * ======= MAIN GAME LOOP =======
      */
 
+    opengl_check_error(console, "before main loop");
+
     /*
      * While the window is open we want to render stuff ...
      * TODO: First delta might be way too small for some simulation stuff
@@ -291,6 +295,7 @@ int main(int UNUSED(argc), char** UNUSED(argv)) {
         /*
          * Process level logic and so on
          */
+        opengl_check_error(console, "before tick");
         level->tick(delta);
 
         /*
@@ -308,7 +313,9 @@ int main(int UNUSED(argc), char** UNUSED(argv)) {
          * Finally draw all the Content which is registered to the Screen
          * (All Widgets and Object3Ds ->render(...) will be called)
          */
+        opengl_check_error(console, "before window render");
         window->render(delta);
+        opengl_check_error(console, "after window render");
 
         /*
          * glGetError() slows down rendering, since it forces the driver do flush everything so it can read back the

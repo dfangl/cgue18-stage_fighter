@@ -67,6 +67,9 @@ private:
 public:
     PlayerHud(std::shared_ptr<Font> font, float width, float height);
 
+    PlayerHud(const PlayerHud&) = delete;
+    PlayerHud &operator=(const PlayerHud&) = delete;
+
     void render(const glm::mat4 &projection) override;
     void resize(float x, float y) override;
 

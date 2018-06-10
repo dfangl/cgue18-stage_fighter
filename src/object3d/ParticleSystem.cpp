@@ -10,6 +10,8 @@
 #include "../Scene.h"
 #include "../manager/ShaderManager.h"
 
+#include "../helper/CompilerMacros.h"
+
 void ParticleSystem::render(Scene *scene) {
     auto hpDeltaT = static_cast<float>(scene->getFrameTime().count());
 
@@ -57,7 +59,6 @@ ParticleSystem::ParticleSystem(const glm::vec3 &position, float radius, std::sha
     glEnableVertexAttribArray(1);
 
     shader->setUniform("texture_0", 0);
-
     glBindVertexArray(0);
 }
 
@@ -125,8 +126,11 @@ void ParticleSystem::setSize(const glm::vec2 &size) {
 
 void ParticleSystem::loadSSBO() {
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, SSBO);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, SSBO);
+    opengl_check_error(spdlog::get("console"), "glBind SSBO");
+
+    //glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, SSBO);
     glBufferData(GL_SHADER_STORAGE_BUFFER, data.size() * sizeof(ParticleSystem::Particle), data.data(), GL_STATIC_DRAW);
+    opengl_check_error(spdlog::get("console"), "glBufferData SSBO");
 }
 
 

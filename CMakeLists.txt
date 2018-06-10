@@ -38,15 +38,15 @@ include(${CMAKE_ROOT}/Modules/ExternalProject.cmake)
 #endif()
 
 # Use higher warning level than default:
-if(MSVC)
-	if(CMAKE_CXX_FLAGS MATCHES "/W[0-4]")
-		string(REGEX REPLACE "/W[0-4]" "/W4" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-	else()
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
-	endif()
-elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -pedantic")
-endif()
+#if(MSVC)
+#	if(CMAKE_CXX_FLAGS MATCHES "/W[0-4]")
+#		string(REGEX REPLACE "/W[0-4]" "/W4" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+#	else()
+#		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
+#	endif()
+#elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
+#	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -pedantic")
+#endif()
 
 #
 # Dependencies:
@@ -281,7 +281,7 @@ add_executable(
 		src/helper/ImageGenerator.cpp src/helper/ImageGenerator.h src/CubemapTexture.cpp src/CubemapTexture.h
 		src/object3d/Skybox.cpp src/object3d/Skybox.h src/entity/ScriptedEntity.cpp src/entity/ScriptedEntity.h
 
-        src/object3d/ParticleSystem.cpp src/object3d/ParticleSystem.h src/helper/CompilerMacros.h)
+        src/object3d/ParticleSystem.cpp src/object3d/ParticleSystem.h src/helper/CompilerMacros.h src/entity/InstancedProjectile.cpp src/entity/InstancedProjectile.h)
 
 set_target_properties("${BINARY}" PROPERTIES LINKER_LANGUAGE CXX)	
 	

@@ -29,7 +29,6 @@ Window::Window(Camera &camera, int width, int height, const std::string &windowN
 
     logger->info("Creating Window: {} ({}x{})", windowName, width, height);
 
-
     // Set Error callback only once
     if (!errorCallbackSet) {
         glfwSetErrorCallback(error_callback);
@@ -106,6 +105,9 @@ Window::Window(Camera &camera, int width, int height, const std::string &windowN
     }
 
     this->widgetProjectionMatrix = glm::ortho(0.0f, (float)width, (float)height, 0.0f);
+
+    // Lazy initialize Opengl in Scene
+    this->scene->initOpenGLContext();
 }
 
 Window::~Window() {
@@ -166,9 +168,23 @@ int Window::registerKeyCallback(std::function<void(int, int, int, int)> callback
 }
 
 void Window::render(std::chrono::duration<double, std::milli> &delta) {
+    {
+        auto error = glGetError();
+        if(error != GL_NO_ERROR) {
+            spdlog::get("console")->error("[window->render function entry] OpenGL Error Code: {}", error);
+        }
+    }
+
     // Clear Window before drawing
     glClearColor(0.63f, 0.79f, 0.94f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    {
+        auto error = glGetError();
+        if(error != GL_NO_ERROR) {
+            spdlog::get("console")->error("[window->render start] OpenGL Error Code: {}", error);
+        }
+    }
 
     /*
      * Process all callbacks which do want to poll input states such a key states
@@ -203,8 +219,22 @@ void Window::render(std::chrono::duration<double, std::milli> &delta) {
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
 
+    {
+        auto error = glGetError();
+        if(error != GL_NO_ERROR) {
+            spdlog::get("console")->error("[window render -> before scene] OpenGL Error Code: {}", error);
+        }
+    }
+
     // Render all Objects to the Window
     this->scene->render(delta);
+
+    {
+        auto error = glGetError();
+        if(error != GL_NO_ERROR) {
+            spdlog::get("console")->error("[window render -> after scene] OpenGL Error Code: {}", error);
+        }
+    }
 
     // Models don't disable backface culling if they enabled it
     glDisable(GL_CULL_FACE);
@@ -213,6 +243,13 @@ void Window::render(std::chrono::duration<double, std::milli> &delta) {
     // Render all Widgets:
     for (auto &widget : this->widgets) {
         widget->render(this->widgetProjectionMatrix);
+
+        {
+            auto error = glGetError();
+            if(error != GL_NO_ERROR) {
+                spdlog::get("console")->error("[Widget:] OpenGL Error Code: {}", error);
+            }
+        }
     }
 
     // Swap Buffers and listen to events (as GLFW suggests)
@@ -290,6 +327,10 @@ void Window::setScene(std::shared_ptr<Scene> &scene) {
 void Window::setScreenGamma(float gamma) {
     this->screenGamma = gamma;
     this->scene->gamma = screenGamma;
+}
+
+void Window::requestFocus() {
+    glfwFocusWindow(this->glfwWindow);
 }
 
 
