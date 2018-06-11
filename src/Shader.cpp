@@ -318,7 +318,7 @@ void Shader::setVertexAttribDivisor(const GLuint location, const GLuint divisor)
 }
 
 void Shader::setVertexAttribDivisor(const GLuint location, const GLuint count, const GLuint divisor) {
-    for (int i=0; i<count; i++)
+    for (GLuint i=0; i<count; i++)
         glVertexAttribDivisor(location + i, divisor);
 }
 

@@ -15,8 +15,8 @@
 #include "../helper/QuatUtils.h"
 
 Player::Player(Camera &camera, Window *window, const std::shared_ptr<BulletUniverse> &world) :
-        Logger("Player"),
         CameraEntity(camera, world, new btSphereShape(0.7f), 1.0f),
+        Logger("Player"),
         hud(std::make_shared<PlayerHud>(FontManager::get("Lato-24"), camera.getViewPort().z, camera.getViewPort().w))
         {
 

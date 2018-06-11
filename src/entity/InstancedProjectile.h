@@ -18,10 +18,12 @@
 
 #include "../helper/CompilerMacros.h"
 #include "../manager/TextureManager.h"
+#include "BulletEntity.h"
 
 #define INST_PREALLOC (300)
 #define PARTILCE_COUNT (4)
 
+/*
 class InstancedParticleSystem: public ParticleSystem {
 public:
     InstancedParticleSystem(const Model3DObject *model)
@@ -30,13 +32,18 @@ public:
         this->generateParticles(PARTILCE_COUNT);
 
 
+        glGenBuffers(1, &VBO);
+
         glBindVertexArray(VAO);
 
         const auto mLoc = shader->getAttribLocation("model");
         if (mLoc == -1)
             throw std::runtime_error("Unable to set instanced VAO attributes (sure that is the right shader?)");
 
-        glBindBuffer(GL_ARRAY_BUFFER, model->getInstancedModelVBO());
+        shader->setVertexAttribDivisor("position", 1);
+        shader->setVertexAttribDivisor("maxTTL", 1);
+
+        glBindBuffer(GL_ARRAY_BUFFER, VBO);
         shader->setVertexAttributePointer(mLoc + 0, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(0 * sizeof(glm::vec4)));
         shader->setVertexAttributePointer(mLoc + 1, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(1 * sizeof(glm::vec4)));
         shader->setVertexAttributePointer(mLoc + 2, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
@@ -48,15 +55,16 @@ public:
     }
 
 protected:
-    std::map<unsigned int, size_t> mapping;
+    std::map<void *, size_t> mapping;
+    std::vector<glm::mat4> positions;
 
     void generateParticles(unsigned int count) override {
         data.reserve(PARTILCE_COUNT * INST_PREALLOC);
     }
 
 public:
-    void addParticles(unsigned int instanceID, const glm::vec3 &direction, float speed) {
-        mapping[instanceID] = data.size() - 1;
+    void addParticles(void *key, const glm::vec3 &position, const glm::vec3 &direction, float speed) {
+        mapping[key] = ((mapping.size() + 1) * PARTILCE_COUNT) - 1;
 
         std::default_random_engine generator;
         std::uniform_int_distribution<int> distribution(550, 825);
@@ -76,13 +84,13 @@ public:
                     glm::vec4(spawn, ttl)
 
             );
+            positions.push_back(glm::translate(glm::mat4(1.0f), position));
         }
     }
 
-    void removeParticles(unsigned int instanceID) {
-        const auto old = mapping[instanceID];
-        const auto end = data.size() - 1;
-        unsigned long lastElementID = 0;
+    void removeParticles(void *key) {
+        const auto old = mapping[key];
+        void *lastElementID = nullptr;
 
         // find lastElementID element:
         for (const auto &inst : mapping) {
@@ -93,17 +101,53 @@ public:
         }
 
         mapping[lastElementID] = old;
+        mapping.erase(key);
 
-        for (int i=0; i < PARTILCE_COUNT; i++) {
-            spdlog::get("console")->info("{}", old-i);
-            data[old-i] = data.back();
+        for (int i = 0; i < PARTILCE_COUNT; i++) {
+            data[old - i] = data.back();
             data.pop_back();
         }
+
+        const auto pIDX = ((old + 1) / PARTILCE_COUNT) - 1;
+        positions[pIDX] = positions.back();
+        positions.pop_back();
+    }
+
+    void updateEmitterPosition(void *key, const glm::vec3 &position) {
+        const auto old = mapping[key];
+        const auto pIDX = ((old + 1) / PARTILCE_COUNT) - 1;
+        positions[pIDX] = glm::translate(glm::mat4(1.0f), position);
+    }
+
+    void update() {
+        glBindBuffer(GL_ARRAY_BUFFER, VBO);
+        glBufferData(GL_ARRAY_BUFFER, positions.size() * sizeof(glm::mat4), positions.data(), GL_DYNAMIC_DRAW);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+        this->uploadSSBOtoGPU();
+    }
+
+    void draw() override {
+        glDisable(GL_CULL_FACE);
+        glEnable(GL_BLEND);
+        glDepthMask(GL_FALSE);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glBlendEquation(GL_FUNC_ADD);
+
+        texture->bind(GL_TEXTURE0);
+        shader->setUniform("particle_size", this->particle_size);
+
+        glBindVertexArray(VAO);
+        glDrawArraysInstanced(GL_POINTS, 0, particles, positions.size());
+        glBindVertexArray(0);
+
+        glDisable(GL_BLEND);
+        glDepthMask(GL_TRUE);
     }
 };
+*/
 
-
-class InstancedProjectile : /*public Entity,*/ public Model3DObject {
+class InstancedProjectile : /*public Entity,*/ public Model3DObject, virtual public AbstractParticleSystem {
 
 private:
     class Projectile : public BulletObject {
@@ -115,6 +159,8 @@ private:
         float speed;
         glm::vec3 direction;
 
+        std::shared_ptr<BulletEntitySmokeParticleSystem> smoke;
+
         Projectile(const btVector3 &pos, const btVector3 &target, InstancedProjectile *parent, float speed);
 
         void collideWith(BulletObject* other) override;
@@ -122,7 +168,7 @@ private:
     };
 
     std::shared_ptr<BulletUniverse> world;
-    std::shared_ptr<InstancedParticleSystem> smoke;
+    //std::shared_ptr<InstancedParticleSystem> smoke;
 
     std::vector<std::shared_ptr<Projectile>> projectiles;
 
@@ -131,7 +177,7 @@ private:
     float bsRadius;
 
     glm::vec3 fakePos = glm::vec3(0,0,0);
-    bool particleChange = false;
+    int renderPass = 0;
 
 public:
     InstancedProjectile(float bsRadius, const std::shared_ptr<tinygltf::Model> &model, const std::shared_ptr<Shader> &shader,
@@ -145,9 +191,12 @@ public:
 
     void think(std::chrono::duration<double, std::milli> delta);
 
-    void render(Scene *scene);
+    void render(Scene *scene) override;
+    void update(Scene *scene) override;
 
-    std::shared_ptr<ParticleSystem> getParticleSystem() { return this->smoke; };
+protected:
+    void generateParticles(unsigned int count) override;
+
 
 };
 

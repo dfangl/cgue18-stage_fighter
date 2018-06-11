@@ -242,10 +242,10 @@ void Model3DObject::drawMesh(const tinygltf::Mesh &mesh, GLuint &VAO, GLenum &mo
     // Bind Texture (Error?)
     // baseColorTexture is not set every time (exporter fuckup?)
     //const auto texId = material.values["baseColorTexture"].TextureIndex();
-    for (auto i=0; i<textures.size(); i++) {
+    for (size_t i=0; i<textures.size(); i++) {
         auto &texture = this->textures[i];
-        texture->bind(GL_TEXTURE0 + i);
-        shader->setUniform(texture_name_vec[i], i);
+        texture->bind(static_cast<GLenum>(GL_TEXTURE0 + i));
+        shader->setUniform(texture_name_vec[i], (GLint)i);
     }
 
     glBindVertexArray(VAO);
@@ -277,7 +277,7 @@ void Model3DObject::setOrigin(const glm::vec3 &vec) {
 }
 
 void Model3DObject::prepareModelMatrices() {
-    for (auto i=0; i < instancedTranslation.size(); i++)
+    for (size_t i=0; i < instancedTranslation.size(); i++)
         this->prepareModelMatrices(i);
 }
 
@@ -381,8 +381,6 @@ glm::mat4 Model3DObject::getNodeMatrix() {
 
 void Model3DObject::prepareModelMatrices(const unsigned long pos) {
     recomputeInstanceBuffer = true;
-
-    auto &node = gltfModel->nodes[this->gltfNodeIndex];
     glm::mat4 worldMatrix(1.0f);
 
     // Local Modifications:
@@ -413,9 +411,9 @@ void Model3DObject::enableAnimation(const Model3DObject::Animation &data) {
     const auto &animations = this->gltfModel->animations;
     int animationIndex = -1;
 
-    for(auto i=0; i<animations.size(); i++) {
+    for(size_t i=0; i<animations.size(); i++) {
         if (data.name == animations[i].name) {
-            animationIndex = i;
+            animationIndex = static_cast<int>(i);
             break;
         }
     }
@@ -485,22 +483,15 @@ glm::vec3 Model3DObject::getAnimationTranslation() {
 glm::quat Model3DObject::getAnimationRotation() {
     const auto &timeAccessor = this->gltfModel->accessors[animDataInternal.rotation.input];
     const auto &rotationAccessor = this->gltfModel->accessors[animDataInternal.rotation.output];
-    const auto &translationAccessor = this->gltfModel->accessors[animDataInternal.translation.output];
 
     const auto &timeBufferView = this->gltfModel->bufferViews[timeAccessor.bufferView];
     const auto &rotationBufferView = this->gltfModel->bufferViews[rotationAccessor.bufferView];
-    const auto &translationBufferView = this->gltfModel->bufferViews[translationAccessor.bufferView];
 
     const auto &timeBuffer = this->gltfModel->buffers[timeBufferView.buffer];
     const auto &rotationBuffer = this->gltfModel->buffers[rotationBufferView.buffer];
-    const auto &translationBuffer = this->gltfModel->buffers[translationBufferView.buffer];
-
-    const auto * rFltPtw = reinterpret_cast<const float *>(rotationBuffer.data.data());
-    const auto * rRtfPtw = reinterpret_cast<const float *>(translationBuffer.data.data());
 
     const auto *time = reinterpret_cast<const float *>(timeBuffer.data.data());
     const auto *rotationPtr = rotationBuffer.data.data() + rotationBufferView.byteOffset;
-    const auto *translationPtr = translationBuffer.data.data() + translationBufferView.byteOffset;
 
     const auto &curTime = animDataInternal.currentAnimationTime;
     float prevTime = time[0];

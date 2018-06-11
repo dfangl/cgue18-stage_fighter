@@ -4,7 +4,7 @@ layout (triangle_strip, max_vertices = 4) out;
 
 //uniform mat4 model;
 //uniform mat4 view;
-//uniform mat4 projection;
+uniform mat4 projection;
 uniform vec2 particle_size;
 
 in vData {

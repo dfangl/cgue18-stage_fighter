@@ -12,29 +12,6 @@
 
 #include "../helper/CompilerMacros.h"
 
-void ParticleSystem::render(Scene *scene) {
-    auto hpDeltaT = static_cast<float>(scene->getFrameTime().count());
-
-    // Compute Particle stuff:
-    compute->use();
-    compute->setUniform("deltaT", hpDeltaT);
-    compute->setUniform("size", particles);
-    compute->setUniform("enableRespawn", (unsigned int) true);
-    const int workingGroups = particles;
-
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, SSBO);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, SSBO);
-    glDispatchCompute((GLuint) workingGroups, 1, 1);
-    //glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, 0);
-
-    // Memory Barrier
-    glMemoryBarrier(GL_VERTEX_ATTRIB_ARRAY_BARRIER_BIT);
-
-    // Display Particles:
-    Object3D::render(scene);
-}
-
 ParticleSystem::ParticleSystem(const glm::vec3 &position, float radius, std::shared_ptr<Shader> shader,
                                std::shared_ptr<Texture> texture, unsigned int count) :
     Object3D(position, radius, shader) {
@@ -106,6 +83,25 @@ void ParticleSystem::generateParticles(unsigned int count) {
     loadSSBO();
 }
 
+void ParticleSystem::update(Scene *scene) {
+    auto hpDeltaT = static_cast<float>(scene->getFrameTime().count());
+
+    // Compute Particle stuff:
+    compute->use();
+    compute->setUniform("deltaT", hpDeltaT);
+    compute->setUniform("size", particles);
+    compute->setUniform("enableRespawn", (unsigned int) true);
+    const int workingGroups = particles;
+
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, SSBO);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, SSBO);
+    glDispatchCompute((GLuint) workingGroups, 1, 1);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, 0);
+
+    // Memory Barrier
+    glMemoryBarrier(GL_VERTEX_ATTRIB_ARRAY_BARRIER_BIT);
+}
+
 void ParticleSystem::draw() {
     glDisable(GL_CULL_FACE);
     glEnable(GL_BLEND);
@@ -133,5 +129,4 @@ void ParticleSystem::loadSSBO() {
     //glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, SSBO);
     glBufferData(GL_SHADER_STORAGE_BUFFER, data.size() * sizeof(ParticleSystem::Particle), data.data(), GL_STATIC_DRAW);
 }
-
 

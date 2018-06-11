@@ -10,6 +10,7 @@
 
 #define INST_PREALLOC (300)
 
+
 InstancedProjectile::Projectile::Projectile(const btVector3 &pos, const btVector3 &target, InstancedProjectile *parent, float speed)
         : parent(parent), BulletObject(pos, btQuaternion(0,0,0,1),  new btBoxShape(parent->collisionBox), parent->mass) {
     this->speed = speed;
@@ -24,25 +25,38 @@ InstancedProjectile::Projectile::Projectile(const btVector3 &pos, const btVector
     BulletObject::setOrigin(pos, btQuaternion(rotation.x, rotation.y, rotation.z, rotation.w));
 
     this->instanceID = parent->addInstance(glm::vec3(pos.x(), pos.y(), pos.z()), rotation);
-    parent->smoke->addParticles(instanceID, direction, speed);
-    parent->particleChange = true;
-
+    this->smoke = std::make_shared<BulletEntitySmokeParticleSystem>(
+            glm::vec3(pos.x(), pos.y(), pos.z()),
+            this->direction,
+            this->speed
+    );
+    this->smoke->setSize(glm::vec2(0.2f, 0.2f));
 }
 
 void InstancedProjectile::Projectile::move(std::chrono::duration<double, std::milli> delta) {
     if (this->idx < 0)
         return; // projectile is not alive?
 
+    // Let Projectile die after a while
+    lifeTime -= delta.count();
+    if (lifeTime <= 0) {
+        this->idx = -idx;
+        return;
+    }
+
     const glm::vec3 vec = direction * speed;
 
     auto bT = BulletObject::getTransformation();
     auto o = bT.getOrigin();
     auto r = bT.getRotation();
+    const glm::vec3 position = glm::vec3(o.x(), o.y(), o.z());
 
-    parent->setInstance(instanceID, glm::vec3(o.x(), o.y(), o.z()), glm::quat(r.w(), r.x(), r.y(), r.z()));
+    parent->setInstance(instanceID, position, glm::quat(r.w(), r.x(), r.y(), r.z()));
 
     BulletObject::rigidBody->setLinearVelocity(btVector3(vec.x, vec.y, vec.z));
     BulletObject::rigidBody->setGravity(btVector3(0,0,0));
+
+    this->smoke->setOrigin(position);
 }
 
 void InstancedProjectile::Projectile::collideWith(BulletObject* UNUSED(other)) {
@@ -58,8 +72,6 @@ InstancedProjectile::InstancedProjectile(float bsRadius, const std::shared_ptr<t
           collisionBox(bulletShape), mass(mass), world(world) {
     this->projectiles.reserve(INST_PREALLOC);
     this->clearInstances();
-
-    this->smoke = std::make_shared<InstancedParticleSystem>(this);
 }
 
 InstancedProjectile::~InstancedProjectile() {
@@ -77,11 +89,6 @@ void InstancedProjectile::think(std::chrono::duration<double, std::milli> delta)
                         if (current->idx < 0) {
                             this->world->removeRigidBody(current->getRigidBody());
                             this->removeInstance(current->instanceID);
-                            this->smoke->removeParticles(current->instanceID);
-                            this->particleChange = true;
-
-//                            spdlog::get("console")->info("delete: {}->{}", (void*)current.get(), current->idx);
-
                             return true;
                         }
 
@@ -93,15 +100,14 @@ void InstancedProjectile::think(std::chrono::duration<double, std::milli> delta)
 
     for (auto &p : this->projectiles)
         p->move(delta);
-
-    if (particleChange) {
-        this->smoke->uploadSSBOtoGPU();
-        particleChange = false;
-    }
 }
 
 void InstancedProjectile::render(Scene *scene) {
-    Model3DObject::render(scene);
+    if (renderPass++ == 0) Model3DObject::render(scene);
+    else {
+        for (auto &pps : projectiles) pps->smoke->render(scene);
+        renderPass = 0;
+    }
 }
 
 void InstancedProjectile::spawn(const btVector3 &pos, const btVector3 &target, float speed) {
@@ -111,3 +117,10 @@ void InstancedProjectile::spawn(const btVector3 &pos, const btVector3 &target, f
     projectiles.push_back(projectile);
     world->addRigidBody(projectile->getRigidBody());
 }
+
+void InstancedProjectile::update(Scene *scene) {
+    for (auto &pps : projectiles)
+        pps->smoke->update(scene);
+}
+
+void InstancedProjectile::generateParticles(unsigned int UNUSED(count)) {}

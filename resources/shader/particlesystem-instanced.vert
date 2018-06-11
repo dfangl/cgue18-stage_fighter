@@ -4,7 +4,6 @@ layout (location = 1) in float maxTTL;
 
 in mat4 model;
 uniform mat4 view;
-uniform mat4 projection;
 
 out vData {
     float TTL;

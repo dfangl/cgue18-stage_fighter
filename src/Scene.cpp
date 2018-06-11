@@ -46,6 +46,9 @@ void Scene::render(std::chrono::duration<double, std::milli> &delta) {
     if (this->skybox)
         this->skybox->render(this);
 
+    for (auto &obj : this->particles)
+        obj->update(this);
+
     // Since particles do not use the DEPTH buffer the skybox would
     // overdraw them, so we have to draw them after the skybox
     for (auto &obj : this->particles) {
@@ -133,16 +136,16 @@ void Scene::clear() {
     this->objects.clear();
 }
 
-void Scene::addParticleSystem(const std::shared_ptr<ParticleSystem> &s) {
+void Scene::addParticleSystem(const std::shared_ptr<AbstractParticleSystem> &s) {
     this->particles.push_back(s);
 }
 
-void Scene::removeParticleSystem(const std::shared_ptr<ParticleSystem> &s) {
+void Scene::removeParticleSystem(const std::shared_ptr<AbstractParticleSystem> &s) {
     this->particles.erase(
             std::remove_if(
                     this->particles.begin(),
                     this->particles.end(),
-                    [s](std::shared_ptr<ParticleSystem> current) -> bool {
+                    [s](std::shared_ptr<AbstractParticleSystem> current) -> bool {
                         return current == s;
                     }
             ),

@@ -26,7 +26,7 @@ private:
 
     std::vector<Light> lights;
     std::vector<std::shared_ptr<Object3DAbstract>> objects;
-    std::vector<std::shared_ptr<ParticleSystem>> particles;
+    std::vector<std::shared_ptr<AbstractParticleSystem>> particles;
 
     std::shared_ptr<Skybox> skybox;
 
@@ -52,8 +52,8 @@ public:
     void addLight(const Light &light);
     void removeLight(const Light &light);
 
-    void addParticleSystem(const std::shared_ptr<ParticleSystem> &);
-    void removeParticleSystem(const std::shared_ptr<ParticleSystem> &);
+    void addParticleSystem(const std::shared_ptr<AbstractParticleSystem> &);
+    void removeParticleSystem(const std::shared_ptr<AbstractParticleSystem> &);
 
     void clear();
 

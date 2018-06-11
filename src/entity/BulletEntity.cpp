@@ -20,45 +20,6 @@
 #define BULLET_COLLISION_BOX btVector3(0.174505f/2,0.174505f/2,0.286695f/2)
 #define PARTILCE_COUNT (4)
 
-class BulletEntitySmokeParticleSystem: public ParticleSystem {
-public:
-    BulletEntitySmokeParticleSystem(const glm::vec3 &position, const glm::vec3 &direction, const float &speed) : ParticleSystem(
-            position, 0.286695f, ShaderManager::load("particlesystem", true), TextureManager::load("explosion.png"), PARTILCE_COUNT),
-            direction(direction), speed(speed) {
-        this->generateParticles(PARTILCE_COUNT);
-    }
-
-protected:
-    const glm::vec3 &direction;
-    const float &speed;
-
-    void generateParticles(unsigned int count) override {
-        data.reserve(count);
-
-        std::default_random_engine generator;
-        std::uniform_int_distribution<int> distribution(550, 825);
-
-        const glm::vec3 spawn = glm::vec3(
-                -direction.x * 0.174505f/2,
-                -direction.y * 0.174505f/2,
-                -direction.z * 0.286695f/2);
-        const glm::vec3 vec = -direction * 0.025f * 1.0f/60.0f; // trust me, just a magic number
-
-        for (unsigned int i = 0; i < count; i++) {
-            const float ttl = distribution(generator);
-
-            data.emplace_back(
-                    glm::vec4(spawn, ttl - distribution(generator)),
-                    glm::vec4(vec, 0.0f),
-                    glm::vec4(spawn, ttl)
-
-            );
-        }
-
-        ParticleSystem::loadSSBO();
-    }
-};
-
 BulletEntity::BulletEntity(const btVector3 &pos, const btVector3 &target, std::shared_ptr<BulletUniverse> &world) :
         BulletObject(pos, btQuaternion(0,0,0,1), new btBoxShape(BULLET_COLLISION_BOX), 0.00001),
         Model3DObject(glm::vec3(pos.x(), pos.y(), pos.z()), FRUSTUM_CULLING_RADIUS, ModelManager::load("bullet"), ShaderManager::load("standard")) {

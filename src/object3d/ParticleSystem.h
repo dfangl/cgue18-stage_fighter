@@ -13,10 +13,22 @@
 
 #include "Object3D.h"
 
-class ParticleSystem : public Object3D {
+
+class AbstractParticleSystem : virtual public Object3DAbstract {
+
+protected:
+    virtual void generateParticles(unsigned int count)  = 0;
+
+public:
+    virtual void update(Scene *scene) = 0;
+
+};
+
+
+
+class ParticleSystem : virtual public AbstractParticleSystem, public Object3D {
 
 private:
-    std::shared_ptr<Texture> texture;
     std::shared_ptr<Shader> compute;
     //std::shared_ptr<Shader> shader;
 
@@ -24,6 +36,8 @@ private:
     GLuint SSBO = 0;
 
 protected:
+    std::shared_ptr<Texture> texture;
+
     struct Particle {
         glm::vec4 position;
         glm::vec4 velocity;
@@ -49,7 +63,7 @@ public:
                    unsigned int particles);
     virtual ~ParticleSystem();
 
-    void render(Scene *scene) override;
+    void update(Scene *scene);
     void draw() override;
     void setSize(const glm::vec2 &);
 

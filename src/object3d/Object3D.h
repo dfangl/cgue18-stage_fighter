@@ -33,7 +33,7 @@ public:
 /**
  * Object3D represnets a Object in OpenGL which can use VBO, VAO, EBO and do have a Model matrix
  */
-class Object3D : public Object3DAbstract {
+class Object3D : virtual public Object3DAbstract {
 
 protected:
     GLuint VBO = 0, VAO = 0;//, EBO = 0;
