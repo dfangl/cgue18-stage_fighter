@@ -280,6 +280,7 @@ void Level::hide() {
     for (auto &projectile : this->projectiles) {
         const std::shared_ptr<Object3DAbstract> ptr = std::dynamic_pointer_cast<Object3DAbstract>(projectile.second);
         this->window->getScene()->removeObject(ptr);
+        this->window->getScene()->removeParticleSystem(projectile.second->getParticleSystem());
     }
 }
 
@@ -298,6 +299,7 @@ void Level::show() {
     for (auto &projectile : this->projectiles) {
         const std::shared_ptr<Object3DAbstract> ptr = std::dynamic_pointer_cast<Object3DAbstract>(projectile.second);
         this->window->getScene()->addObject(projectile.second);
+        this->window->getScene()->addParticleSystem(projectile.second->getParticleSystem());
     }
 }
 

@@ -140,7 +140,6 @@ Model3DObject::Model3DObject(const glm::vec3 &position, float bsRadius,const std
     }
 
     meshDrawMode = mode;
-
     // Only to the following part if instances are used, otherwise these values will be set per uniform
     if (instances > 0) {
         const auto mLoc = shader->getAttribLocation("model");
@@ -300,7 +299,7 @@ unsigned int Model3DObject::addInstance(const glm::vec3 &vec, const glm::quat &r
     return ID;
 }
 
-// faulty? 
+// faulty?
 void Model3DObject::removeInstance(unsigned int id) {
     const auto old = instanceMapping[id];
     const auto end = instancedTranslation.size() - 1;
@@ -308,8 +307,10 @@ void Model3DObject::removeInstance(unsigned int id) {
 
     // find lastElementID element:
     for (const auto &inst : instanceMapping) {
-        if (inst.second == instancedTranslation.size() - 1)
+        if (inst.second == instancedTranslation.size() - 1) {
             lastElementID = inst.first;
+            break;
+        }
     }
 
     // re-map the instance

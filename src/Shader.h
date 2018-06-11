@@ -27,6 +27,7 @@ private:
 
     // Mapping of uniform locations and their names
     std::map<std::string, GLint> mapping;
+    std::map<std::string, GLint> attributes;
 
     bool loadedFromFile = false;
     std::string vertexFilePath;

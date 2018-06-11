@@ -20,7 +20,7 @@ private:
     std::shared_ptr<Shader> compute;
     //std::shared_ptr<Shader> shader;
 
-    GLuint VAO  = 0;
+    //GLuint VAO  = 0;
     GLuint SSBO = 0;
 
 protected:
@@ -50,10 +50,10 @@ public:
     virtual ~ParticleSystem();
 
     void render(Scene *scene) override;
-
     void draw() override;
-
     void setSize(const glm::vec2 &);
+
+    void uploadSSBOtoGPU() { this->particles = static_cast<unsigned int>(data.size()); this->loadSSBO(); }
 };
 
 

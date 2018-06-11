@@ -115,10 +115,10 @@ GLint Shader::getLocation(const std::string &name) {
 
 
 GLint Shader::getAttribLocation(const std::string &name) {
-    auto element = this->mapping.find(name);
-    if(element == this->mapping.end()) {
+    auto element = this->attributes.find(name);
+    if(element == this->attributes.end()) {
         const GLint location = glGetAttribLocation(this->shaderID, name.c_str());
-        this->mapping[name] = location;
+        this->attributes[name] = location;
 
         return location;
     }

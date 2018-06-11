@@ -111,6 +111,8 @@ public:
     void enableAnimation(const Animation &);
     void disableAnimation();
     void applyAnimation(float currentTime);
+
+    GLuint getInstancedModelVBO() const { return this->normalMatrixInstanceVBO; }
 };
 
 

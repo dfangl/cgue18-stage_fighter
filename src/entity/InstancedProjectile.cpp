@@ -2,8 +2,11 @@
 // Created by Raphael on 10.06.2018.
 //
 
+#include <random>
+
 #include "InstancedProjectile.h"
 #include "../helper/QuatUtils.h"
+#include "../manager/TextureManager.h"
 
 #define INST_PREALLOC (300)
 
@@ -21,11 +24,14 @@ InstancedProjectile::Projectile::Projectile(const btVector3 &pos, const btVector
     BulletObject::setOrigin(pos, btQuaternion(rotation.x, rotation.y, rotation.z, rotation.w));
 
     this->instanceID = parent->addInstance(glm::vec3(pos.x(), pos.y(), pos.z()), rotation);
+    parent->smoke->addParticles(instanceID, direction, speed);
+    parent->particleChange = true;
 
 }
 
 void InstancedProjectile::Projectile::move(std::chrono::duration<double, std::milli> delta) {
-    if (this->idx < 0) return; // projectile is not alive?
+    if (this->idx < 0)
+        return; // projectile is not alive?
 
     const glm::vec3 vec = direction * speed;
 
@@ -41,8 +47,7 @@ void InstancedProjectile::Projectile::move(std::chrono::duration<double, std::mi
 
 void InstancedProjectile::Projectile::collideWith(BulletObject* UNUSED(other)) {
     if (this->idx >= 0) {
-        parent->removeIDX(this->idx);
-        this->idx = -1;
+        this->idx = -idx;
     }
 }
 
@@ -53,6 +58,8 @@ InstancedProjectile::InstancedProjectile(float bsRadius, const std::shared_ptr<t
           collisionBox(bulletShape), mass(mass), world(world) {
     this->projectiles.reserve(INST_PREALLOC);
     this->clearInstances();
+
+    this->smoke = std::make_shared<InstancedParticleSystem>(this);
 }
 
 InstancedProjectile::~InstancedProjectile() {
@@ -62,14 +69,35 @@ InstancedProjectile::~InstancedProjectile() {
 }
 
 void InstancedProjectile::think(std::chrono::duration<double, std::milli> delta) {
+    this->projectiles.erase(
+            std::remove_if(
+                    this->projectiles.begin(),
+                    this->projectiles.end(),
+                    [this](std::shared_ptr<Projectile> current) -> bool {
+                        if (current->idx < 0) {
+                            this->world->removeRigidBody(current->getRigidBody());
+                            this->removeInstance(current->instanceID);
+                            this->smoke->removeParticles(current->instanceID);
+                            this->particleChange = true;
 
-    for (auto &dead : this->deads) {
-        world->removeRigidBody(dead->getRigidBody());
-    }
-    this->deads.clear();
+//                            spdlog::get("console")->info("delete: {}->{}", (void*)current.get(), current->idx);
+
+                            return true;
+                        }
+
+                        return false;
+                    }
+            ),
+            this->projectiles.end()
+    );
 
     for (auto &p : this->projectiles)
         p->move(delta);
+
+    if (particleChange) {
+        this->smoke->uploadSSBOtoGPU();
+        particleChange = false;
+    }
 }
 
 void InstancedProjectile::render(Scene *scene) {
@@ -82,16 +110,4 @@ void InstancedProjectile::spawn(const btVector3 &pos, const btVector3 &target, f
 
     projectiles.push_back(projectile);
     world->addRigidBody(projectile->getRigidBody());
-}
-
-void InstancedProjectile::removeIDX(int idx) {
-    const auto old = projectiles[idx];
-    const auto end = projectiles.size() - 1;
-
-    projectiles[idx] = projectiles[end];
-    projectiles[idx]->idx = idx;
-    projectiles.pop_back();
-
-    this->removeInstance(old->instanceID);
-    this->deads.push_back(old);
 }
