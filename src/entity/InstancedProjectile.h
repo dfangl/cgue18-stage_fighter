@@ -23,13 +23,14 @@
 #define INST_PREALLOC (300)
 #define PARTILCE_COUNT (4)
 
-/*
+/* // This class will segfault the shit out of the system
 class InstancedParticleSystem: public ParticleSystem {
 public:
     InstancedParticleSystem(const Model3DObject *model)
             : ParticleSystem(glm::vec3(0,0,0), 0.286695f, ShaderManager::load("particlesystem-instanced", true),
                              TextureManager::load("explosion.png"), PARTILCE_COUNT) {
         this->generateParticles(PARTILCE_COUNT);
+        this->setSize(glm::vec2(0.2f, 0.2f));
 
 
         glGenBuffers(1, &VBO);

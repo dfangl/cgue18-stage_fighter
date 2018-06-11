@@ -31,6 +31,8 @@ InstancedProjectile::Projectile::Projectile(const btVector3 &pos, const btVector
             this->speed
     );
     this->smoke->setSize(glm::vec2(0.2f, 0.2f));
+
+//    parent->smoke->addParticles(this, glm::vec3(pos.x(), pos.y(), pos.z()), direction, speed);
 }
 
 void InstancedProjectile::Projectile::move(std::chrono::duration<double, std::milli> delta) {
@@ -56,6 +58,7 @@ void InstancedProjectile::Projectile::move(std::chrono::duration<double, std::mi
     BulletObject::rigidBody->setLinearVelocity(btVector3(vec.x, vec.y, vec.z));
     BulletObject::rigidBody->setGravity(btVector3(0,0,0));
 
+    //parent->smoke->updateEmitterPosition(this, position);
     this->smoke->setOrigin(position);
 }
 
@@ -72,6 +75,7 @@ InstancedProjectile::InstancedProjectile(float bsRadius, const std::shared_ptr<t
           collisionBox(bulletShape), mass(mass), world(world) {
     this->projectiles.reserve(INST_PREALLOC);
     this->clearInstances();
+    //this->smoke = std::make_shared<InstancedParticleSystem>(this);
 }
 
 InstancedProjectile::~InstancedProjectile() {
@@ -89,6 +93,7 @@ void InstancedProjectile::think(std::chrono::duration<double, std::milli> delta)
                         if (current->idx < 0) {
                             this->world->removeRigidBody(current->getRigidBody());
                             this->removeInstance(current->instanceID);
+                            //smoke->removeParticles(this);
                             return true;
                         }
 
@@ -106,6 +111,7 @@ void InstancedProjectile::render(Scene *scene) {
     if (renderPass++ == 0) Model3DObject::render(scene);
     else {
         for (auto &pps : projectiles) pps->smoke->render(scene);
+        //smoke->render(scene);
         renderPass = 0;
     }
 }
@@ -121,6 +127,7 @@ void InstancedProjectile::spawn(const btVector3 &pos, const btVector3 &target, f
 void InstancedProjectile::update(Scene *scene) {
     for (auto &pps : projectiles)
         pps->smoke->update(scene);
+    //smoke->update();
 }
 
 void InstancedProjectile::generateParticles(unsigned int UNUSED(count)) {}
