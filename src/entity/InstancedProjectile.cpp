@@ -7,6 +7,7 @@
 #include "InstancedProjectile.h"
 #include "../helper/QuatUtils.h"
 #include "../manager/TextureManager.h"
+#include "../level/LuaClassWrapper.h"
 
 #define INST_PREALLOC (300)
 
@@ -25,14 +26,12 @@ InstancedProjectile::Projectile::Projectile(const btVector3 &pos, const btVector
     BulletObject::setOrigin(pos, btQuaternion(rotation.x, rotation.y, rotation.z, rotation.w));
 
     this->instanceID = parent->addInstance(glm::vec3(pos.x(), pos.y(), pos.z()), rotation);
-    this->smoke = std::make_shared<BulletEntitySmokeParticleSystem>(
-            glm::vec3(pos.x(), pos.y(), pos.z()),
-            this->direction,
-            this->speed
-    );
-    this->smoke->setSize(glm::vec2(0.2f, 0.2f));
+    this->smoke = parent->ps->toParticleSystem(position, 8);
+    this->smoke->setValue("direction", LuaVec3(direction));
+    this->smoke->setValue("hitbox", LuaVec3(parent->collisionBox.x(),parent->collisionBox.y(),parent->collisionBox.z()));
+    this->smoke->init();
 
-//    parent->smoke->addParticles(this, glm::vec3(pos.x(), pos.y(), pos.z()), direction, speed);
+//    parent->smoke->addParticles(this, glm::vec3(vec3.x(), vec3.y(), vec3.z()), direction, speed);
 }
 
 void InstancedProjectile::Projectile::move(std::chrono::duration<double, std::milli> delta) {
@@ -70,9 +69,10 @@ void InstancedProjectile::Projectile::collideWith(BulletObject* UNUSED(other)) {
 
 InstancedProjectile::InstancedProjectile(float bsRadius, const std::shared_ptr<tinygltf::Model> &model,
                                          const std::shared_ptr<Shader> &shader, const btVector3 &bulletShape,
-                                         const btScalar &mass, std::shared_ptr<BulletUniverse> &world)
+                                         const btScalar &mass, std::shared_ptr<BulletUniverse> &world,
+                                         const LuaScriptedParticleSystem *ps)
         : Model3DObject(glm::vec3(0,0,0), bsRadius, model, shader, INST_PREALLOC),
-          collisionBox(bulletShape), mass(mass), world(world) {
+          collisionBox(bulletShape), mass(mass), world(world), ps(ps) {
     this->projectiles.reserve(INST_PREALLOC);
     this->clearInstances();
     //this->smoke = std::make_shared<InstancedParticleSystem>(this);

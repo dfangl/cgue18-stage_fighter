@@ -18,6 +18,8 @@
 #include "../manager/TextureManager.h"
 
 #include "../helper/CompilerMacros.h"
+#include "../object3d/particlesystem/ScriptedParticleSystem.h"
+#include "../entity/InstancedProjectile.h"
 
 // ********************
 // ==== Glm Vectors ===
@@ -25,43 +27,43 @@
 
 class LuaVec3 {
 public:
-    glm::vec3 pos;
+    glm::vec3 vec3;
 
     LuaVec3(const LuaVec3 &source) = default;
-    LuaVec3(double x, double y, double z) : pos(x,y,z) {}
-    LuaVec3(glm::vec3 &source) : pos(source) {}
+    LuaVec3(double x, double y, double z) : vec3(x,y,z) {}
+    LuaVec3(glm::vec3 &source) : vec3(source) {}
 
     LuaVec3 &operator=(const LuaVec3 &source) = default;
 
     btVector3 toVector3() const {
-        return {pos.x, pos.y, pos.z};
+        return {vec3.x, vec3.y, vec3.z};
     }
 
-    double x() { return pos.x; }
-    double y() { return pos.y; }
-    double z() { return pos.z; }
+    double x() { return vec3.x; }
+    double y() { return vec3.y; }
+    double z() { return vec3.z; }
 };
 
 class LuaVec4 {
 public:
-    glm::vec4 pos;
+    glm::vec4 vec4;
 
-    LuaVec4(const LuaVec4 &source) : pos(source.pos) {};
-    LuaVec4(double x, double y, double z, double w) : pos(x,y,z,w) {}
+    LuaVec4(const LuaVec4 &source) : vec4(source.vec4) {};
+    LuaVec4(double x, double y, double z, double w) : vec4(x,y,z,w) {}
 
     LuaVec4 &operator=(const LuaVec4 &source) {
-        this->pos = source.pos;
+        this->vec4 = source.vec4;
         return *this;
     };
 
     btQuaternion toQuat() const {
-        return {pos.x, pos.y, pos.z, pos.w};
+        return {vec4.x, vec4.y, vec4.z, vec4.w};
     }
 
-    double x() { return pos.x; }
-    double y() { return pos.y; }
-    double z() { return pos.z; }
-    double w() { return pos.w; }
+    double x() { return vec4.x; }
+    double y() { return vec4.y; }
+    double z() { return vec4.z; }
+    double w() { return vec4.w; }
 };
 
 // *******************************
@@ -132,9 +134,9 @@ public:
                 bsRadius(bsRadius) {}
 
     std::shared_ptr<Model3DObject> toModel() const {
-        auto ret = std::make_shared<Model3DObject>(position.pos, bsRadius, ModelManager::load(model), ShaderManager::load(shader), 0);
-        ret->setRotation(glm::quat(rotation.pos.w, rotation.pos.x, rotation.pos.y, rotation.pos.z));
-        //ret->setOrigin(position.pos);
+        auto ret = std::make_shared<Model3DObject>(position.vec3, bsRadius, ModelManager::load(model), ShaderManager::load(shader), 0);
+        ret->setRotation(glm::quat(rotation.vec4.w, rotation.vec4.x, rotation.vec4.y, rotation.vec4.z));
+        //ret->setOrigin(position.vec3);
         ret->updateModelMatrix();
 
         if (texOverride.size() > 0 )
@@ -189,11 +191,33 @@ public:
 
     Light const toLight() {
         return Light(
-                position.pos,
-                diffuse.pos,
-                specular.pos,
-                ambient.pos,
+                position.vec3,
+                diffuse.vec3,
+                specular.vec3,
+                ambient.vec3,
                 power
+        );
+    }
+
+};
+
+class LuaScriptedParticleSystem {
+
+protected:
+    const float bsRadius;
+    const std::string shader;
+    const std::string texture;
+    const kaguya::LuaTable env;
+
+public:
+    LuaScriptedParticleSystem(float radius, const std::string shader, const std::string texture, kaguya::LuaTable scriptEnv)
+            : bsRadius(radius), shader(shader), texture(texture), env(scriptEnv) {}
+
+    std::shared_ptr<ScriptedParticleSystem> toParticleSystem(const glm::vec3 &position, unsigned int particles) const {
+        return std::make_shared<ScriptedParticleSystem>(
+                position, bsRadius, ShaderManager::load(shader, true), TextureManager::load(texture),
+                particles, env
+
         );
     }
 
@@ -201,19 +225,29 @@ public:
 
 class LuaProjectile {
 protected:
-    std::string model;
-    btCollisionShape *hitbox;
-    float speed;
-    float mass;
+    const std::string model;
+    const std::string shader;
+    const LuaVec3 hitbox;
+    const float speed;
+    const float radius;
+    const float mass;
+    const LuaScriptedParticleSystem ps;
 
 public:
-    LuaProjectile(std::string model, float speed, float UNUSED(mass), const LuaBtCollisionShape &hitbox) :
-            model(model), speed(speed) {
-        this->hitbox = hitbox.generateShape();
+    LuaProjectile(std::string model, std::string shader, float speed, float radius, float mass, const LuaVec3 &hitbox, LuaScriptedParticleSystem &ps) :
+            model(model), shader(shader), hitbox(hitbox), speed(speed), radius(radius), mass(mass), ps(ps) {
     }
 
-    std::shared_ptr<BulletEntity> toBulletEntity(const LuaVec3 &pos, const LuaVec3 &target, std::shared_ptr<BulletUniverse> &world) const {
-        return std::make_shared<BulletEntity>(pos.toVector3(), target.toVector3(), world);
+
+    //float bsRadius, const std::shared_ptr<tinygltf::Model> &model, const std::shared_ptr<Shader> &shader,
+    //                        const btVector3 &bulletShape, const btScalar &mass, std::shared_ptr<BulletUniverse> &world,
+    //                        const LuaScriptedParticleSystem &ps
+
+    std::shared_ptr<InstancedProjectile> toProjectile(std::shared_ptr<BulletUniverse> &world) const {
+        return std::make_shared<InstancedProjectile>(
+                radius, ModelManager::load(model), ShaderManager::load(shader), hitbox.toVector3(), mass,
+                world, &ps
+        );
     }
 };
 
@@ -239,9 +273,11 @@ public:
     }
 
     std::shared_ptr<Entity> toEntity3D(const std::shared_ptr<BulletUniverse> &world) const override {
-        return std::make_shared<ScriptedEntity>(name, health, position.toVector3(), bsRadius, rot.toQuat(), model, mass, hitBoxOffset.pos, hitbox, world, env);
+        return std::make_shared<ScriptedEntity>(name, health, position.toVector3(), bsRadius, rot.toQuat(), model, mass, hitBoxOffset.vec3, hitbox, world, env);
     }
 
 };
+
+
 
 #endif //STAGE_FIGHTER_LUACLASSWRAPPER_H

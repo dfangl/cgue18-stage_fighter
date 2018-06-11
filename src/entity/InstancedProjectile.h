@@ -19,6 +19,9 @@
 #include "../helper/CompilerMacros.h"
 #include "../manager/TextureManager.h"
 #include "BulletEntity.h"
+#include "../object3d/particlesystem/ScriptedParticleSystem.h"
+class LuaScriptedParticleSystem; //#include "../level/LuaClassWrapper.h"
+
 
 #define INST_PREALLOC (300)
 #define PARTILCE_COUNT (4)
@@ -160,7 +163,7 @@ private:
         float speed;
         glm::vec3 direction;
 
-        std::shared_ptr<BulletEntitySmokeParticleSystem> smoke;
+        std::shared_ptr<ScriptedParticleSystem> smoke;
 
         Projectile(const btVector3 &pos, const btVector3 &target, InstancedProjectile *parent, float speed);
 
@@ -169,6 +172,7 @@ private:
     };
 
     std::shared_ptr<BulletUniverse> world;
+    const LuaScriptedParticleSystem *ps;
     //std::shared_ptr<InstancedParticleSystem> smoke;
 
     std::vector<std::shared_ptr<Projectile>> projectiles;
@@ -182,7 +186,8 @@ private:
 
 public:
     InstancedProjectile(float bsRadius, const std::shared_ptr<tinygltf::Model> &model, const std::shared_ptr<Shader> &shader,
-                        const btVector3 &bulletShape, const btScalar &mass, std::shared_ptr<BulletUniverse> &world);
+                        const btVector3 &bulletShape, const btScalar &mass, std::shared_ptr<BulletUniverse> &world,
+                        const LuaScriptedParticleSystem *ps);
     ~InstancedProjectile();
 
     void spawn(const btVector3 &pos, const btVector3 &target, float speed);

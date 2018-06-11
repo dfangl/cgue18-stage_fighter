@@ -58,7 +58,7 @@ void ParticleSystem::generateParticles(unsigned int count) {
     std::default_random_engine generator;
     std::uniform_int_distribution<int> distribution(2000, 3499);
 
-    for(int i=0; i < count; i++) {
+    for(unsigned int i=0; i < count; i++) {
         float nx = (float)i / count * 1.128128364f;
         float ny = (float)i / count * 0.923865875f;
 

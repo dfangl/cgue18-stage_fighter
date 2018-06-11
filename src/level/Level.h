@@ -53,7 +53,7 @@ private:
     std::vector<std::shared_ptr<Model3DObject>> statics;
     std::vector<std::shared_ptr<BulletObject>> bullet;
     std::vector<Light> lights;
-    std::map<std::string, std::shared_ptr<InstancedProjectile>> projectiles;
+    std::vector<std::shared_ptr<InstancedProjectile>> projectiles;
 
     std::shared_ptr<Player> player;
     std::shared_ptr<Object3DAbstract> playerWitcheryPointer;
@@ -96,7 +96,7 @@ public:
     std::shared_ptr<BulletUniverse> getWorld() const { return this->world; }
 
     // Lua Binding part:
-    void luaSpawnEntity(const LuaProjectile &projectile, const LuaVec3 &spawn, const LuaVec3 &target);
+    void luaSpawnEntity(const int projectile, const LuaVec3 &spawn, const LuaVec3 &target);
     LuaVec3 luaGetPlayerPos();
 
 };

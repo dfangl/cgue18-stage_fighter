@@ -38,7 +38,7 @@ ScriptedEntity::ScriptedEntity(const std::string &name, int health, const btVect
         btVector3 center;
         float radius;
         BulletObject::fallShape->getBoundingSphere(center, radius);
-        glm::vec3 direction = glm::normalize(pPos.pos - position) * radius;
+        glm::vec3 direction = glm::normalize(pPos.vec3 - position) * radius;
 
         return LuaVec3(origin.x() + direction.x, origin.y() + direction.y, origin.z() + direction.z);
     });

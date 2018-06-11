@@ -15,8 +15,8 @@ std::vector<unsigned char> ImageGenerator::marble(unsigned int width, unsigned i
     std::vector<unsigned char> data;
     data.reserve(height * width * (rgba ? 4 : 3));
 
-    for (int x=0; x < width; x++)
-        for (int y=0; y < height; y++) {
+    for (unsigned int x=0; x < width; x++)
+        for (unsigned int y=0; y < height; y++) {
             float nx = (float)x / width - 0.5f;
             float ny = (float)y / height - 0.5f;
             float nz = 15.296f;

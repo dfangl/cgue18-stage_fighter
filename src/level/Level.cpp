@@ -62,10 +62,16 @@ Level::Level(const std::string &file) : Logger("Level"), world(std::make_shared<
                     .setConstructors<LuaLight(LuaVec3&, LuaVec3&, LuaVec3&, LuaVec3&, float)>()
     );
 
+    state["ParticleSystem"].setClass(
+            kaguya::UserdataMetatable<LuaScriptedParticleSystem>()
+                    .setConstructors<LuaScriptedParticleSystem(float, std::string, std::string, kaguya::LuaTable)>()
+    );
+
     state["Projectile"].setClass(
             kaguya::UserdataMetatable<LuaProjectile>()
-                    .setConstructors<LuaProjectile(std::string, float, float, LuaBtCollisionShape&)>()
+                    .setConstructors<LuaProjectile(std::string, std::string, float, float, float, LuaVec3&, LuaScriptedParticleSystem&)>()
     );
+
 
     // Register Level to use global functions everywhere:
     state["Level"].setClass(
@@ -110,7 +116,7 @@ void Level::start(Window *window) {
     const LuaVec3 *pPosition = state["player"]["position"];
     const LuaVec3 *pLookAt = state["player"]["lookAt"];
 
-    player->setPosition(pPosition->pos, glm::quat(0, 0, 0, 1));
+    player->setPosition(pPosition->vec3, glm::quat(0, 0, 0, 1));
 
     playerInputCallbackID = window->registerKeyPollingCallback(player->getKeyboardCallback());
 
@@ -145,24 +151,18 @@ void Level::start(Window *window) {
         world->addRigidBody(bulletObj->getRigidBody());
     }
 
-    // TODO: InstancedProjectile:
     c=1;
     all = static_cast<int>( state["projectiles"].size());
-    for(auto &projectile : state["projectiles"].map<std::string, LuaProjectile *>()) {
+    for(auto &projectile : state["projectiles"].map<int, LuaProjectile *>()) {
         this->setLoadingStatus("projectiles", c++, all);
-
-        logger->info("Loading projectile: {}", projectile.first);
+        this->projectiles.push_back(projectile.second->toProjectile(world));
     }
-
-    projectiles[std::string("bullet")] = std::make_shared<InstancedProjectile>(
-            0.0f,  ModelManager::load("bullet"), ShaderManager::load("standard-instanced"),
-            btVector3(0.174505f/2,0.174505f/2,0.286695f/2), 0.00001, world
-    );
 
     this->logger->info("Loaded {} entities", entities.size());
     this->logger->info("Loaded {} objects", statics.size());
     this->logger->info("Loaded {} collision primitives", bullet.size());
     this->logger->info("Loaded {} light sources", lights.size());
+    this->logger->info("Loaded {} projectiles", projectiles.size());
 
     //this->logger->info("Player.add={}", (void*)player.get());
 
@@ -174,7 +174,7 @@ void Level::start(Window *window) {
 
     this->show();
 
-    player->lookAt(pLookAt->pos);
+    player->lookAt(pLookAt->vec3);
 }
 
 void Level::destroy() {
@@ -225,7 +225,7 @@ void Level::tick(std::chrono::duration<double, std::milli> delta) {
     }
 
     for (auto &pSys : this->projectiles)
-        pSys.second->think(delta);
+        pSys->think(delta);
 
     int enemyH = 0;
     for (auto &entity : this->entities) {
@@ -278,9 +278,9 @@ void Level::hide() {
     this->window->removeWidget(winLoseLabel);
     this->window->getScene()->removeObject(this->playerWitcheryPointer);
     for (auto &projectile : this->projectiles) {
-        const std::shared_ptr<Object3DAbstract> ptr = std::dynamic_pointer_cast<Object3DAbstract>(projectile.second);
+        const std::shared_ptr<Object3DAbstract> ptr = std::dynamic_pointer_cast<Object3DAbstract>(projectile);
         this->window->getScene()->removeObject(ptr);
-        this->window->getScene()->removeParticleSystem(projectile.second);
+        this->window->getScene()->removeParticleSystem(projectile);
     }
 }
 
@@ -297,9 +297,9 @@ void Level::show() {
 
     this->window->getScene()->addObject(this->playerWitcheryPointer);
     for (auto &projectile : this->projectiles) {
-        const std::shared_ptr<Object3DAbstract> ptr = std::dynamic_pointer_cast<Object3DAbstract>(projectile.second);
-        this->window->getScene()->addObject(projectile.second);
-        this->window->getScene()->addParticleSystem(projectile.second);
+        const std::shared_ptr<Object3DAbstract> ptr = std::dynamic_pointer_cast<Object3DAbstract>(projectile);
+        this->window->getScene()->addObject(projectile);
+        this->window->getScene()->addParticleSystem(projectile);
     }
 }
 
@@ -366,8 +366,8 @@ Level::~Level() {
     this->window->removeKeyPollingCallback(playerInputCallbackID);
 }
 
-void Level::luaSpawnEntity(const LuaProjectile &projectile, const LuaVec3 &spawn, const LuaVec3 &target) {
-    this->projectiles["bullet"]->spawn(spawn.toVector3(), target.toVector3(), 5.0f);
+void Level::luaSpawnEntity(const int projectile, const LuaVec3 &spawn, const LuaVec3 &target) {
+    this->projectiles[projectile-1]->spawn(spawn.toVector3(), target.toVector3(), 5.0f);
     //this->spawn(projectile.toBulletEntity(spawn, target, world));
 }
 

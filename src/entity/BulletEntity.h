@@ -14,6 +14,8 @@
 
 #include "Entity.h"
 
+#include "../manager/TextureManager.h"
+
 #define BULLET_PARTILCE_COUNT (8)
 
 class BulletEntitySmokeParticleSystem: public ParticleSystem {
