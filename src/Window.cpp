@@ -21,7 +21,8 @@ static bool errorCallbackSet = false;
 void APIENTRY glDebugOutput(GLenum source, GLenum type, GLuint id, GLenum severity,
                             GLsizei length, const GLchar *message, const void *userParam);
 
-Window::Window(Camera &camera, int width, int height, const std::string &windowName, int fullscreen, int refreshRate)
+Window::Window(Camera &camera, int width, int height, const std::string &windowName, int fullscreen,
+               int refreshRate, bool debugContext)
         : Logger("Window") {
     this->height = height;
     this->width = width;
@@ -39,20 +40,7 @@ Window::Window(Camera &camera, int width, int height, const std::string &windowN
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    /*glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
-
-    GLint flags;
-    glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
-    if (flags & GL_CONTEXT_FLAG_DEBUG_BIT)
-    {
-        // initialize debug output
-        glEnable(GL_DEBUG_OUTPUT);
-        glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-        glDebugMessageCallback(glDebugOutput, nullptr);
-        glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
-    }
-     */
-
+    glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, debugContext);
 
     int mcount;
     GLFWmonitor** monitors = glfwGetMonitors(&mcount);
@@ -108,6 +96,19 @@ Window::Window(Camera &camera, int width, int height, const std::string &windowN
 
     // Lazy initialize Opengl in Scene
     this->scene->initOpenGLContext();
+
+    // Lazy init Opengl Debug context
+    GLint flags;
+    glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
+    if (flags & GL_CONTEXT_FLAG_DEBUG_BIT) {
+        logger->info("OpenGL Context has DEBUG Bit set, requesting debug output");
+
+        // initialize debug output
+        glEnable(GL_DEBUG_OUTPUT);
+        glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+        glDebugMessageCallback(glDebugOutput, this->logger.get());
+        glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
+    }
 }
 
 Window::~Window() {
@@ -363,52 +364,49 @@ void mbtn_callback(GLFWwindow *window, int a, int b, int c) {
     static_cast<Window *>(glfwGetWindowUserPointer(window))->glfwMouseButtonCallback(a, b, c);
 }
 
-/*
+
 // OpenGL Debug Function:
-void APIENTRY glDebugOutput(GLenum source,
-                            GLenum type,
-                            GLuint id,
-                            GLenum severity,
-                            GLsizei length,
-                            const GLchar *message,
-                            const void *userParam)
-{
+void APIENTRY glDebugOutput(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length,
+                            const GLchar *message, const void *userParam) {
     // ignore non-significant error/warning codes
     if(id == 131169 || id == 131185 || id == 131218 || id == 131204) return;
 
-    std::cout << "---------------" << std::endl;
-    std::cout << "Debug message (" << id << "): " <<  message << std::endl;
+    // extract logger:
+    auto *logger = (spdlog::logger *)userParam;
 
-    switch (source)
-    {
-        case GL_DEBUG_SOURCE_API:             std::cout << "Source: API"; break;
-        case GL_DEBUG_SOURCE_WINDOW_SYSTEM:   std::cout << "Source: Window System"; break;
-        case GL_DEBUG_SOURCE_SHADER_COMPILER: std::cout << "Source: Shader Compiler"; break;
-        case GL_DEBUG_SOURCE_THIRD_PARTY:     std::cout << "Source: Third Party"; break;
-        case GL_DEBUG_SOURCE_APPLICATION:     std::cout << "Source: Application"; break;
-        case GL_DEBUG_SOURCE_OTHER:           std::cout << "Source: Other"; break;
-    } std::cout << std::endl;
+    std::string sourceStr;
+    switch (source) {
+        case GL_DEBUG_SOURCE_API:             sourceStr = "API"; break;
+        case GL_DEBUG_SOURCE_WINDOW_SYSTEM:   sourceStr = "Window System"; break;
+        case GL_DEBUG_SOURCE_SHADER_COMPILER: sourceStr = "Shader Compiler"; break;
+        case GL_DEBUG_SOURCE_THIRD_PARTY:     sourceStr = "Third Party"; break;
+        case GL_DEBUG_SOURCE_APPLICATION:     sourceStr = "Application"; break;
+        case GL_DEBUG_SOURCE_OTHER:           sourceStr = "Other"; break;
+        default: sourceStr = "Unknown";
+    };
 
-    switch (type)
-    {
-        case GL_DEBUG_TYPE_ERROR:               std::cout << "Type: Error"; break;
-        case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR: std::cout << "Type: Deprecated Behaviour"; break;
-        case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:  std::cout << "Type: Undefined Behaviour"; break;
-        case GL_DEBUG_TYPE_PORTABILITY:         std::cout << "Type: Portability"; break;
-        case GL_DEBUG_TYPE_PERFORMANCE:         std::cout << "Type: Performance"; break;
-        case GL_DEBUG_TYPE_MARKER:              std::cout << "Type: Marker"; break;
-        case GL_DEBUG_TYPE_PUSH_GROUP:          std::cout << "Type: Push Group"; break;
-        case GL_DEBUG_TYPE_POP_GROUP:           std::cout << "Type: Pop Group"; break;
-        case GL_DEBUG_TYPE_OTHER:               std::cout << "Type: Other"; break;
-    } std::cout << std::endl;
+    std::string typeStr;
+    switch (type) {
+        case GL_DEBUG_TYPE_ERROR:               typeStr = "Error"; break;
+        case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR: typeStr = "Deprecated Behaviour"; break;
+        case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:  typeStr = "Undefined Behaviour"; break;
+        case GL_DEBUG_TYPE_PORTABILITY:         typeStr = "Portability"; break;
+        case GL_DEBUG_TYPE_PERFORMANCE:         typeStr = "Performance"; break;
+        case GL_DEBUG_TYPE_MARKER:              typeStr = "Marker"; break;
+        case GL_DEBUG_TYPE_PUSH_GROUP:          typeStr = "Push Group"; break;
+        case GL_DEBUG_TYPE_POP_GROUP:           typeStr = "Pop Group"; break;
+        case GL_DEBUG_TYPE_OTHER:               typeStr = "Other"; break;
+        default: typeStr = "Unknown";
+    };
 
-    switch (severity)
-    {
-        case GL_DEBUG_SEVERITY_HIGH:         std::cout << "Severity: high"; break;
-        case GL_DEBUG_SEVERITY_MEDIUM:       std::cout << "Severity: medium"; break;
-        case GL_DEBUG_SEVERITY_LOW:          std::cout << "Severity: low"; break;
-        case GL_DEBUG_SEVERITY_NOTIFICATION: std::cout << "Severity: notification"; break;
-    } std::cout << std::endl;
-    std::cout << std::endl;
+    std::string severityStr;
+    switch (severity) {
+        case GL_DEBUG_SEVERITY_HIGH:         severityStr = "high"; break;
+        case GL_DEBUG_SEVERITY_MEDIUM:       severityStr = "medium"; break;
+        case GL_DEBUG_SEVERITY_LOW:          severityStr = "low"; break;
+        case GL_DEBUG_SEVERITY_NOTIFICATION: severityStr = "notification"; break;
+        default: severityStr = "Unknown"; break;
+    };
+
+    logger->warn("OpenGL [{}]: ID:{}, Source:{}, Type:{}, Message:{}", severityStr, id, sourceStr, typeStr, message);
 }
- */

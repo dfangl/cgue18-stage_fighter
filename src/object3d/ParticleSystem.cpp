@@ -25,7 +25,8 @@ void ParticleSystem::render(Scene *scene) {
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, SSBO);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, SSBO);
     glDispatchCompute((GLuint) workingGroups, 1, 1);
-    glUseProgram(0);
+    //glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, 0);
 
     // Memory Barrier
     glMemoryBarrier(GL_VERTEX_ATTRIB_ARRAY_BARRIER_BIT);
@@ -58,8 +59,11 @@ ParticleSystem::ParticleSystem(const glm::vec3 &position, float radius, std::sha
     glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Particle), (void *)(11 * sizeof(float)));
     glEnableVertexAttribArray(1);
 
-    shader->setUniform("texture_0", 0);
     glBindVertexArray(0);
+
+    shader->use();
+    shader->setUniform("texture_0", 0);
+    glUseProgram(0);
 }
 
 ParticleSystem::~ParticleSystem() {
@@ -126,11 +130,8 @@ void ParticleSystem::setSize(const glm::vec2 &size) {
 
 void ParticleSystem::loadSSBO() {
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, SSBO);
-    opengl_check_error(spdlog::get("console"), "glBind SSBO");
-
     //glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, SSBO);
     glBufferData(GL_SHADER_STORAGE_BUFFER, data.size() * sizeof(ParticleSystem::Particle), data.data(), GL_STATIC_DRAW);
-    opengl_check_error(spdlog::get("console"), "glBufferData SSBO");
 }
 
 

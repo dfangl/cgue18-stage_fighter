@@ -13,7 +13,6 @@ Texture::Texture(const std::string &path) : Logger("Texture") {
 
     glGenTextures(1, &this->textureID);
     glBindTexture(GL_TEXTURE_2D, this->textureID);
-    opengl_check_error(logger, "Create Texture");
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -36,7 +35,6 @@ Texture::Texture(const std::string &path) : Logger("Texture") {
                      data
         );
         glGenerateMipmap(GL_TEXTURE_2D);
-        opengl_check_error(logger, "Set Texture / Generate Mipmap");
     } else {
         logger->error("Failed to load texture: {}", path);
         throw std::runtime_error("Failed to load texture! (" + path + ")");
@@ -51,7 +49,6 @@ Texture::Texture(const tinygltf::Image &image, const tinygltf::Sampler &sampler)
 
     glGenTextures(1, &this->textureID);
     glBindTexture(GL_TEXTURE_2D, this->textureID);
-    opengl_check_error(logger, "Create Texture");
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, sampler.wrapS);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, sampler.wrapT);
@@ -68,7 +65,6 @@ Texture::Texture(const tinygltf::Image &image, const tinygltf::Sampler &sampler)
                  reinterpret_cast<const void *>(&image.image.at(0)));
 
     glGenerateMipmap(GL_TEXTURE_2D);
-    opengl_check_error(logger, "Set Texture / Generate Mipmap");
 
     glBindTexture(GL_TEXTURE_2D, 0);
 }
@@ -76,7 +72,6 @@ Texture::Texture(const tinygltf::Image &image, const tinygltf::Sampler &sampler)
 void Texture::bind(GLenum texUnit) {
     glActiveTexture(texUnit);
     glBindTexture(GL_TEXTURE_2D, this->textureID);
-    opengl_check_error(logger, "Bind");
 }
 
 Texture::~Texture() {
@@ -88,7 +83,6 @@ Texture::Texture(const std::vector<unsigned char> imageData, int width, int heig
 
     glGenTextures(1, &this->textureID);
     glBindTexture(GL_TEXTURE_2D, this->textureID);
-    opengl_check_error(logger, "Create Texture");
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -102,7 +96,6 @@ Texture::Texture(const std::vector<unsigned char> imageData, int width, int heig
 
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, rgba ? GL_RGBA : GL_RGB, GL_UNSIGNED_BYTE, imageData.data());
     glGenerateMipmap(GL_TEXTURE_2D);
-    opengl_check_error(logger, "Set Texture / Generate Mipmap");
 
     glBindTexture(GL_TEXTURE_2D, 0);
 }

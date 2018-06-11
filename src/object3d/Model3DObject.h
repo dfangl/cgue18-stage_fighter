@@ -50,6 +50,8 @@ private:
     std::vector<glm::vec3> instancedTranslation;
     std::vector<glm::quat> instancedRotation;
 
+    glm::mat4 nodeMatrix;
+
     unsigned long gltfNodeIndex;
     std::vector<GLuint> vbos;
     GLuint VAO;

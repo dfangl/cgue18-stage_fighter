@@ -49,11 +49,9 @@ void Label::render(const glm::mat4 &projection) {
     // Bind Texture atlas
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, font->getAtlasTexID());
-    opengl_check_error(spdlog::get("console"), "Font: bind data");
 
     // Render quads
     glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(vboData.size() * 6));
-    opengl_check_error(spdlog::get("console"), "Font: glDrawArrays");
 
     glBindTexture(GL_TEXTURE_2D, 0);
     glBindVertexArray(0);
@@ -121,11 +119,6 @@ void Label::buildVBO() {
 
     w = x - this->x;
 
-    opengl_check_error(spdlog::get("console"), "Font: build VBO, bind data");
-
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    opengl_check_error(spdlog::get("console"), "Font: build VBO, bind data");
-
     glBufferData(GL_ARRAY_BUFFER, vboData.size() * sizeof(Quad), vboData.data(), GL_DYNAMIC_DRAW);
-    opengl_check_error(spdlog::get("console"), "Font: build VBO, bind data");
 }

@@ -154,12 +154,10 @@ void Level::start(Window *window) {
         logger->info("Loading projectile: {}", projectile.first);
     }
 
-    /*
     projectiles[std::string("bullet")] = std::make_shared<InstancedProjectile>(
-            0.0f,  ModelManager::load("bullet"), ShaderManager::load("standard"),
+            0.0f,  ModelManager::load("bullet"), ShaderManager::load("standard-instanced"),
             btVector3(0.174505f/2,0.174505f/2,0.286695f/2), 0.00001, world
     );
-     */
 
     this->logger->info("Loaded {} entities", entities.size());
     this->logger->info("Loaded {} objects", statics.size());
@@ -226,7 +224,8 @@ void Level::tick(std::chrono::duration<double, std::milli> delta) {
         oldEntities.clear();
     }
 
-    opengl_check_error(logger, "before enemy");
+    for (auto &pSys : this->projectiles)
+        pSys.second->think(delta);
 
     int enemyH = 0;
     for (auto &entity : this->entities) {
@@ -234,7 +233,6 @@ void Level::tick(std::chrono::duration<double, std::milli> delta) {
             enemyH += entity->getHealth();
 
         entity->think(this, delta);
-        opengl_check_error(logger, "after enemy");
     }
 
     player->think(delta);
@@ -316,21 +314,13 @@ void Level::resume() {
 }
 
 void Level::spawn(std::shared_ptr<Entity> entity) {
-    opengl_check_error(logger, "spawn function head");
-
     this->newEntities.push_back(entity);
-    opengl_check_error(logger, "vector.push_back");
-
     this->window->getScene()->addObject(entity);
-    opengl_check_error(logger, "Scene->addObject");
+
 
     if (entity->getEntityKind() == BulletObject::BULLET) {
-        opengl_check_error(logger, "before type cast");
         auto *o = dynamic_cast<BulletEntity *>(entity.get());
-
-        opengl_check_error(logger, "before add particle system");
         this->window->getScene()->addParticleSystem(o->getSmoke());
-        opengl_check_error(logger, "after add particle system"); // <-- does trigger
     }
 }
 
@@ -375,10 +365,8 @@ Level::~Level() {
 }
 
 void Level::luaSpawnEntity(const LuaProjectile &projectile, const LuaVec3 &spawn, const LuaVec3 &target) {
-    opengl_check_error(logger, "before this->spawn");
-    //this->projectiles["bullet"]->spawn(spawn.toVector3(), target.toVector3(), 5.0f);
-    this->spawn(projectile.toBulletEntity(spawn, target, world));
-    opengl_check_error(logger, "after this->spawn");
+    this->projectiles["bullet"]->spawn(spawn.toVector3(), target.toVector3(), 5.0f);
+    //this->spawn(projectile.toBulletEntity(spawn, target, world));
 }
 
 LuaVec3 Level::luaGetPlayerPos() {

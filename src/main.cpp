@@ -106,7 +106,8 @@ int main(int UNUSED(argc), char** UNUSED(argv)) {
                               config["window"]["height"],
                               "Stage Fighter",
                               config["window"]["fullscreen"],
-                              config["window"]["refreshRate"]
+                              config["window"]["refreshRate"],
+                              config["debug"]["opengl"]
     );
 
     /*
@@ -166,7 +167,6 @@ int main(int UNUSED(argc), char** UNUSED(argv)) {
         std::chrono::duration<double, std::milli> deltaT = _curTick - lastTick;
 
         window->render(deltaT);
-        opengl_check_error(console, "async render");
 
         lastTick = _curTick;
     }
@@ -192,7 +192,7 @@ int main(int UNUSED(argc), char** UNUSED(argv)) {
      * Load and start Test level so we can do something
      */
     auto level = std::make_shared<Level>("../resources/level/test.lua");
-    window->hideCursor();
+    //window->hideCursor();
     window->requestFocus();
 
     /*
@@ -278,8 +278,6 @@ int main(int UNUSED(argc), char** UNUSED(argv)) {
      * ======= MAIN GAME LOOP =======
      */
 
-    opengl_check_error(console, "before main loop");
-
     /*
      * While the window is open we want to render stuff ...
      * TODO: First delta might be way too small for some simulation stuff
@@ -295,7 +293,6 @@ int main(int UNUSED(argc), char** UNUSED(argv)) {
         /*
          * Process level logic and so on
          */
-        opengl_check_error(console, "before tick");
         level->tick(delta);
 
         /*
@@ -313,21 +310,7 @@ int main(int UNUSED(argc), char** UNUSED(argv)) {
          * Finally draw all the Content which is registered to the Screen
          * (All Widgets and Object3Ds ->render(...) will be called)
          */
-        opengl_check_error(console, "before window render");
         window->render(delta);
-        opengl_check_error(console, "after window render");
-
-        /*
-         * glGetError() slows down rendering, since it forces the driver do flush everything so it can read back the
-         * error code, normally it should be disabled if not developing and such ... but sometimes it might be nice
-         * to just enable it and look at all those error codes (e.g. in VizLab)
-         */
-        if (openGlDbgFlag) {
-            auto error = glGetError();
-            if(error != GL_NO_ERROR) {
-                console->error("OpenGL Error Code: {}", error);
-            }
-        }
 	}
 
 	/*

@@ -55,7 +55,8 @@ public:
     * @param fullscreen -1 if windowed mode, otherwise the monitor index on which fullscreen is requested
     * @param refreshRate either GLFW_DONT_CARE or the refresh rate which should be used in fullscreen
     */
-    Window(Camera &camera, int width, int height, const std::string &windowName, int fullscreen = -1, int refreshRate = GLFW_DONT_CARE);
+    Window(Camera &camera, int width, int height, const std::string &windowName,
+           int fullscreen = -1, int refreshRate = GLFW_DONT_CARE, bool debugContext = GL_FALSE);
     ~Window();
 
     void setVSync(bool enabled);

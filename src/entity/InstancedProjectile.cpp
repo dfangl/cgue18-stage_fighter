@@ -10,6 +10,7 @@
 InstancedProjectile::Projectile::Projectile(const btVector3 &pos, const btVector3 &target, InstancedProjectile *parent, float speed)
         : parent(parent), BulletObject(pos, btQuaternion(0,0,0,1),  new btBoxShape(parent->collisionBox), parent->mass) {
     this->speed = speed;
+    this->kind = BulletObject::BULLET;
 
     const glm::vec3 position = glm::vec3(pos.x(), pos.y(), pos.z());
     const glm::vec3 target1 = glm::vec3(target.x(), target.y(), target.z());
@@ -19,10 +20,13 @@ InstancedProjectile::Projectile::Projectile(const btVector3 &pos, const btVector
     glm::quat rotation = Quat::rotateTo(target1 - position);
     BulletObject::setOrigin(pos, btQuaternion(rotation.x, rotation.y, rotation.z, rotation.w));
 
-    //TODO: First frame is kinda broken?
+    this->instanceID = parent->addInstance(glm::vec3(pos.x(), pos.y(), pos.z()), rotation);
+
 }
 
 void InstancedProjectile::Projectile::move(std::chrono::duration<double, std::milli> delta) {
+    if (this->idx < 0) return; // projectile is not alive?
+
     const glm::vec3 vec = direction * speed;
 
     auto bT = BulletObject::getTransformation();
@@ -37,7 +41,7 @@ void InstancedProjectile::Projectile::move(std::chrono::duration<double, std::mi
 
 void InstancedProjectile::Projectile::collideWith(BulletObject* UNUSED(other)) {
     if (this->idx >= 0) {
-        parent->deads.push_back(this->idx);
+        parent->removeIDX(this->idx);
         this->idx = -1;
     }
 }
@@ -52,17 +56,19 @@ InstancedProjectile::InstancedProjectile(float bsRadius, const std::shared_ptr<t
 }
 
 InstancedProjectile::~InstancedProjectile() {
-    for (auto p : this->projectiles) {
+    for (auto &p : this->projectiles) {
         world->removeRigidBody(p->getRigidBody());
-        delete p;
     }
 }
 
 void InstancedProjectile::think(std::chrono::duration<double, std::milli> delta) {
-    for (auto dead : this->deads)
-        removeIDX(dead);
 
-    for (auto p : this->projectiles)
+    for (auto &dead : this->deads) {
+        world->removeRigidBody(dead->getRigidBody());
+    }
+    this->deads.clear();
+
+    for (auto &p : this->projectiles)
         p->move(delta);
 }
 
@@ -71,13 +77,11 @@ void InstancedProjectile::render(Scene *scene) {
 }
 
 void InstancedProjectile::spawn(const btVector3 &pos, const btVector3 &target, float speed) {
-    const auto projectile = new Projectile(pos, target, this, speed);
+    const auto projectile = std::make_shared<Projectile>(pos, target, this, speed);
+    projectile->idx = static_cast<int>(projectiles.size() - 1);
 
     projectiles.push_back(projectile);
     world->addRigidBody(projectile->getRigidBody());
-
-    projectile->instanceID = this->addInstance(glm::vec3(pos.x(), pos.y(), pos.z()), glm::quat(1, 0, 0 ,0));
-    projectile->idx = static_cast<int>(projectiles.size() - 1);
 }
 
 void InstancedProjectile::removeIDX(int idx) {
@@ -89,7 +93,5 @@ void InstancedProjectile::removeIDX(int idx) {
     projectiles.pop_back();
 
     this->removeInstance(old->instanceID);
-
-    world->removeRigidBody(old->getRigidBody());
-    delete old;
+    this->deads.push_back(old);
 }

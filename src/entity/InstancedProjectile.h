@@ -35,8 +35,8 @@ private:
     };
 
     std::shared_ptr<BulletUniverse> &world;
-    std::vector<Projectile *> projectiles;
-    std::vector<int> deads;
+    std::vector<std::shared_ptr<Projectile>> projectiles;
+    std::vector<std::shared_ptr<Projectile>> deads;
     btVector3 collisionBox;
     btScalar mass;
     float bsRadius;

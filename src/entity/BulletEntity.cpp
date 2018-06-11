@@ -56,15 +56,12 @@ protected:
         }
 
         ParticleSystem::loadSSBO();
-        opengl_check_error(spdlog::get("console"), "ParticleSystem::loadSSBO()");
     }
 };
 
 BulletEntity::BulletEntity(const btVector3 &pos, const btVector3 &target, std::shared_ptr<BulletUniverse> &world) :
         BulletObject(pos, btQuaternion(0,0,0,1), new btBoxShape(BULLET_COLLISION_BOX), 0.00001),
         Model3DObject(glm::vec3(pos.x(), pos.y(), pos.z()), FRUSTUM_CULLING_RADIUS, ModelManager::load("bullet"), ShaderManager::load("standard")) {
-
-    opengl_check_error(spdlog::get("console"), "BulletEntity constructor");
 
     this->health = 1;
     this->maxHealth = 0;
@@ -80,7 +77,6 @@ BulletEntity::BulletEntity(const btVector3 &pos, const btVector3 &target, std::s
             this->direction,
             this->speed
     );
-    opengl_check_error(spdlog::get("console"), "After smoke particle system");
 
     this->smoke->setSize(glm::vec2(0.2f, 0.2f));
 
@@ -92,7 +88,6 @@ BulletEntity::BulletEntity(const btVector3 &pos, const btVector3 &target, std::s
     BulletObject::setOrigin(pos, btQuaternion(rotation.x, rotation.y, rotation.z, rotation.w));
 
     world->addRigidBody(this->rigidBody);
-    opengl_check_error(spdlog::get("console"), "BulletEntity constructor fin");
 }
 
 void BulletEntity::think(Level *level, std::chrono::duration<double, std::milli> delta) {

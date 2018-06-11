@@ -73,6 +73,7 @@ public:
     void use();
 
     GLint getLocation(const std::string &name);
+    GLint getAttribLocation(const std::string &name);
 
     template<typename T>
     void setUniform(const std::string &name, T value) {

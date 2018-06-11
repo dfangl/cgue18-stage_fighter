@@ -51,7 +51,6 @@ void Player::think(std::chrono::duration<double, std::milli> delta) {
     //shieldModel->setRotation(Quat::toQuaternion(camera.getPitch(), 90.0f, camera.getYaw()));
     //shieldAnimationTime += delta.count() / 1000;
     //this->shieldModel->applyAnimation(shieldAnimationTime);
-    opengl_check_error(spdlog::get("console"), "Player: think()");
 
     hud->setHealth(health);
     hud->setShield(shield);

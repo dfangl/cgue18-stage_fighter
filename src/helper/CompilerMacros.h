@@ -17,14 +17,4 @@
 #  define UNUSED_FUNCTION(x) UNUSED_ ## x
 #endif
 
-#define opengl_check_error(logger, msg) \
- { \
-    GLenum error = glGetError(); \
-    if(error != GL_NO_ERROR) { \
-        (logger)->error("[{}] OpenGL Error Code: {}", msg, error); \
-        /*__builtin_trap();*/ \
-    } \
-}; \
-
-
 #endif //STAGE_FIGHTER_COMPILERMACROS_H

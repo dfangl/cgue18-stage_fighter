@@ -113,9 +113,22 @@ GLint Shader::getLocation(const std::string &name) {
     return element->second;
 }
 
+
+GLint Shader::getAttribLocation(const std::string &name) {
+    auto element = this->mapping.find(name);
+    if(element == this->mapping.end()) {
+        const GLint location = glGetAttribLocation(this->shaderID, name.c_str());
+        this->mapping[name] = location;
+
+        return location;
+    }
+
+    return element->second;
+}
+
 void Shader::setVertexAttributePointer(const GLuint location, GLuint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid *pointer) {
-    glEnableVertexAttribArray(location);
     glVertexAttribPointer(location, size, type, normalized, stride, pointer);
+    glEnableVertexAttribArray(location);
 }
 
 void Shader::setVertexAttributePointer(const std::string &name, GLuint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid *pointer) {
@@ -387,3 +400,4 @@ void Shader::logOnProgError(GLuint program, const char *message) {
         delete infoLog;
     }
 }
+
