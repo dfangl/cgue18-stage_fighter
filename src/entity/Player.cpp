@@ -93,11 +93,11 @@ void Player::think(std::chrono::duration<double, std::milli> delta) {
     const glm::quat rot = glm::quat(-glm::cos(angle/2.0f), 0, glm::sin(angle/2.0f), 0);
     const glm::vec3 sPos = glm::vec3(camera.getPosition().x, camera.getPosition().y - 0.13f, camera.getPosition().z);
 
-
+    // Todo play the animation every time mouse was pressed and not while mouse is pressed
     if (window->getMouseButton(GLFW_MOUSE_BUTTON_LEFT)) {
         weaponAngle = std::min(65.0f, weaponAngle + (float)delta.count() / 3.2f);
     } else {
-        weaponAngle = std::max(-24.0f, weaponAngle - (float)delta.count() * 3.0f);
+        weaponAngle = std::max(-24.0f, weaponAngle - (float)delta.count() / 1.2f);
     }
 
     const float wSwingAngle = glm::radians(weaponAngle);
@@ -133,7 +133,7 @@ void Player::computeEnemyInView(std::vector<std::shared_ptr<Entity>> &entities) 
 
         if (distance < 25.0f) {
             auto p = isInView(entity.get());
-            if (p.x > width/2-width/4 && p.x < width/2+width/4 &&
+            if (p.x > width/2-width/3 && p.x < width/2+width/3 &&
                 p.y > height/2-height/4 && p.y < height/2+height/4 &&
                 targetDist > distance && p.z < 1.0) {
                 selectedEnemy = entity;
