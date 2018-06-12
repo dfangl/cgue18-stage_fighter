@@ -37,6 +37,13 @@ Player::Player(Camera &camera, Window *window, const std::shared_ptr<BulletUnive
             ModelManager::load("shield"),
             ShaderManager::load("standard")
     );
+    this->weaponModel = std::make_shared<Model3DObject>(
+            camera.getPosition(),
+            1.0f,
+            ModelManager::load("Sword"),
+            ShaderManager::load("standard")
+    );
+
 
     //this->shieldModel->enableAnimation(Model3DObject::Animation(
     //    std::string("Cube_CubeAction"), 0.0f, 30 * 1.0f/24.0f, true
@@ -84,10 +91,25 @@ void Player::think(std::chrono::duration<double, std::milli> delta) {
     CameraEntity::think(delta);
     const float angle = glm::radians(shieldAnimationTime + camera.getYaw());
     const glm::quat rot = glm::quat(-glm::cos(angle/2.0f), 0, glm::sin(angle/2.0f), 0);
-    const glm::vec3 pos = glm::vec3(camera.getPosition().x, camera.getPosition().y - 0.13f, camera.getPosition().z);
+    const glm::vec3 sPos = glm::vec3(camera.getPosition().x, camera.getPosition().y - 0.13f, camera.getPosition().z);
+
+
+    if (window->getMouseButton(GLFW_MOUSE_BUTTON_LEFT)) {
+        weaponAngle = std::min(65.0f, weaponAngle + (float)delta.count() / 3.2f);
+    } else {
+        weaponAngle = std::max(-24.0f, weaponAngle - (float)delta.count() * 3.0f);
+    }
+
+    const float wSwingAngle = glm::radians(weaponAngle);
+    const glm::quat sRot = glm::quat(-glm::cos(wSwingAngle/2.0f), 0, 0, glm::sin(wSwingAngle/2.0f));
+    const float wAngle = glm::radians(camera.getYaw() - 18.0f);
+    const glm::quat wRot = glm::quat(-glm::cos(wAngle/2.0f), 0, glm::sin(wAngle/2.0f), 0);
+
 
     shieldModel->setRotation(rot);
-    shieldModel->setOrigin(pos);
+    shieldModel->setOrigin(sPos);
+    weaponModel->setRotation(wRot * sRot);
+    weaponModel->setOrigin(sPos);
 
     //this->shieldModel->applyAnimation(static_cast<float>(delta.count() / 5000.0f));
 
@@ -153,4 +175,5 @@ BulletObject::Kind Player::getEntityKind() {
 
 void Player::render(Scene *scene) {
     this->shieldModel->render(scene);
+    this->weaponModel->render(scene);
 }

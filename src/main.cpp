@@ -99,7 +99,7 @@ int main(int UNUSED(argc), char** UNUSED(argv)) {
                   config["camera"]["fov"],
                   config["window"]["width"],
                   config["window"]["height"],
-                  0.1f, 1000.0f                // zNear & zFar for clipping stuff
+                  0.01f, 1000.0f                // zNear & zFar for clipping stuff
     );
 	auto *window = new Window(camera,
                               config["window"]["width"],

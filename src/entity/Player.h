@@ -29,6 +29,7 @@ private:
     float shieldDamageTime = 0.0f;
     bool isBlocking = false;
     float oSpeed, oJumpSpeed;
+    float weaponAngle = -25.0f;
 
 public:
     Player(Camera &camera, Window *window, const std::shared_ptr<BulletUniverse> &world);
