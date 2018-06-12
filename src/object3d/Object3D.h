@@ -64,6 +64,8 @@ public:
     virtual void translate(const glm::vec3 &vec);
     virtual void setOrigin(const glm::vec3 &vec);
 
+    void setModelMatrix(const glm::mat4 &mat);
+
     float getBoundingSphereRadius() override { return this->boundingSphereRadius; }
     const glm::vec3 &getPosition() const override { return this->position; }
 

@@ -11,7 +11,7 @@ dofile("../resources/ai/index.lua")
 
 -- Set Player properties:
 player = {
-    position = vec3(0, 0, 0), -- -50.188, -42.5088, 0
+    position = vec3(-50.188, -42.5088, 0), -- -50.188, -42.5088, 0
     lookAt   = vec3(-24.7897,-42.5088,1.65117),
     speed    = 5.5
 }

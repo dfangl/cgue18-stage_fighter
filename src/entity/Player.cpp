@@ -3,6 +3,7 @@
 //
 
 #include <cfloat>
+#include <utility>
 
 #include "Player.h"
 
@@ -25,7 +26,7 @@ Player::Player(Camera &camera, Window *window, const std::shared_ptr<BulletUnive
     this->health = 100;
     this->maxHealth = 100;
 
-    this->shield = 0;
+    this->shield = 100;
     this->maxShield = 100;
 
     this->entitySpeed = 5.5f;
@@ -37,20 +38,58 @@ Player::Player(Camera &camera, Window *window, const std::shared_ptr<BulletUnive
             ShaderManager::load("standard")
     );
 
-    this->shieldModel->enableAnimation(Model3DObject::Animation(
-        std::string("Cube_CubeAction"), 0.0f, 1.25f, true
-    ));
+    //this->shieldModel->enableAnimation(Model3DObject::Animation(
+    //    std::string("Cube_CubeAction"), 0.0f, 30 * 1.0f/24.0f, true
+    //));
 
-
+    this->oSpeed = CameraEntity::entitySpeed;
+    this->oJumpSpeed = CameraEntity::jumpSpeed;
 }
 
 void Player::think(std::chrono::duration<double, std::milli> delta) {
-    CameraEntity::think(delta);
+    if (window->getMouseButton(GLFW_MOUSE_BUTTON_RIGHT) && this->shield > 0) {
+        if (shieldAnimationTime < 45.0f) {
+            shieldAnimationTime = std::min(45.0f, shieldAnimationTime + (float)delta.count() / 10.0f);
+        } else {
+            isBlocking = true;
+            shieldRegTime = 0;
 
-    shieldModel->setOrigin(camera.getPosition());
-    //shieldModel->setRotation(Quat::toQuaternion(camera.getPitch(), 90.0f, camera.getYaw()));
-    //shieldAnimationTime += delta.count() / 1000;
-    //this->shieldModel->applyAnimation(shieldAnimationTime);
+            entitySpeed = this->oSpeed / 2.0f;
+            jumpSpeed = 0.0f;
+
+            shieldDamageTime += delta.count();
+            if(shieldDamageTime > 725.0f) {
+                shieldDamageTime = 0;
+                shield = std::max(0, shield-1);
+            }
+        }
+    } else {
+        if (shieldAnimationTime > 18.0f) {
+            shieldAnimationTime = std::max(18.0f, shieldAnimationTime - (float)delta.count() / 2.0f);
+        } else {
+            isBlocking = false;
+            shieldDamageTime = 0;
+
+            entitySpeed = this->oSpeed;
+            jumpSpeed = this->oJumpSpeed;
+
+            shieldRegTime += delta.count();
+            if (shieldRegTime > 1000.0f) {
+                shieldRegTime = 0;
+                shield = std::min(100, shield+1);
+            }
+        }
+    }
+
+    CameraEntity::think(delta);
+    const float angle = glm::radians(shieldAnimationTime + camera.getYaw());
+    const glm::quat rot = glm::quat(-glm::cos(angle/2.0f), 0, glm::sin(angle/2.0f), 0);
+    const glm::vec3 pos = glm::vec3(camera.getPosition().x, camera.getPosition().y - 0.13f, camera.getPosition().z);
+
+    shieldModel->setRotation(rot);
+    shieldModel->setOrigin(pos);
+
+    //this->shieldModel->applyAnimation(static_cast<float>(delta.count() / 5000.0f));
 
     hud->setHealth(health);
     hud->setShield(shield);
@@ -103,7 +142,8 @@ void Player::collideWith(BulletObject *other) {
     }
 
     if (other->getKind() == BulletObject::BULLET) {
-        this->health -= 1;
+        if (!this->isBlocking)
+            this->health -= 1;
     }
 }
 

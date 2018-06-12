@@ -405,7 +405,7 @@ void Model3DObject::clearInstances() {
 
 void Model3DObject::enableAnimation(const Model3DObject::Animation &data) {
     this->animationData = data;
-    this->animDataInternal.currentAnimationTime = 0.0f;
+    this->animDataInternal.currentAnimationTime = data.startTime;
     this->animDataInternal.inAnimation = true;
 
     const auto &animations = this->gltfModel->animations;
@@ -435,8 +435,14 @@ void Model3DObject::disableAnimation() {
 
 void Model3DObject::applyAnimation(float currentTime) {
     if (animationData.loop) {
-        this->animDataInternal.currentAnimationTime =
-                std::fmod(currentTime + animationData.startTime, animationData.endTime);
+        const auto time = this->animDataInternal.currentAnimationTime + currentTime;
+
+        if (time > animationData.endTime) {
+            animDataInternal.currentAnimationTime =
+                    animationData.startTime + time - animationData.endTime;
+        }  else {
+            animDataInternal.currentAnimationTime += currentTime;
+        }
     } else if (currentTime < (animationData.startTime - animationData.endTime)){
         this->animDataInternal.currentAnimationTime = currentTime;
     }
@@ -463,20 +469,28 @@ glm::vec3 Model3DObject::getAnimationTranslation() {
     float nextTime = time[timeAccessor.count-1];
     unsigned int i;
 
-    for (i=0; curTime > time[i] && i < timeAccessor.count - 1; i++);
+    for (i=0; curTime > time[i] && i < timeAccessor.count - 2; i++);
     prevTime = time[i];
     nextTime = time[i+1];
 
     const auto *prevTransPtr = reinterpret_cast<const float *>(translationPtr + i * translationBufferView.byteStride);
-    const auto *nextTransPtr = reinterpret_cast<const float *>(translationPtr + (i + 1) * translationBufferView.byteStride);
+    const auto *nextTransPtr = reinterpret_cast<const float *>(translationPtr + (i+1) * translationBufferView.byteStride);
 
     const glm::vec3 prevTranslation = glm::make_vec3(prevTransPtr);
     const glm::vec3 nextTranslation = glm::make_vec3(nextTransPtr);
 
     const auto transDelta = nextTranslation - prevTranslation;
     const auto timeDelta = ((curTime - prevTime) / (nextTime - prevTime));
-
     const auto result = prevTranslation + (transDelta * timeDelta);
+
+    if (curTime >= 1.23953) {
+        spdlog::get("console")->info("next: {},{},{}", nextTranslation.x, nextTranslation.y, nextTranslation.z);
+        spdlog::get("console")->info("prev: {},{},{}", prevTranslation.x, prevTranslation.y, prevTranslation.z);
+        spdlog::get("console")->info("rotation: {},{},{}", result.x, result.y, result.z);
+        spdlog::get("console")->info("deltaTime: {}", timeDelta);
+    }
+
+
     return result;
 }
 
@@ -498,19 +512,34 @@ glm::quat Model3DObject::getAnimationRotation() {
     float nextTime = time[timeAccessor.count-1];
     unsigned int i;
 
-    for (i=0; curTime > time[i] && i < timeAccessor.count - 1; i++);
+    for (i=0; curTime > time[i] && i < timeAccessor.count - 2; i++);
     prevTime = time[i];
     nextTime = time[i+1];
 
+    //spdlog::get("console")->info("Time:{}, i:{}, next:{}, max:{}", curTime, i, i+1, timeAccessor.count);
+
     const auto *prevRotPtr = reinterpret_cast<const float *>(rotationPtr + i * rotationBufferView.byteStride);
-    const auto *nextRotPtr = reinterpret_cast<const float *>(rotationPtr + (i + 1) * rotationBufferView.byteStride);
+    const auto *nextRotPtr = reinterpret_cast<const float *>(rotationPtr + (i+1) * rotationBufferView.byteStride);
 
     const glm::vec4 prevRotation = glm::make_vec4(prevRotPtr);
     const glm::vec4 nextRotation = glm::make_vec4(nextRotPtr);
 
+    // error @ frametime 1.23953 sec ?
+
+
     const auto transDelta = nextRotation - prevRotation;
     const auto timeDelta = ((curTime - prevTime) / (nextTime - prevTime));
     const auto rotVector = prevRotation + (transDelta * timeDelta);
+
+    if (curTime >= 1.23953) {
+        spdlog::get("console")->info("next: {},{},{},{}", nextRotation.w, nextRotation.x, nextRotation.y, nextRotation.z);
+        spdlog::get("console")->info("prev: {},{},{},{}", prevRotation.w, prevRotation.x, prevRotation.y, prevRotation.z);
+        spdlog::get("console")->info("rotation: {},{},{},{}", -rotVector.w, rotVector.x, rotVector.y, rotVector.z);
+        spdlog::get("console")->info("deltaTime: {}", timeDelta);
+    }
+
+
+    //spdlog::get("console")->info("rotation: {},{},{},{}", -rotVector.w, rotVector.x, rotVector.y, rotVector.z);
 
     const auto result = glm::quat(rotVector.w, rotVector.x, rotVector.y, rotVector.z);
     return result;

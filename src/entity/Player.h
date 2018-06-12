@@ -25,6 +25,10 @@ private:
     std::shared_ptr<Model3DObject> weaponModel;
 
     float shieldAnimationTime = 0.0f;
+    float shieldRegTime = 0.0f;
+    float shieldDamageTime = 0.0f;
+    bool isBlocking = false;
+    float oSpeed, oJumpSpeed;
 
 public:
     Player(Camera &camera, Window *window, const std::shared_ptr<BulletUniverse> &world);

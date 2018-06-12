@@ -192,7 +192,7 @@ int main(int UNUSED(argc), char** UNUSED(argv)) {
      * Load and start Test level so we can do something
      */
     auto level = std::make_shared<Level>("../resources/level/test.lua");
-    //window->hideCursor();
+    window->hideCursor();
     window->requestFocus();
 
     /*

@@ -59,3 +59,7 @@ void Object3D::setOrigin(const glm::vec3 &vec) {
     this->position = vec;
     this->model = glm::translate(glm::mat4(1.0f), vec);
 }
+
+void Object3D::setModelMatrix(const glm::mat4 &mat) {
+    this->model = mat;
+}
