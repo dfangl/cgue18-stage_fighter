@@ -231,8 +231,8 @@ void PlayerHud::setEnemy(std::string &name, int health, int maxHealth) {
     this->enemyVertices = {
             // Health:
             hBsX                 , hBsY           , texture->pixelWidthToNormal(  0)     , texture->pixelHeightToNormal(104),
-            hBsX + hBSize * hPer , hBsY           , texture->pixelWidthToNormal(512*hPer), texture->pixelHeightToNormal(142),
-            hBsX                 , hBsY + hBHeight, texture->pixelWidthToNormal(  0)     , texture->pixelHeightToNormal(104),
+            hBsX + hBSize * hPer , hBsY           , texture->pixelWidthToNormal(512*hPer), texture->pixelHeightToNormal(104),
+            hBsX                 , hBsY + hBHeight, texture->pixelWidthToNormal(  0)     , texture->pixelHeightToNormal(142),
             hBsX + hBSize * hPer , hBsY           , texture->pixelWidthToNormal(512*hPer), texture->pixelHeightToNormal(104),
             hBsX + hBSize * hPer , hBsY + hBHeight, texture->pixelWidthToNormal(512*hPer), texture->pixelHeightToNormal(142),
             hBsX                 , hBsY + hBHeight, texture->pixelWidthToNormal(  0)     , texture->pixelHeightToNormal(142),
@@ -258,15 +258,15 @@ void PlayerHud::computeBarVBO() {
     this->barVertices = {
             // Health:
             hBsX                 , hBsY           , texture->pixelWidthToNormal(  0)     , texture->pixelHeightToNormal(104),
-            hBsX + hBSize * hPer , hBsY           , texture->pixelWidthToNormal(512*hPer), texture->pixelHeightToNormal(142),
-            hBsX                 , hBsY + hBHeight, texture->pixelWidthToNormal(  0)     , texture->pixelHeightToNormal(104),
+            hBsX + hBSize * hPer , hBsY           , texture->pixelWidthToNormal(512*hPer), texture->pixelHeightToNormal(104),
+            hBsX                 , hBsY + hBHeight, texture->pixelWidthToNormal(  0)     , texture->pixelHeightToNormal(142),
             hBsX + hBSize * hPer , hBsY           , texture->pixelWidthToNormal(512*hPer), texture->pixelHeightToNormal(104),
             hBsX + hBSize * hPer , hBsY + hBHeight, texture->pixelWidthToNormal(512*hPer), texture->pixelHeightToNormal(142),
             hBsX                 , hBsY + hBHeight, texture->pixelWidthToNormal(  0)     , texture->pixelHeightToNormal(142),
             // Shield:
             hBsX                 , sBsY           , texture->pixelWidthToNormal(  0)     , texture->pixelHeightToNormal(146),
-            hBsX + sBSize * sPer , sBsY           , texture->pixelWidthToNormal(512*sPer), texture->pixelHeightToNormal(184),
-            hBsX                 , sBsY + hBHeight, texture->pixelWidthToNormal(  0)     , texture->pixelHeightToNormal(146),
+            hBsX + sBSize * sPer , sBsY           , texture->pixelWidthToNormal(512*sPer), texture->pixelHeightToNormal(146),
+            hBsX                 , sBsY + hBHeight, texture->pixelWidthToNormal(  0)     , texture->pixelHeightToNormal(184),
             hBsX + sBSize * sPer , sBsY           , texture->pixelWidthToNormal(512*sPer), texture->pixelHeightToNormal(146),
             hBsX + sBSize * sPer , sBsY + hBHeight, texture->pixelWidthToNormal(512*sPer), texture->pixelHeightToNormal(184),
             hBsX                 , sBsY + hBHeight, texture->pixelWidthToNormal(  0)     , texture->pixelHeightToNormal(184),

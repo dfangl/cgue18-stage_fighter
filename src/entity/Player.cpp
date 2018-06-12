@@ -58,7 +58,7 @@ void Player::think(std::chrono::duration<double, std::milli> delta) {
             jumpSpeed = 0.0f;
 
             shieldDamageTime += delta.count();
-            if(shieldDamageTime > 725.0f) {
+            if(shieldDamageTime > 250.0f) {
                 shieldDamageTime = 0;
                 shield = std::max(0, shield-1);
             }
