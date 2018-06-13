@@ -27,6 +27,14 @@ objects = {
     StaticObject("cube", "light", vec3(-50.188 , -35 , 0.0),  0.2, vec4(0,0,0,1), { BoxShape(vec3(0,0,0), vec4(0,0,0,1), 0, vec3(0.1/2, 0.1/2, 0.1/2)) })
 }
 
+scriptedObjects = {
+    ScriptedObject("cube", "light", vec3(-42.8338, -32.5088,       00),  0.2, vec4(0,0,0,1), BoxShape(vec3(0,0,0), vec4(0,0,0,1), 0.1, vec3(0.1/2, 0.1/2, 0.1/2)), {}, 0, {
+        think = function(this, delta)
+            this.setGravity(vec3(0,1,0))
+        end
+    })
+}
+
 entities = {
     dynamics.turret("Turret #1", 10,  vec3(-24.7897,-42.5088,1.65117), vec4(0,0,0,1), behavior.shootAtPlayer(projectile.rocket, 200)),
     dynamics.turret("Turret #2", 10,  vec3(-50.2492,-42.5088,-25.1359), vec4(0,0.707107,0,0.707107), behavior.shootCircle(projectile.rocket, 800, 36)),

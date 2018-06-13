@@ -28,14 +28,16 @@
 
 #include "../entity/Entity.h"
 #include "../entity/Player.h"
+#include "../entity/ScriptedObject.h"
+#include "../entity/InstancedProjectile.h"
 
 #include "../widget/Label.h"
 
-class Light;
 #include "../object3d/Model3DObject.h"
 
 #include "LuaClassWrapper.h"
-#include "../entity/InstancedProjectile.h"
+
+class Light;
 
 class Level : public Logger {
 
@@ -54,6 +56,7 @@ private:
     std::vector<std::shared_ptr<BulletObject>> bullet;
     std::vector<Light> lights;
     std::vector<std::shared_ptr<InstancedProjectile>> projectiles;
+    std::vector<std::shared_ptr<ScriptedObject>> sObjects;
 
     std::shared_ptr<Player> player;
     std::shared_ptr<Object3DAbstract> playerWitcheryPointer;
@@ -89,14 +92,14 @@ public:
 
     LevelState getLevelState() const { return this->levelState; }
 
-    void spawn(std::shared_ptr<Entity> entity);
-    void despawn(Entity *entity);
-
     std::shared_ptr<Player> getPlayer() const { return this->player; }
     std::shared_ptr<BulletUniverse> getWorld() const { return this->world; }
 
+    void despawn(Entity *entity);
+
+
     // Lua Binding part:
-    void luaSpawnEntity(const int projectile, const LuaVec3 &spawn, const LuaVec3 &target);
+    void luaSpawnProjectile(const int projectile, const LuaVec3 &spawn, const LuaVec3 &target);
     LuaVec3 luaGetPlayerPos();
 
 };

@@ -1,0 +1,36 @@
+//
+// Created by Raphael on 13.06.2018.
+//
+
+#ifndef STAGE_FIGHTER_SCRIPTEDOBJECT_H
+#define STAGE_FIGHTER_SCRIPTEDOBJECT_H
+
+#include <chrono>
+
+#include <kaguya/kaguya.hpp>
+
+#include "../object3d/BulletObject.h"
+#include "../object3d/Model3DObject.h"
+#include "AbstractScriptedObject.h"
+#include "../BulletUniverse.h"
+
+class Level;
+
+class ScriptedObject : public AbstractScriptedObject, public BulletObject, public Model3DObject {
+
+private:
+    const std::shared_ptr<BulletUniverse> world;
+
+public:
+    ScriptedObject(const glm::vec3 &pos, const glm::quat &rotation, btCollisionShape *, btScalar mass,
+                   float bsRadius, const std::shared_ptr<tinygltf::Model> &model, const std::shared_ptr<Shader> &shader,
+                   int instances, kaguya::LuaTable env, const std::shared_ptr<BulletUniverse> &world);
+    ~ScriptedObject();
+
+    void think(Level *level, std::chrono::duration<double, std::milli> delta);
+
+
+};
+
+
+#endif //STAGE_FIGHTER_SCRIPTEDOBJECT_H

@@ -10,7 +10,6 @@
 #include "../manager/FontManager.h"
 #include "../manager/ModelManager.h"
 
-#include "BulletEntity.h"
 #include "ScriptedEntity.h"
 
 #include "../helper/QuatUtils.h"

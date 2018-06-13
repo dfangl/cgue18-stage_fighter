@@ -11,7 +11,6 @@
 #include "../object3d/BulletObject.h"
 
 #include "../entity/Entity.h"
-#include "../entity/BulletEntity.h"
 #include "../entity/ScriptedEntity.h"
 
 #include "../manager/ModelManager.h"
@@ -20,6 +19,7 @@
 #include "../helper/CompilerMacros.h"
 #include "../object3d/particlesystem/ScriptedParticleSystem.h"
 #include "../entity/InstancedProjectile.h"
+#include "../entity/ScriptedObject.h"
 
 // ********************
 // ==== Glm Vectors ===
@@ -60,6 +60,14 @@ public:
         return {vec4.x, vec4.y, vec4.z, vec4.w};
     }
 
+    glm::quat toGlmQuat() const {
+        return {vec4.w, vec4.x, vec4.y, vec4.z};
+    }
+
+    btVector4 toVector4() const {
+        return btVector4(vec4.x, vec4.y, vec4.z, vec4.w);
+    }
+
     double x() { return vec4.x; }
     double y() { return vec4.y; }
     double z() { return vec4.z; }
@@ -71,10 +79,8 @@ public:
 // *******************************
 
 class LuaBtCollisionShape {
-protected:
-    const double mass;
-
 public:
+    const double mass;
     const LuaVec3 position;
     const LuaVec4 rotation;
 
@@ -119,7 +125,7 @@ public:
 // **********************
 
 class LuaStaticObject {
-private:
+protected:
     const std::string model, shader;
     const LuaVec3 position;
     const LuaVec4 rotation;
@@ -135,8 +141,7 @@ public:
 
     std::shared_ptr<Model3DObject> toModel() const {
         auto ret = std::make_shared<Model3DObject>(position.vec3, bsRadius, ModelManager::load(model), ShaderManager::load(shader), 0);
-        ret->setRotation(glm::quat(rotation.vec4.w, rotation.vec4.x, rotation.vec4.y, rotation.vec4.z));
-        //ret->setOrigin(position.vec3);
+        ret->setRotation(rotation.toGlmQuat());
         ret->updateModelMatrix();
 
         if (texOverride.size() > 0 )
@@ -238,11 +243,6 @@ public:
             model(model), shader(shader), hitbox(hitbox), speed(speed), radius(radius), mass(mass), ps(ps) {
     }
 
-
-    //float bsRadius, const std::shared_ptr<tinygltf::Model> &model, const std::shared_ptr<Shader> &shader,
-    //                        const btVector3 &bulletShape, const btScalar &mass, std::shared_ptr<BulletUniverse> &world,
-    //                        const LuaScriptedParticleSystem &ps
-
     std::shared_ptr<InstancedProjectile> toProjectile(std::shared_ptr<BulletUniverse> &world) const {
         return std::make_shared<InstancedProjectile>(
                 radius, ModelManager::load(model), ShaderManager::load(shader), hitbox.toVector3(), mass,
@@ -278,6 +278,45 @@ public:
 
 };
 
+class LuaScriptedObject {
+
+protected:
+    const int instances;
+    const kaguya::LuaTable env;
+    const std::string model, shader;
+    const LuaVec3 position;
+    const LuaVec4 rotation;
+    btCollisionShape *bullet;
+    const kaguya::LuaTable texOverride;
+    const float bsRadius;
+    const double mass;
+
+public:
+    LuaScriptedObject(const std::string &model, const std::string &shader, const LuaVec3 &position, float bsRadius,
+                      const LuaVec4 &rotation, const LuaBtCollisionShape &bullet, const kaguya::LuaTable &texO, int i, const kaguya::LuaTable &env)
+    :  model(model), shader(shader), position(position),  rotation(rotation), bullet(bullet.generateShape()), texOverride(texO),
+       bsRadius(bsRadius), instances(i), env(env), mass(bullet.mass) {}
+
+    std::shared_ptr<ScriptedObject> toScriptedObject(const std::shared_ptr<BulletUniverse> &world) const {
+        auto ret = std::make_shared<ScriptedObject>(position.vec3, rotation.toGlmQuat(), bullet, mass, bsRadius,
+                                                    ModelManager::load(model), ShaderManager::load(shader), instances,
+                                                    env, world
+        );
+
+        if (texOverride.size() > 0 )
+            for (auto &texture : texOverride.map<unsigned int, std::string>()) {
+                if (ret->getTextures().size() > texture.first) {
+                    ret->getTextures()[texture.first] = TextureManager::load(texture.second);
+                } else {
+                    spdlog::get("console")->warn("Texture will be appended and not overridden (array to small)!");
+                    ret->getTextures().push_back(TextureManager::load(texture.second));
+                }
+            }
+
+        return ret;
+    }
+
+};
 
 
 #endif //STAGE_FIGHTER_LUACLASSWRAPPER_H

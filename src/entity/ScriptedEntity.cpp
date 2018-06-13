@@ -16,11 +16,10 @@
 ScriptedEntity::ScriptedEntity(const std::string &name, int health, const btVector3 &pos, float bsRadius, const btQuaternion &rot,
                                std::string model, float mass, glm::vec3 collisionOffset, btCollisionShape *hitbox,
                                const std::shared_ptr<BulletUniverse> &world, kaguya::LuaTable scriptEnv)
-        : BulletObject(pos, rot, hitbox, mass),
+        : AbstractScriptedObject(scriptEnv, false), BulletObject(pos, rot, hitbox, mass),
           Model3DObject(glm::vec3(pos.x(),pos.y(),pos.z()), bsRadius, ModelManager::load(model), ShaderManager::load("standard")) {
 
     this->world = world;
-    this->environment = scriptEnv;
     this->collisionOffset = collisionOffset;
 
     this->health = health;
@@ -43,9 +42,11 @@ ScriptedEntity::ScriptedEntity(const std::string &name, int health, const btVect
         return LuaVec3(origin.x() + direction.x, origin.y() + direction.y, origin.z() + direction.z);
     });
 
-    this->environment["getHealth"] = kaguya::function([this]() -> int { return this->getHealth(); });
-    this->environment["getPosition"] = kaguya::function([this]() -> LuaVec3 { return LuaVec3(this->position); });
-
+    environment["getHealth"] = kaguya::function([this]() -> int { return this->getHealth(); });
+    environment["getPosition"] = kaguya::function([this]() -> LuaVec3 { return LuaVec3(this->position); });
+    environment["setLinearVelocity"] = kaguya::function([this](LuaVec3 &vel) { this->rigidBody->setLinearVelocity(vel.toVector3()); });
+    environment["setGravity"] = kaguya::function([this](LuaVec3 &g) { this->rigidBody->setGravity(g.toVector3()); });
+    environment["setAngularVelocity"] = kaguya::function([this](LuaVec3 &vel) { this->rigidBody->setAngularFactor(vel.toVector3()); });
 
     this->position = glm::vec3(pos.x(), pos.y(), pos.z());
     Model3DObject::setRotation(glm::quat(rot.w(), rot.x(), rot.y(), rot.z()));
@@ -72,11 +73,7 @@ void ScriptedEntity::think(Level *level, std::chrono::duration<double, std::mill
     Model3DObject::setRotation(glm::quat(r.w(), r.x(), r.y(), r.z()));
     Model3DObject::setOrigin(position + collisionOffset);
 
-    this->scriptTimeout += delta.count();
-    if (this->scriptTimeout >= SCRIPT_THINK_TIMEOUT) {
-        this->environment["think"].call<void>(environment, delta.count());
-        this->scriptTimeout = 0;
-    }
+    luaThink(delta);
 
     //if (lastDmgTime > 0.0)
     lastDmgTime -= delta.count();

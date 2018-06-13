@@ -45,6 +45,11 @@ Level::Level(const std::string &file) : Logger("Level"), world(std::make_shared<
             kaguya::UserdataMetatable<LuaScriptedEntity, LuaEntity>()
                     .setConstructors<LuaScriptedEntity(std::string, int, LuaVec3&, float, LuaVec4&, std::string, float, LuaBtCollisionShape &, kaguya::LuaTable)>()
     );
+    state["ScriptedObject"].setClass(
+            kaguya::UserdataMetatable<LuaScriptedObject>()
+                    .setConstructors<LuaScriptedObject(std::string, std::string, LuaVec3&, float, LuaVec4&,
+                                                       LuaBtCollisionShape&, kaguya::LuaTable, int, kaguya::LuaTable)>()
+    );
 
 
     state["btCollisionShape"].setClass(kaguya::UserdataMetatable<LuaBtCollisionShape>());
@@ -76,7 +81,7 @@ Level::Level(const std::string &file) : Logger("Level"), world(std::make_shared<
     // Register Level to use global functions everywhere:
     state["Level"].setClass(
             kaguya::UserdataMetatable<Level>()
-                    .addFunction("spawn", &Level::luaSpawnEntity)
+                    .addFunction("spawnProjectile", &Level::luaSpawnProjectile)
                     .addFunction("getPlayerPos", &Level::luaGetPlayerPos)
     );
     state["level"] = this;
@@ -145,6 +150,13 @@ void Level::start(Window *window) {
     }
 
     c=1;
+    all = static_cast<int>(state["scriptedObjects"].size());
+    for (auto &obj : state["scriptedObjects"].map<int, LuaScriptedObject *>()) {
+        this->setLoadingStatus("scripted objects", c++, all);
+        sObjects.push_back(obj.second->toScriptedObject(world));
+    }
+
+    c=1;
     all = static_cast<int>(this->bullet.size());
     for (auto &bulletObj : this->bullet) {
         this->setLoadingStatus("bullet physics", c++, all);
@@ -163,6 +175,7 @@ void Level::start(Window *window) {
     this->logger->info("Loaded {} collision primitives", bullet.size());
     this->logger->info("Loaded {} light sources", lights.size());
     this->logger->info("Loaded {} projectiles", projectiles.size());
+    this->logger->info("Loaded {} scripted objects", sObjects.size());
 
     //this->logger->info("Player.add={}", (void*)player.get());
 
@@ -227,6 +240,9 @@ void Level::tick(std::chrono::duration<double, std::milli> delta) {
     for (auto &pSys : this->projectiles)
         pSys->think(delta);
 
+    for (auto &so : this->sObjects)
+        so->think(this, delta);
+
     int enemyH = 0;
     for (auto &entity : this->entities) {
         if (entity->mustBeKilled)
@@ -261,6 +277,7 @@ void Level::resetEnvironment() {
     this->oldEntities.clear();
     this->bullet.clear();
     this->lights.clear();
+    this->sObjects.clear();
 
     this->window->removeKeyPollingCallback(playerInputCallbackID);
 
@@ -270,9 +287,10 @@ void Level::resetEnvironment() {
 
 void Level::hide() {
     pause();
-    for (auto &entity : this->entities) this->window->getScene()->removeObject(entity);
-    for (auto &obj    : this->statics ) this->window->getScene()->removeObject(obj);
-    for (auto &light  : this->lights  ) this->window->getScene()->removeLight(light);
+    for (auto &entity : this->entities ) this->window->getScene()->removeObject(entity);
+    for (auto &obj    : this->statics  ) this->window->getScene()->removeObject(obj);
+    for (auto &obj    : this->sObjects ) this->window->getScene()->removeObject(obj);
+    for (auto &light  : this->lights   ) this->window->getScene()->removeLight(light);
 
     this->window->removeWidget(player->getHud());
     this->window->removeWidget(winLoseLabel);
@@ -286,9 +304,10 @@ void Level::hide() {
 
 void Level::show() {
     resume();
-    for (auto &entity : this->entities) this->window->getScene()->addObject(entity);
-    for (auto &obj    : this->statics ) this->window->getScene()->addObject(obj);
-    for (auto &light  : this->lights  ) this->window->getScene()->addLight(light);
+    for (auto &entity : this->entities ) this->window->getScene()->addObject(entity);
+    for (auto &obj    : this->statics  ) this->window->getScene()->addObject(obj);
+    for (auto &obj    : this->sObjects ) this->window->getScene()->addObject(obj);
+    for (auto &light  : this->lights   ) this->window->getScene()->addLight(light);
 
     this->window->addWidget(player->getHud());
     if (levelState != PLAYING) {
@@ -313,26 +332,6 @@ void Level::resume() {
     player->enable();
     levelState = PLAYING;
     window->removeWidget(winLoseLabel);
-}
-
-void Level::spawn(std::shared_ptr<Entity> entity) {
-    this->newEntities.push_back(entity);
-    this->window->getScene()->addObject(entity);
-
-
-    if (entity->getEntityKind() == BulletObject::BULLET) {
-        auto *o = dynamic_cast<BulletEntity *>(entity.get());
-        this->window->getScene()->addParticleSystem(o->getSmoke());
-    }
-}
-
-void Level::despawn(Entity *entity) {
-    this->oldEntities.push_back(entity);
-
-    if (entity->getEntityKind() == BulletObject::BULLET) {
-        auto *o = dynamic_cast<BulletEntity *>(entity);
-        this->window->getScene()->removeParticleSystem(o->getSmoke());
-    }
 }
 
 void Level::setLabel(const std::string text) {
@@ -366,12 +365,20 @@ Level::~Level() {
     this->window->removeKeyPollingCallback(playerInputCallbackID);
 }
 
-void Level::luaSpawnEntity(const int projectile, const LuaVec3 &spawn, const LuaVec3 &target) {
+void Level::luaSpawnProjectile(const int projectile, const LuaVec3 &spawn, const LuaVec3 &target) {
     this->projectiles[projectile-1]->spawn(spawn.toVector3(), target.toVector3(), 5.0f);
-    //this->spawn(projectile.toBulletEntity(spawn, target, world));
 }
 
 LuaVec3 Level::luaGetPlayerPos() {
     auto p = this->player->getPosition();
     return LuaVec3(p.x, p.y, p.z);
+}
+
+void Level::despawn(Entity *entity) {
+    this->oldEntities.push_back(entity);
+
+    //if (entity->getEntityKind() == BulletObject::BULLET) {
+    //    auto *o = dynamic_cast<BulletEntity *>(entity);
+    //    this->window->getScene()->removeParticleSystem(o->getSmoke());
+    //}
 }

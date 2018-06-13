@@ -13,24 +13,13 @@
 #include "../BulletUniverse.h"
 
 #include "Entity.h"
+#include "AbstractScriptedObject.h"
 
-#define SCRIPT_THINK_TIMEOUT (1.0/120.0)
-
-class ScriptedEntity : public Entity, public BulletObject, public Model3DObject {
+class ScriptedEntity : public Entity, public AbstractScriptedObject, public BulletObject, public Model3DObject {
 
 private:
-    double scriptTimeout;
     std::shared_ptr<BulletUniverse> world;
-    kaguya::LuaTable environment;
-
     glm::vec3 collisionOffset;
-
-    template<typename T>
-    inline T getOrDefault(const std::string &property, T defaultValue) {
-        if (environment[property].isNilref())   return defaultValue;
-        else                                    return environment[property].get<T>();
-    }
-
 
 public:
     ScriptedEntity(const std::string &name, int health, const btVector3 &pos, float bsRadius, const btQuaternion &rot, std::string model, float mass,

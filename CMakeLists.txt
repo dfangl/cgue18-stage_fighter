@@ -45,8 +45,12 @@ if(MSVC)
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
 	endif()
 elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -pedantic") #
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -pedantic")
 endif()
+
+message("CXX Flags          : ${CMAKE_CXX_FLAGS}")
+message("Release Build Flags: ${CMAKE_CXX_FLAGS_RELEASE}")
+message("Debug Build Flags  : ${CMAKE_CXX_FLAGS_DEBUG}")
 
 #
 # Dependencies:
@@ -267,21 +271,20 @@ add_executable(
 		src/Window.cpp src/Window.h src/helper/Callback.h src/BulletUniverse.cpp src/BulletUniverse.h
 		src/object3d/Object3D.cpp src/object3d/Object3D.h src/Shader.cpp src/Shader.h src/manager/ShaderManager.cpp
 		src/manager/ShaderManager.h src/Texture.cpp src/Texture.h src/manager/TextureManager.cpp src/entity/Entity.h
-		src/manager/TextureManager.h src/Camera.cpp src/Camera.h
-		src/object3d/BulletObject.cpp src/object3d/BulletObject.h
-        src/controller/CameraController.cpp src/controller/CameraController.h src/manager/ModelManager.cpp
-		src/manager/ModelManager.h src/object3d/Model3DObject.cpp src/object3d/Model3DObject.h
-		src/bullet/GLDebugDrawer.cpp
-		src/bullet/GLDebugDrawer.h src/level/Level.cpp src/level/Level.h src/level/LuaClassWrapper.h src/manager/FontManager.cpp
-		src/manager/FontManager.h src/widget/Label.cpp src/widget/Label.h src/widget/Widget.h src/helper/Font.cpp
+		src/manager/TextureManager.h src/Camera.cpp src/Camera.h src/controller/CameraController.cpp src/controller/CameraController.h
+		src/manager/ModelManager.cpp src/manager/ModelManager.h src/object3d/Model3DObject.cpp src/object3d/Model3DObject.h
+		src/bullet/GLDebugDrawer.cpp src/bullet/GLDebugDrawer.h src/level/Level.cpp src/level/Level.h src/level/LuaClassWrapper.h
+		src/manager/FontManager.cpp src/manager/FontManager.h src/widget/Label.cpp src/widget/Label.h src/widget/Widget.h src/helper/Font.cpp
 		src/helper/Font.h src/widget/NuklearCtx.cpp src/widget/NuklearCtx.h src/widget/GameMenu.cpp src/widget/GameMenu.h
-		src/widget/PlayerHud.cpp src/widget/PlayerHud.h src/entity/Player.cpp src/entity/Player.h src/entity/BulletEntity.cpp
-		src/entity/BulletEntity.h src/widget/DebugTextHud.cpp src/widget/DebugTextHud.h
+		src/widget/PlayerHud.cpp src/widget/PlayerHud.h src/entity/Player.cpp src/entity/Player.h
+		src/widget/DebugTextHud.cpp src/widget/DebugTextHud.h src/object3d/BulletObject.cpp src/object3d/BulletObject.h
 		src/object3d/Light.h src/Scene.cpp src/Scene.h src/widget/HelpMenu.cpp src/widget/HelpMenu.h src/helper/QuatUtils.h
 		src/helper/ImageGenerator.cpp src/helper/ImageGenerator.h src/CubemapTexture.cpp src/CubemapTexture.h
 		src/object3d/Skybox.cpp src/object3d/Skybox.h src/entity/ScriptedEntity.cpp src/entity/ScriptedEntity.h
-
-        src/object3d/ParticleSystem.cpp src/object3d/ParticleSystem.h src/helper/CompilerMacros.h src/entity/InstancedProjectile.cpp src/entity/InstancedProjectile.h src/object3d/particlesystem/ScriptedParticleSystem.cpp src/object3d/particlesystem/ScriptedParticleSystem.h)
+        src/object3d/ParticleSystem.cpp src/object3d/ParticleSystem.h src/helper/CompilerMacros.h src/entity/InstancedProjectile.cpp
+		src/entity/InstancedProjectile.h src/object3d/particlesystem/ScriptedParticleSystem.cpp src/object3d/particlesystem/ScriptedParticleSystem.h
+		src/entity/ScriptedObject.cpp src/entity/ScriptedObject.h src/entity/AbstractScriptedObject.h
+)
 
 set_target_properties("${BINARY}" PROPERTIES LINKER_LANGUAGE CXX)	
 	
