@@ -132,13 +132,15 @@ void Player::computeEnemyInView(std::vector<std::shared_ptr<Entity>> &entities) 
         const auto distance =  distV.x + distV.y + distV.z;
 
         if (distance < 25.0f) {
-            auto p = isInView(entity.get());
-            if (p.x > width/2-width/3 && p.x < width/2+width/3 &&
-                p.y > height/2-height/4 && p.y < height/2+height/4 &&
+            const auto p = isInView(entity.get());
+
+            if (p.x > width /2 - width/4  && p.x < width /2 + width/4 &&
+                p.y > height/2 - height/3 && p.y < height/2 + height/3 &&
                 targetDist > distance && p.z < 1.0) {
                 selectedEnemy = entity;
             }
         }
+
     }
 
     if (selectedEnemy != nullptr) {

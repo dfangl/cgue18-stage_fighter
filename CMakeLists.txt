@@ -45,7 +45,7 @@ if(MSVC)
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
 	endif()
 elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall") # -Wextra -pedantic
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -pedantic") #
 endif()
 
 #
@@ -267,11 +267,11 @@ add_executable(
 		src/Window.cpp src/Window.h src/helper/Callback.h src/BulletUniverse.cpp src/BulletUniverse.h
 		src/object3d/Object3D.cpp src/object3d/Object3D.h src/Shader.cpp src/Shader.h src/manager/ShaderManager.cpp
 		src/manager/ShaderManager.h src/Texture.cpp src/Texture.h src/manager/TextureManager.cpp src/entity/Entity.h
-		src/manager/TextureManager.h src/Camera.cpp src/Camera.h src/object3d/Cube.cpp src/object3d/Cube.h
+		src/manager/TextureManager.h src/Camera.cpp src/Camera.h
 		src/object3d/BulletObject.cpp src/object3d/BulletObject.h
         src/controller/CameraController.cpp src/controller/CameraController.h src/manager/ModelManager.cpp
 		src/manager/ModelManager.h src/object3d/Model3DObject.cpp src/object3d/Model3DObject.h
-		src/object3d/StaticBulletModelObject.cpp src/object3d/StaticBulletModelObject.h src/bullet/GLDebugDrawer.cpp
+		src/bullet/GLDebugDrawer.cpp
 		src/bullet/GLDebugDrawer.h src/level/Level.cpp src/level/Level.h src/level/LuaClassWrapper.h src/manager/FontManager.cpp
 		src/manager/FontManager.h src/widget/Label.cpp src/widget/Label.h src/widget/Widget.h src/helper/Font.cpp
 		src/helper/Font.h src/widget/NuklearCtx.cpp src/widget/NuklearCtx.h src/widget/GameMenu.cpp src/widget/GameMenu.h

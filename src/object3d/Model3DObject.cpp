@@ -334,7 +334,7 @@ void Model3DObject::setInstance(unsigned int id, const glm::vec3 &vec, const glm
     instancedTranslation[pos] = vec;
     instancedRotation[pos] = rot;
 
-    prepareModelMatrices(static_cast<const unsigned long>(pos));
+    prepareModelMatrices(static_cast<unsigned long>(pos));
 }
 
 glm::mat4 Model3DObject::getNodeMatrix() {

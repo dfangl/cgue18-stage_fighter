@@ -5,10 +5,12 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-#include "../manager/FontManager.h"
-
 #include "DebugTextHud.h"
+
+#include "../manager/FontManager.h"
 #include "../manager/ShaderManager.h"
+
+#include "../helper/CompilerMacros.h"
 
 DebugTextHud::DebugTextHud(const std::shared_ptr<Scene> &scene) : Logger("DebugHUD"), scene(scene) {
     this->fpsLabel = std::make_shared<Label>("FPS: 000.0 (00.0000 ms | 00.0000 ms highest)",
@@ -21,7 +23,7 @@ DebugTextHud::DebugTextHud(const std::shared_ptr<Scene> &scene) : Logger("DebugH
     this->viewFrustumCulling = scene->frustumCulling;
     this->cullingLabel = std::make_shared<Label>("", FontManager::get("Lato-12"), 3, 30.0f, 1.0f, glm::vec3(.9f,.9f,.9f));
 
-    keyCallback = [this, scene](int key, int scancode, int action, int mods){
+    keyCallback = [this, scene](int key, int UNUSED(scancode), int action, int UNUSED(mods)){
         if(action == GLFW_RELEASE)
             switch(key) {
                 case GLFW_KEY_F2: showFrameTime = !showFrameTime; break;
@@ -49,7 +51,7 @@ void DebugTextHud::render(const glm::mat4 &projection) {
     }
 }
 
-void DebugTextHud::resize(float x, float y) {}
+void DebugTextHud::resize(float UNUSED(x), float UNUSED(y)) {}
 
 std::function<void(int, int, int, int)> &DebugTextHud::getKeyCallback() {
     return this->keyCallback;

@@ -366,7 +366,7 @@ void mbtn_callback(GLFWwindow *window, int a, int b, int c) {
 
 
 // OpenGL Debug Function:
-void APIENTRY glDebugOutput(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length,
+void APIENTRY glDebugOutput(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei UNUSED(length),
                             const GLchar *message, const void *userParam) {
     // ignore non-significant error/warning codes
     if(id == 131169 || id == 131185 || id == 131218 || id == 131204) return;

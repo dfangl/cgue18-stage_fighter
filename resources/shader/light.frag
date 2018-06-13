@@ -9,7 +9,7 @@ struct Light {
     vec3 specular;
 };
 
-uniform Light light;
+in Light light[];
 
 void main() {
     FragColor = vec4(1.0, 1.0, 1.0, 1.0);

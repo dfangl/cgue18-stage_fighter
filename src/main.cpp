@@ -20,9 +20,7 @@
 #include "manager/ModelManager.h"
 #include "manager/FontManager.h"
 
-#include "object3d/Cube.h"
 #include "object3d/Model3DObject.h"
-#include "object3d/StaticBulletModelObject.h"
 #include "object3d/Skybox.h"
 #include "object3d/ParticleSystem.h"
 

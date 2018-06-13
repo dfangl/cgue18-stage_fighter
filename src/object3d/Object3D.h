@@ -18,6 +18,9 @@ class Scene; //#include "../Scene.h"
 
 #include "Light.h"
 
+// Must be the same as in the shaders!
+#define MAX_LIGHTS ((size_t)30L)
+
 /**
  * This Interface represents all Objects which can be drawn with a Camera into something
  */
@@ -65,6 +68,7 @@ public:
     virtual void setOrigin(const glm::vec3 &vec);
 
     void setModelMatrix(const glm::mat4 &mat);
+    const glm::mat4 &getModelMatrix() const;
 
     float getBoundingSphereRadius() override { return this->boundingSphereRadius; }
     const glm::vec3 &getPosition() const override { return this->position; }

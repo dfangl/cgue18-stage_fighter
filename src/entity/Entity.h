@@ -14,7 +14,7 @@
 #include "../helper/CompilerMacros.h"
 class Level; //#include "../level/Level.h"
 
-class Entity : public Object3DAbstract {
+class Entity : virtual public Object3DAbstract {
 
 protected:
     std::string name;

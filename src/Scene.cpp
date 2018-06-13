@@ -15,13 +15,12 @@ void Scene::render(std::chrono::duration<double, std::milli> &delta) {
     this->deltaT = delta;
     this->culledObjects = 0;
 
-    /*
-    if (dirtyLights) {
-        glBindBuffer(GL_ARRAY_BUFFER, this->lightVBO);
-        glBufferData(GL_ARRAY_BUFFER, lights.size() * sizeof(Light), lights.data(), GL_STATIC_DRAW);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-    }
-    */
+
+//    if (dirtyLights) {
+//        glBindBuffer(GL_ARRAY_BUFFER, this->lightVBO);
+//        glBufferData(GL_ARRAY_BUFFER, lights.size() * sizeof(Light), lights.data(), GL_STATIC_DRAW);
+//        glBindBuffer(GL_ARRAY_BUFFER, 0);
+//    }
 
     for (auto &obj : this->objects) {
 
@@ -107,6 +106,9 @@ void Scene::removeObject(const std::shared_ptr<Object3DAbstract> &object3D) {
 void Scene::addLight(const Light &light) {
     this->dirtyLights = true;
     this->lights.push_back(light);
+
+    if (this->lights.size() > 30)
+        throw std::runtime_error("Error MAX_LGIHTS is 30!");
 }
 
 void Scene::removeLight(const Light &light) {
@@ -154,5 +156,5 @@ void Scene::removeParticleSystem(const std::shared_ptr<AbstractParticleSystem> &
 }
 
 void Scene::initOpenGLContext() {
-    glGenBuffers(1, &this->lightVBO);
+//    glGenBuffers(1, &this->lightVBO);
 }

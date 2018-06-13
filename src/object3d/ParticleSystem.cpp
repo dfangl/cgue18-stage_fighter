@@ -126,7 +126,8 @@ void ParticleSystem::setSize(const glm::vec2 &size) {
 
 void ParticleSystem::loadSSBO() {
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, SSBO);
-    //glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, SSBO);
-    glBufferData(GL_SHADER_STORAGE_BUFFER, data.size() * sizeof(ParticleSystem::Particle), data.data(), GL_STATIC_DRAW);
+
+    // Official NV driver (linux) requests GL_STATIC_COPY_ARB since the GPU is the primary consumer ...
+    glBufferData(GL_SHADER_STORAGE_BUFFER, data.size() * sizeof(ParticleSystem::Particle), data.data(), GL_STATIC_COPY);
 }
 

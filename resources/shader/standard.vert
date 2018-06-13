@@ -1,7 +1,8 @@
 #version 430 core
+
 layout (location = 0) in vec3 position;
-in vec2 texcoord_0;
-in vec3 normal;
+layout (location = 1) in vec2 texcoord_0;
+layout (location = 2) in  vec3 normal;
 
 out VS_OUT {
     vec2 texcoord_0;

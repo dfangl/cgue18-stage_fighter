@@ -83,8 +83,8 @@ void ScriptedEntity::think(Level *level, std::chrono::duration<double, std::mill
 }
 
 void ScriptedEntity::setPosition(const glm::vec3 &vec, const glm::quat &rot) {
-    this->position = vec;
-    Model3DObject::setOrigin(vec + collisionOffset);
+    this->position = vec + collisionOffset;
+    Model3DObject::setOrigin(position);
     BulletObject::setOrigin(btVector3(vec.x, vec.y, vec.z), btQuaternion(rot.x, rot.y, rot.z, rot.w));
 }
 
@@ -106,3 +106,4 @@ const glm::vec3 &ScriptedEntity::getPosition() const {
 BulletObject::Kind ScriptedEntity::getEntityKind() {
     return BulletObject::getKind();
 }
+

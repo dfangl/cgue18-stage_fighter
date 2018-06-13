@@ -9,7 +9,6 @@
 
 #include "object3d/Light.h"
 #include "object3d/Skybox.h"
-#include "object3d/Cube.h"
 #include "object3d/ParticleSystem.h"
 
 #include "manager/TextureManager.h"
@@ -32,7 +31,7 @@ private:
 
     std::chrono::duration<double, std::milli> deltaT;
 
-    GLuint lightVBO  = -1;
+    GLuint lightVBO  = 0;
     bool dirtyLights = false;
 
 protected:
@@ -73,6 +72,8 @@ public:
 
     bool areLightsDirty() const { return this->dirtyLights; }
     void makeLightsDirty() { this->dirtyLights = true; }
+
+    GLuint getLightVBO() const { return this->lightVBO; }
 };
 
 #endif //STAGE_FIGHTER_SCENE_H
