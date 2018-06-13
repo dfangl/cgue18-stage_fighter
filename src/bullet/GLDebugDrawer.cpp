@@ -9,6 +9,10 @@
 GLDebugDrawer::GLDebugDrawer() : Logger("Bullet"), Object3D(glm::vec3(0,0,0), 0.0f, ShaderManager::load("bulletdebug")) {
     this->debugMode = btIDebugDraw::DBG_NoDebug;
 
+    // Reserve some memory>
+    this->colors.reserve(10000);
+    this->lines.reserve(10000);
+
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
     glGenBuffers(1, &colorVBO);
@@ -47,17 +51,18 @@ GLDebugDrawer::~GLDebugDrawer() {
 }
 
 void GLDebugDrawer::draw() {
+    //TODO: Shader ???
 
     glDisable(GL_CULL_FACE);
     glBindVertexArray(VAO);
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(Line) * lines.size(), lines.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Line) * lines.size(), lines.data(), GL_STREAM_DRAW);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3[2]), nullptr);
     glEnableVertexAttribArray(0);
 
     glBindBuffer(GL_ARRAY_BUFFER, colorVBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * colors.size(), colors.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * colors.size(), colors.data(), GL_STREAM_DRAW);
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), nullptr);
     glEnableVertexAttribArray(1);
 

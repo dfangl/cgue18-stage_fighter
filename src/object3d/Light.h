@@ -14,19 +14,19 @@ struct Light {
     }
 
     glm::vec3 position;
-    //float __PADDING_1 = 0;
+    float __PADDING_1 = 0;
 
     glm::vec3 ambient;
-    //float __PADDING_2 = 0;
+    float __PADDING_2 = 0;
 
     glm::vec3 diffuse;
-    //float __PADDING_3 = 0;
+    float __PADDING_3 = 0;
 
     glm::vec3 specular;
-    //float __PADDING_4 = 0;
+    float __PADDING_4 = 0;
 
     float power;
-    //float __PADDING_5[3] = {0,0,0};
+    float __PADDING_5[3] = {0,0,0};
 };
 
 #endif //STAGE_FIGHTER_LIGHT_H

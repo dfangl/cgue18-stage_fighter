@@ -1,14 +1,14 @@
 #version 430 core
 
-layout (location = 0) in vec3 position;
-layout (location = 1) in vec2 texcoord_0;
-layout (location = 2) in  vec3 normal;
-
 out VS_OUT {
     vec2 texcoord_0;
     vec3 normal_0;
     vec3 FragPos;
 } vs_out;
+
+in vec3 position;
+in vec2 texcoord_0;
+in vec3 normal;
 
 uniform mat4 nModel;
 uniform mat4 model;

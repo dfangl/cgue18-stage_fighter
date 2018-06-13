@@ -31,7 +31,7 @@ private:
 
     std::chrono::duration<double, std::milli> deltaT;
 
-    GLuint lightVBO  = 0;
+    GLuint lightSSBO  = 0;
     bool dirtyLights = false;
 
 protected:
@@ -73,7 +73,7 @@ public:
     bool areLightsDirty() const { return this->dirtyLights; }
     void makeLightsDirty() { this->dirtyLights = true; }
 
-    GLuint getLightVBO() const { return this->lightVBO; }
+    GLuint getLightVBO() const { return this->lightSSBO; }
 };
 
 #endif //STAGE_FIGHTER_SCENE_H

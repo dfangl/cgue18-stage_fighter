@@ -193,10 +193,10 @@ void Model3DObject::draw() {
     if (instances > 0 && recomputeInstanceBuffer) {
         // Push them to the GPU
         glBindBuffer(GL_ARRAY_BUFFER, modelMatrixInstanceVBO);
-        glBufferData(GL_ARRAY_BUFFER, instancedTranslation.size() * sizeof(glm::mat4), instancedModelMatrix.data(), GL_DYNAMIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, instancedTranslation.size() * sizeof(glm::mat4), instancedModelMatrix.data(), GL_STREAM_DRAW);
 
         glBindBuffer(GL_ARRAY_BUFFER, normalMatrixInstanceVBO);
-        glBufferData(GL_ARRAY_BUFFER, instancedTranslation.size() * sizeof(glm::mat4), instancedNormalMatrix.data(), GL_DYNAMIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, instancedTranslation.size() * sizeof(glm::mat4), instancedNormalMatrix.data(), GL_STREAM_DRAW);
 
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         recomputeInstanceBuffer = false;

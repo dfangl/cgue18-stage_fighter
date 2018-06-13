@@ -1,15 +1,18 @@
 #version 430 core
-in vec3 position;
-in vec2 texcoord_0;
-in vec3 normal;
-in mat4 model;
-in mat4 nModel;
 
 out VS_OUT {
     vec2 texcoord_0;
     vec3 normal_0;
     vec3 FragPos;
 } vs_out;
+
+
+in vec3 position;
+in vec2 texcoord_0;
+in vec3 normal;
+
+in mat4 model;
+in mat4 nModel;
 
 uniform mat4 view;
 uniform mat4 projection;

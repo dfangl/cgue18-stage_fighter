@@ -10,13 +10,13 @@ struct Material {
 };
 
 struct Light {
-    vec3 position;
+    vec3 position; float _padding1;
 
-    vec3 ambient;
-    vec3 diffuse;
-    vec3 specular;
+    vec3 ambient; float _padding2;
+    vec3 diffuse; float _padding3;
+    vec3 specular; float _padding4;
 
-    float power;
+    float power; float _padding[3];
 };
 
 out vec4 FragColor;
@@ -31,8 +31,11 @@ uniform vec3 camera_position;
 uniform sampler2D texture_0;
 
 uniform Material material;
+
 uniform int lights;
-uniform Light light[MAX_LIGHTS];
+layout(std430, binding = 0) readonly buffer LightBuffer {
+    Light light[];
+};
 
 uniform float screenGamma = 1.0f;
 

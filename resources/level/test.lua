@@ -37,15 +37,29 @@ lights = {
     PointLight(
         vec3(-50.188 , -35 , 0.0), -- Position
         vec3(0.6,0.6,0.6), -- Ambient
-        vec3(0.7,0.7,0.7), -- Diffuse
+        vec3(0.2,0.2,0.2), -- Diffuse
         vec3(0.5,0.5,0.5), -- Specular
-        80.0               -- Light power
+        20.0               -- Light power
     ),
     PointLight(
-            vec3(-50.188 , 0, 0.0), -- Position
+            vec3(-24.7897,-32.5088,1.65117), -- Position
             vec3(0.0,0.0,0.0), -- Ambient
-            vec3(0.9,0.0,0.0), -- Diffuse
-            vec3(0.8,0.0,0.0), -- Specular
-            1800.0               -- Light power
+            vec3(0.4,0.0,0.0), -- Diffuse
+            vec3(0.4,0.0,0.0), -- Specular
+            100.0               -- Light power
+    ),
+    PointLight(
+            vec3(-50.2492,-32.5088,-25.1359), -- Position
+            vec3(0.0,0.0,0.0), -- Ambient
+            vec3(0.0,0.4,0.0), -- Diffuse
+            vec3(0.0,0.4,0.0), -- Specular
+            100.0               -- Light power
+    ),
+    PointLight(
+            vec3(-50.2492,-32.5088, 5), -- Position
+            vec3(0.0,0.0,0.0), -- Ambient
+            vec3(0.0,0.0,0.4), -- Diffuse
+            vec3(0.0,0.0,0.4), -- Specular
+            100.0               -- Light power
     )
 }

@@ -23,43 +23,14 @@ void Object3D::render(Scene *scene) {
     this->shader->setUniformIfNeeded("camera_position", scene->getCamera().getPosition());
     this->shader->setUniformIfNeeded("screenGamma", scene->gamma);
 
-    if (scene->areLightsDirty() || !shader->hasLightDataSet) {
-
-        auto lLoc = shader->getLocation("light[0]");
-        const auto lsLoc = shader->getLocation("lights");
-
-        // Can someone tell me why?
-        if (lLoc == -1 && lsLoc > -1) {
-            spdlog::get("console")->warn("lights defined but unable to query light[] location! Assuming light = lights+1!");
-            lLoc = lsLoc + 1;
-        }
-
-        if (lLoc != -1) {
-            const auto &lights = scene->getLights();
-            const size_t border = std::min(MAX_LIGHTS, lights.size());
-            shader->setUniform(lsLoc, (int)lights.size());
-
-            for(size_t i = 0; i < border; i++) {
-                const auto Loc = lLoc + (i * 5 /*uniform slots*/);
-
-                shader->setUniform(static_cast<GLint>(Loc + 0), lights[i].position);
-                shader->setUniform(static_cast<GLint>(Loc + 1), lights[i].ambient);
-                shader->setUniform(static_cast<GLint>(Loc + 2), lights[i].diffuse);
-                shader->setUniform(static_cast<GLint>(Loc + 3), lights[i].specular);
-                shader->setUniform(static_cast<GLint>(Loc + 4), lights[i].power);
-            }
-        }
-
-        // this->shader->setUniform("light.position", scene->getLights()[0].position);
-        // this->shader->setUniform("light.diffuse", scene->getLights()[0].diffuse);
-        // this->shader->setUniform("light.ambient", scene->getLights()[0].ambient);
-        // this->shader->setUniform("light.specular", scene->getLights()[0].specular);
-        // this->shader->setUniform("light.power", scene->getLights()[0].power);
-
-        this->shader->hasLightDataSet = true;
+    const auto lightsPos = shader->getLocation("lights");
+    if (lightsPos >= 0) {
+        this->shader->setUniform("lights", (int)scene->getLights().size());
+        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, scene->getLightVBO());
     }
 
     this->draw();
+    glUseProgram(0);
 }
 
 Object3D::Object3D(const glm::vec3 &position, float boundingSphereRadius, const std::shared_ptr<Shader> &shader) {

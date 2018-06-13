@@ -108,6 +108,9 @@ void InstancedProjectile::think(std::chrono::duration<double, std::milli> delta)
 }
 
 void InstancedProjectile::render(Scene *scene) {
+    if (projectiles.empty())
+        return;
+
     if (renderPass++ == 0) Model3DObject::render(scene);
     else {
         for (auto &pps : projectiles) pps->smoke->render(scene);

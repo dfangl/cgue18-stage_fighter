@@ -10,13 +10,13 @@ struct Material {
 };
 
 struct Light {
-    vec3 position;
+    vec3 position; float _padding1;
 
-    vec3 ambient;
-    vec3 diffuse;
-    vec3 specular;
+    vec3 ambient; float _padding2;
+    vec3 diffuse; float _padding3;
+    vec3 specular; float _padding4;
 
-    float power;
+    float power; float _padding[3];
 };
 
 out vec4 FragColor;
@@ -35,11 +35,15 @@ uniform sampler2D texture_3;    // Texture A
 uniform sampler2D texture_4;    // Splatmap
 uniform sampler2D texture_5;    // Lightmap
 
+// Maybe broken (as mentiention in spec)
 uniform vec4 textureScale = vec4(12, 32, 32, 1);
 
 uniform Material material;
+
 uniform int lights;
-uniform Light light[MAX_LIGHTS];
+layout(std430, binding = 0) readonly buffer LightBuffer {
+    Light light[];
+};
 
 uniform float screenGamma = 1.0f;
 

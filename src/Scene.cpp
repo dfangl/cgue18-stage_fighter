@@ -16,11 +16,11 @@ void Scene::render(std::chrono::duration<double, std::milli> &delta) {
     this->culledObjects = 0;
 
 
-//    if (dirtyLights) {
-//        glBindBuffer(GL_ARRAY_BUFFER, this->lightVBO);
-//        glBufferData(GL_ARRAY_BUFFER, lights.size() * sizeof(Light), lights.data(), GL_STATIC_DRAW);
-//        glBindBuffer(GL_ARRAY_BUFFER, 0);
-//    }
+    if (dirtyLights) {
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, this->lightSSBO);
+        glBufferData(GL_SHADER_STORAGE_BUFFER, lights.size() * sizeof(Light), lights.data(), GL_STATIC_COPY);
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+    }
 
     for (auto &obj : this->objects) {
 
@@ -156,5 +156,5 @@ void Scene::removeParticleSystem(const std::shared_ptr<AbstractParticleSystem> &
 }
 
 void Scene::initOpenGLContext() {
-//    glGenBuffers(1, &this->lightVBO);
+    glGenBuffers(1, &this->lightSSBO);
 }
