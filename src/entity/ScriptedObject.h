@@ -9,17 +9,23 @@
 
 #include <kaguya/kaguya.hpp>
 
+#include "AbstractScriptedObject.h"
+
 #include "../object3d/BulletObject.h"
 #include "../object3d/Model3DObject.h"
-#include "AbstractScriptedObject.h"
+
 #include "../BulletUniverse.h"
+#include "../object3d/particlesystem/ScriptedParticleSystem.h"
 
 class Level;
+class Scene;
 
 class ScriptedObject : public AbstractScriptedObject, public BulletObject, public Model3DObject {
 
 private:
     const std::shared_ptr<BulletUniverse> world;
+    std::vector<std::shared_ptr<ScriptedParticleSystem>> particleSystem;
+    std::vector<glm::vec3> offsets;
 
 public:
     ScriptedObject(const glm::vec3 &pos, const glm::quat &rotation, btCollisionShape *, btScalar mass,
@@ -28,7 +34,10 @@ public:
     ~ScriptedObject();
 
     void think(Level *level, std::chrono::duration<double, std::milli> delta);
+    void update(Scene *scene);
 
+    void show(Scene *);
+    void hide(Scene *);
 
 };
 

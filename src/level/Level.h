@@ -97,7 +97,6 @@ public:
 
     void despawn(Entity *entity);
 
-
     // Lua Binding part:
     void luaSpawnProjectile(const int projectile, const LuaVec3 &spawn, const LuaVec3 &target);
     LuaVec3 luaGetPlayerPos();

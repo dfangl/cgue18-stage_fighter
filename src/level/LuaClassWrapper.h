@@ -172,7 +172,7 @@ public:
 // ==== Entities ====
 // ******************
 
-class LuaEntity{
+class LuaEntity {
 protected:
     const LuaVec3 position;
 

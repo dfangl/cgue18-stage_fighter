@@ -28,9 +28,31 @@ objects = {
 }
 
 scriptedObjects = {
-    ScriptedObject("cube", "light", vec3(-42.8338, -32.5088,       00),  0.2, vec4(0,0,0,1), BoxShape(vec3(0,0,0), vec4(0,0,0,1), 0.1, vec3(0.1/2, 0.1/2, 0.1/2)), {}, 0, {
+    ScriptedObject("cube", "light", vec3(-42.8338, -32.5088,       00),  0.2, vec4(0,0,0,1), BoxShape(vec3(0,0,0), vec4(0,0,0,1), 8000, vec3(0.1/2, 0.1/2, 0.1/2)), {}, 0, {
+
+        zero = vec3(0,0,0),
+
         think = function(this, delta)
-            this.setGravity(vec3(0,1,0))
+            local pos = this.getPosition();
+            if pos:y() < -40.0 then
+                this.dir = this.up
+            end
+            if pos:y() > -20.0 then
+                this.dir = this.down
+            end
+
+            this.setLinearVelocity(this.dir)
+            this.setGravity(this.zero)
+            this.setAngularFactor(this.zero)
+        end,
+
+        init = function(this)
+            local speed = 5.0
+            this.up     = vec3(0.0, speed, 0.0)
+            this.down   = vec3(0.0, -speed, 0.0)
+            this.dir    = this.down
+
+            this.spawnParticleSystem(particles.smoke, vec3(0,-0.8,0), 100)
         end
     })
 }

@@ -5,6 +5,7 @@
 #include "Level.h"
 
 #include <glm/gtc/quaternion.hpp>
+#include <stb_perlin.h>
 
 #include "../manager/FontManager.h"
 #include "../manager/TextureManager.h"
@@ -85,6 +86,11 @@ Level::Level(const std::string &file) : Logger("Level"), world(std::make_shared<
                     .addFunction("getPlayerPos", &Level::luaGetPlayerPos)
     );
     state["level"] = this;
+
+    // Register some utility stuff like noise functions:
+    state["noise"] = kaguya::NewTable();
+    state["noise"]["stb_perlin_ridge_noise3"] = &stb_perlin_ridge_noise3;
+
 
     // Finally load file
     state.dofile(file);
@@ -289,7 +295,7 @@ void Level::hide() {
     pause();
     for (auto &entity : this->entities ) this->window->getScene()->removeObject(entity);
     for (auto &obj    : this->statics  ) this->window->getScene()->removeObject(obj);
-    for (auto &obj    : this->sObjects ) this->window->getScene()->removeObject(obj);
+    for (auto &obj    : this->sObjects ) { this->window->getScene()->removeObject(obj); obj->hide(window->getScene().get()); }
     for (auto &light  : this->lights   ) this->window->getScene()->removeLight(light);
 
     this->window->removeWidget(player->getHud());
@@ -306,7 +312,7 @@ void Level::show() {
     resume();
     for (auto &entity : this->entities ) this->window->getScene()->addObject(entity);
     for (auto &obj    : this->statics  ) this->window->getScene()->addObject(obj);
-    for (auto &obj    : this->sObjects ) this->window->getScene()->addObject(obj);
+    for (auto &obj    : this->sObjects ) { this->window->getScene()->addObject(obj); obj->show(window->getScene().get()); }
     for (auto &light  : this->lights   ) this->window->getScene()->addLight(light);
 
     this->window->addWidget(player->getHud());
@@ -376,9 +382,4 @@ LuaVec3 Level::luaGetPlayerPos() {
 
 void Level::despawn(Entity *entity) {
     this->oldEntities.push_back(entity);
-
-    //if (entity->getEntityKind() == BulletObject::BULLET) {
-    //    auto *o = dynamic_cast<BulletEntity *>(entity);
-    //    this->window->getScene()->removeParticleSystem(o->getSmoke());
-    //}
 }
