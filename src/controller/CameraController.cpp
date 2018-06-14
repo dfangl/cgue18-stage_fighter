@@ -4,6 +4,7 @@
 
 #include "CameraController.h"
 #include "../manager/TextureManager.h"
+#include "../entity/ScriptedObject.h"
 #include <GLFW/glfw3.h>
 #include <glm/gtc/quaternion.hpp>
 
@@ -61,7 +62,7 @@ void CameraEntity::think(std::chrono::duration<double, std::milli> delta) {
     speed.setX( x.x() + canJump ? xVelocity : xVelocity/2 );
     speed.setY( x.y() ) ;
 
-    rigidBody->setLinearVelocity(speed.rotate(bulletMovementVector, btRadians(-camera.getYaw())));
+    auto movementVector = speed.rotate(bulletMovementVector, btRadians(-camera.getYaw()));
 
     {
         auto end = btVector3(o.x(), o.y()-height, o.z());
@@ -73,7 +74,24 @@ void CameraEntity::think(std::chrono::duration<double, std::milli> delta) {
         if (canJump && jump > 0) {
             jump -= delta.count();
         }
+
+        // Handle stick objects
+        if (canJump) {
+            auto obj = (BulletObject *)rayCallback.m_collisionObject->getUserPointer();
+            if (obj->getKind() == BulletObject::PLATFORM) {
+                auto p = dynamic_cast<ScriptedObject*>(obj);
+                if (p->isSticky()) stickyVelocity = p->getLinearVelocity();
+                else stickyVelocity = btVector3(0,0,0);
+            } else {
+                stickyVelocity = btVector3(0,0,0);
+            }
+        } else {
+            stickyVelocity = btVector3(0,0,0);
+        }
+
     }
+
+    rigidBody->setLinearVelocity(movementVector + stickyVelocity);
 }
 
 CameraEntity::~CameraEntity() {

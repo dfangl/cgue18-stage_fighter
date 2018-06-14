@@ -27,6 +27,8 @@ private:
     std::vector<std::shared_ptr<ScriptedParticleSystem>> particleSystem;
     std::vector<glm::vec3> offsets;
 
+    bool stickyToPlayer;
+
 public:
     ScriptedObject(const glm::vec3 &pos, const glm::quat &rotation, btCollisionShape *, btScalar mass,
                    float bsRadius, const std::shared_ptr<tinygltf::Model> &model, const std::shared_ptr<Shader> &shader,
@@ -38,6 +40,9 @@ public:
 
     void show(Scene *);
     void hide(Scene *);
+
+    bool isSticky() const { return this->stickyToPlayer; }
+    const btVector3 &getLinearVelocity() const { return this->rigidBody->getLinearVelocity(); }
 
 };
 

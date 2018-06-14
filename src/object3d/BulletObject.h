@@ -14,7 +14,7 @@
 class BulletObject {
 public:
     enum Kind {
-        PLAYER, ENEMY, BULLET, ENVIRONMENT, WEAPON
+        PLAYER, ENEMY, BULLET, ENVIRONMENT, WEAPON, PLATFORM
     };
 
 protected:

@@ -33,6 +33,9 @@ ScriptedObject::ScriptedObject(const glm::vec3 &pos, const glm::quat &rot, btCol
 
     luaInit();
 
+    this->stickyToPlayer = getOrDefault("sticky", false);
+    this->kind = getOrDefault("kind", BulletObject::ENVIRONMENT);
+
     world->addRigidBody(BulletObject::rigidBody);
 }
 
@@ -49,7 +52,7 @@ void ScriptedObject::think(Level* UNUSED(level), std::chrono::duration<double, s
         particleSystem[i]->setOrigin(position + offsets[i]);
     }
 
-   luaThink(delta);
+    luaThink(delta);
 }
 
 ScriptedObject::~ScriptedObject() {

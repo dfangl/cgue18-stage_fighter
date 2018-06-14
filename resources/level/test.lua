@@ -53,8 +53,11 @@ scriptedObjects = {
             this.spawnParticleSystem(particles.smoke, vec3(0,-0.3,0), 25)
         end
     }),
-    ScriptedObject("platform", "standard", vec3(-52.8338, -20, 0),  2/2, vec4(0.707107,0,0.707107,0), BoxShape(vec3(0,0,0), vec4(0,0,0,1), 8000, vec3(2/2, 0.449138/2, 2/2)), {}, 0, {
+    ScriptedObject("platform", "standard", vec3(-52.8338, -32, 0),  2/2, vec4(0.707107,0,0.707107,0), BoxShape(vec3(0,0,0), vec4(0,0,0,1), 8000, vec3(2/2, 0.449138/2, 2/2)), {}, 0, {
         zero = vec3(0,0,0),
+        sticky = true,
+        kind = 5,
+
         think = function(this, delta)
             local pos = this.getPosition();
             if pos:x() < -53.0 then

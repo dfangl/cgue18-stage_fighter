@@ -26,7 +26,6 @@ private:
     bool rightPressed = false;
 
     float jump = 0.0f;
-    bool canJump = false;
     bool enabled = true;
 
     std::shared_ptr<BulletUniverse> world;
@@ -36,6 +35,9 @@ private:
 
 protected:
     Camera &camera;
+
+    bool canJump = false;
+    btVector3 stickyVelocity;
 
 public:
     explicit CameraEntity(Camera &camera,

@@ -13,6 +13,7 @@
 #include "ScriptedEntity.h"
 
 #include "../helper/QuatUtils.h"
+#include "ScriptedObject.h"
 
 Player::Player(Camera &camera, Window *window, const std::shared_ptr<BulletUniverse> &world) :
         CameraEntity(camera, world, new btSphereShape(0.7f), 1.0f),
@@ -50,6 +51,7 @@ Player::Player(Camera &camera, Window *window, const std::shared_ptr<BulletUnive
 
     this->oSpeed = CameraEntity::entitySpeed;
     this->oJumpSpeed = CameraEntity::jumpSpeed;
+    this->stickyVelocity = btVector3(0,0,0);
 }
 
 void Player::think(std::chrono::duration<double, std::milli> delta) {
@@ -152,22 +154,23 @@ void Player::computeEnemyInView(std::vector<std::shared_ptr<Entity>> &entities) 
 }
 
 void Player::collideWith(BulletObject *other) {
-    if (other->getKind() == BulletObject::ENVIRONMENT)
-        return;
 
-    if (other->getKind() == BulletObject::ENEMY) {
-        if (window->getMouseButton(GLFW_MOUSE_BUTTON_LEFT)) {
-            logger->info("Hit with Enemy ({})!", (void*)other);
+    switch (other->getKind()) {
+        case BULLET: if (!this->isBlocking) this->health = std::max(0, health - 1); break;
+        case ENEMY:
+            if (window->getMouseButton(GLFW_MOUSE_BUTTON_LEFT)) {
+                logger->info("Hit with Enemy ({})!", (void*)other);
 
-            auto *enemy = dynamic_cast<Entity *>(other);
-            enemy->receiveDamage(1);
-        }
+                auto *enemy = dynamic_cast<Entity *>(other);
+                enemy->receiveDamage(1);
+            }
+            break;
+        case PLAYER:break;
+        case ENVIRONMENT:break;
+        case WEAPON:break;
+        case PLATFORM:break;
     }
 
-    if (other->getKind() == BulletObject::BULLET) {
-        if (!this->isBlocking)
-            this->health -= 1;
-    }
 }
 
 BulletObject::Kind Player::getEntityKind() {
