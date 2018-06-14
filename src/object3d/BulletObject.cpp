@@ -44,6 +44,10 @@ void BulletObject::setOrigin(const btVector3 &position, const btQuaternion &rota
     this->motionState->setWorldTransform(initialTransform);
 }
 
+void BulletObject::setRotation(const btQuaternion &rotation) {
+
+}
+
 btTransform BulletObject::getTransformation() {
     btTransform trans;
     this->rigidBody->getMotionState()->getWorldTransform(trans);

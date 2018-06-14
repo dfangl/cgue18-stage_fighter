@@ -28,59 +28,8 @@ objects = {
 }
 
 scriptedObjects = {
-    ScriptedObject("platform", "standard", vec3(-42.8338, -31, 0),  2/2, vec4(0.707107,0,0.707107,0), BoxShape(vec3(0,0,0), vec4(0,0,0,1), 8000, vec3(2/2, 0.449138/2, 2/2)), {}, 0, {
-        zero = vec3(0,0,0),
-        think = function(this, delta)
-            local pos = this.getPosition();
-            if pos:y() < -40.0 then
-                this.dir = this.up
-            end
-            if pos:y() > -20.0 then
-                this.dir = this.down
-            end
-
-            this.setLinearVelocity(this.dir)
-            this.setGravity(this.zero)
-            this.setAngularFactor(this.zero)
-        end,
-
-        init = function(this)
-            local speed = 2.0
-            this.up     = vec3(0.0, speed, 0.0)
-            this.down   = vec3(0.0, -speed, 0.0)
-            this.dir    = this.down
-
-            this.spawnParticleSystem(particles.smoke, vec3(0,-0.3,0), 25)
-        end
-    }),
-    ScriptedObject("platform", "standard", vec3(-52.8338, -32, 0),  2/2, vec4(0.707107,0,0.707107,0), BoxShape(vec3(0,0,0), vec4(0,0,0,1), 8000, vec3(2/2, 0.449138/2, 2/2)), {}, 0, {
-        zero = vec3(0,0,0),
-        sticky = true,
-        kind = 5,
-
-        think = function(this, delta)
-            local pos = this.getPosition();
-            if pos:x() < -53.0 then
-                this.dir = this.right
-            end
-            if pos:x() > -50.0 then
-                this.dir = this.left
-            end
-
-            this.setLinearVelocity(this.dir)
-            this.setGravity(this.zero)
-            this.setAngularFactor(this.zero)
-        end,
-
-        init = function(this)
-            local speed = 2.0
-            this.left   = vec3( -speed,0 , 0)
-            this.right  = vec3( speed, 0, 0)
-            this.dir    = this.left
-
-            this.spawnParticleSystem(particles.smoke, vec3(0,-0.3,0), 25)
-        end
-    })
+    scripted.platformY(vec3(-42.8338, -31, 0), 2.0, -40.0, -20.0),
+    scripted.platformX(vec3(-52     , -28, 0), 0.7, -58.0, -45.0)
 }
 
 entities = {

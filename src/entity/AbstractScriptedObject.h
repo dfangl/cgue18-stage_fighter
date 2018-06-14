@@ -36,7 +36,7 @@ protected:
     }
 
 public:
-    AbstractScriptedObject(kaguya::LuaTable env, bool doInit = false) : environment(env), scriptTimeout(0) {
+    AbstractScriptedObject(kaguya::LuaTable env, bool doInit = false) : scriptTimeout(0),environment(env) {
         if(doInit) luaInit();
     }
 

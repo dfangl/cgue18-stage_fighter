@@ -262,6 +262,10 @@ int main(int UNUSED(argc), char** UNUSED(argv)) {
                 helpMenu->show();
             }
         }
+
+        if (key == GLFW_KEY_F10 && action == GLFW_RELEASE) {
+            window->showCursor();
+        }
     });
 
 

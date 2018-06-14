@@ -15,7 +15,7 @@ ScriptedObject::ScriptedObject(const glm::vec3 &pos, const glm::quat &rot, btCol
         : AbstractScriptedObject(env, false),
           BulletObject(btVector3(pos.x, pos.y, pos.z), btQuaternion(rot.y, rot.z, rot.w, rot.w), bulletShape, mass),
           Model3DObject(position, bsRadius, model, shader, instances), world(world) {
-    this->setRotation(rot);
+    Model3DObject::setRotation(rot);
     this->updateModelMatrix();
 
     this->position = pos;
@@ -30,6 +30,11 @@ ScriptedObject::ScriptedObject(const glm::vec3 &pos, const glm::quat &rot, btCol
         this->offsets.push_back(pos.vec3);
         p->init();
     });
+    environment["setRotation"] = kaguya::function([this](LuaVec4 &rot) {
+        dynamic_cast<BulletObject*>(this)->setRotation(rot.toQuat());
+        dynamic_cast<Model3DObject*>(this)->setRotation(rot.toGlmQuat());
+    });
+    environment["disableDeactivation"] = kaguya::function([this](){ rigidBody->setActivationState(DISABLE_DEACTIVATION); });
 
     luaInit();
 

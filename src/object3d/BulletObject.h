@@ -37,6 +37,8 @@ public:
     virtual void collideWith(BulletObject* UNUSED(other)) {};
 
     Kind getKind() const { return this->kind; }
+
+    void setRotation(const btQuaternion &rotation);
 };
 
 

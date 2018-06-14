@@ -64,8 +64,7 @@ void Scene::render(std::chrono::duration<double, std::milli> &delta) {
 }
 
 Camera::FrustumLocation Scene::isSphereInFrustum(const glm::vec3 &position, float radius) {
-    return camera.isInFrustum(position, radius);
-/*
+    //return camera.isInFrustum(position, radius);
 
     auto result = Camera::INSIDE;
     auto pl = camera.getFrustumPlanes();
@@ -83,7 +82,7 @@ Camera::FrustumLocation Scene::isSphereInFrustum(const glm::vec3 &position, floa
     }
 
     return result;
-*/
+
 }
 
 void Scene::addObject(const std::shared_ptr<Object3DAbstract> &object3D) {
