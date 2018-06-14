@@ -8,9 +8,6 @@ particles.rocket = ParticleSystem(1.0, "particlesystem", "explosion.png", {
     end,
 
     generateParticles = function(this, count)
-        local ttl = math.random(500, 750)
-        local cLife = ttl - math.random(500, 750)
-
         local spawn = vec3(
                 -this.direction:x() * this.hitbox:x()/2.0,
                 -this.direction:y() * this.hitbox:y()/2.0,
@@ -24,6 +21,9 @@ particles.rocket = ParticleSystem(1.0, "particlesystem", "explosion.png", {
         )
 
         for i=0, count do
+            local ttl = math.random(500, 750)
+            local cLife = ttl - math.random(500, 750)
+
             this.push_particle(spawn, velocity, cLife, ttl)
         end
     end
