@@ -44,6 +44,8 @@ public:
     void render(Scene *scene) override;
 
     Kind getEntityKind() override;
+
+    void setCrosshairState(bool show);
 };
 
 

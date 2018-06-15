@@ -86,12 +86,12 @@ public:
     struct nk_context *context() { return &this->ctx; }
     Window *window() { return this->win; }
 
-    void hideAll();
+    //void hideAll();
 
     bool enabled = true;
 
-
     const std::vector<struct nk_font *> &getFonts() const { return this->fonts; };
+    void clear() { this->widgets.clear(); }
 };
 
 #endif //STAGE_FIGHTER_NUKLEARCTX_H

@@ -146,7 +146,7 @@ void Window::glfwWindowSizeChanged(int width, int height) {
 
 void Window::glfwMouseCallabck(double xpos, double ypos) {
     for (auto &callback : this->mouseCallbacks) {
-        callback(xpos, ypos);
+        callback.second(xpos, ypos);
     }
 }
 
@@ -158,14 +158,14 @@ void Window::close() {
     glfwSetWindowShouldClose(this->glfwWindow, true);
 }
 
-int Window::registerMouseCallback(std::function<void(double, double)> callback) {
-    this->mouseCallbacks.push_back(callback);
-    return static_cast<int>(this->mouseCallbacks.size() - 1);
+unsigned int Window::registerMouseCallback(std::function<void(double, double)> callback) {
+    this->mouseCallbacks[callbackID++] = callback;
+    return callbackID-1;
 }
 
-int Window::registerKeyCallback(std::function<void(int, int, int, int)> callback) {
-    this->keyInputCallbacks.push_back(callback);
-    return static_cast<int>(this->keyInputCallbacks.size() - 1);
+unsigned int Window::registerKeyCallback(std::function<void(int, int, int, int)> callback) {
+    this->keyInputCallbacks[callbackID++] = callback;
+    return callbackID-1;
 }
 
 void Window::render(std::chrono::duration<double, std::milli> &delta) {
@@ -191,7 +191,7 @@ void Window::render(std::chrono::duration<double, std::milli> &delta) {
      * Process all callbacks which do want to poll input states such a key states
      */
     for (auto &callback : this->inputPollCallbacks) {
-        callback(this);
+        callback.second(this);
     }
 
     // Process Camera
@@ -260,7 +260,7 @@ void Window::render(std::chrono::duration<double, std::milli> &delta) {
 
 void Window::glfwKeyCallback(int key, int scancode, int action, int mods) {
     for(auto &callback : this->keyInputCallbacks) {
-        callback(key, scancode, action, mods);
+        callback.second(key, scancode, action, mods);
     }
 }
 
@@ -272,13 +272,13 @@ void Window::showCursor() {
     glfwSetInputMode(this->glfwWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 }
 
-int Window::registerKeyPollingCallback(std::function<void(Window const *)> callback) {
-    this->inputPollCallbacks.push_back(callback);
-    return static_cast<int>(this->inputPollCallbacks.size() - 1);
+unsigned int Window::registerKeyPollingCallback(std::function<void(Window const *)> callback) {
+    this->inputPollCallbacks[callbackID++] = callback;
+    return callbackID-1;
 }
 
-void Window::removeKeyPollingCallback(int callback) {
-    this->inputPollCallbacks.erase(this->inputPollCallbacks.begin() + callback);
+void Window::removeKeyPollingCallback(unsigned int callback) {
+    this->inputPollCallbacks.erase(callback);
 }
 
 void Window::addWidget(const std::shared_ptr<Widget> &widget) {
@@ -332,6 +332,10 @@ void Window::setScreenGamma(float gamma) {
 
 void Window::requestFocus() {
     glfwFocusWindow(this->glfwWindow);
+}
+
+void Window::removeKeyCallback(unsigned int callback) {
+    this->keyInputCallbacks.erase(callback);
 }
 
 

@@ -92,7 +92,7 @@ NuklearContext::NuklearContext(Window *window) {
 
     // TODO: Callback to support multiple styles in multiple contexts
     ctx.style.button.rounding = 0;
-    ctx.style.window.fixed_background = nk_style_item_color(nk_rgba(25, 25, 25, 200));
+    ctx.style.window.fixed_background = nk_style_item_color(nk_rgba(15, 15, 15, 225));
     ctx.style.window.border = 0;
     ctx.style.button.text_normal = nk_rgb(245, 245, 245);
     ctx.style.text.color = nk_rgb(245, 245, 245);
@@ -140,12 +140,11 @@ void NuklearContext::render(const glm::mat4 &projection) {
     const nk_draw_index *offset = nullptr;
 
     // Prepare Environment:
+    glDisable(GL_DEPTH_TEST);
+    glEnable(GL_SCISSOR_TEST);
     glEnable(GL_BLEND);
     glBlendEquation(GL_FUNC_ADD);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-    glDisable(GL_DEPTH_TEST);
-    glEnable(GL_SCISSOR_TEST);
 
     glActiveTexture(GL_TEXTURE0);
 
@@ -212,6 +211,7 @@ void NuklearContext::render(const glm::mat4 &projection) {
 
     glDisable(GL_BLEND);
     glDisable(GL_SCISSOR_TEST);
+    glUseProgram(0);
 }
 
 void NuklearContext::resize(float x, float y) {
@@ -241,7 +241,9 @@ void NuklearContext::add(std::shared_ptr<NuklearWidget> widget) {
     widgets.push_back(widget);
 }
 
+/*
 void NuklearContext::hideAll() {
     for (auto &w : this->widgets)
         w->hide();
 }
+*/

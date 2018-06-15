@@ -181,3 +181,7 @@ void Player::render(Scene *scene) {
     this->shieldModel->render(scene);
     this->weaponModel->render(scene);
 }
+
+void Player::setCrosshairState(bool show) {
+    hud->showCrosshair = show;
+}

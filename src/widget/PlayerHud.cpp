@@ -94,8 +94,9 @@ void PlayerHud::render(const glm::mat4 &projection) {
 
     glBindVertexArray(hudVAO);
 
-    if (this->showEnemy) glDrawArrays(GL_TRIANGLES, 6, 6);
-    else                 glDrawArrays(GL_TRIANGLES, 0, 6);
+    if (this->showCrosshair)
+        if (this->showEnemy) glDrawArrays(GL_TRIANGLES, 6, 6);
+        else                 glDrawArrays(GL_TRIANGLES, 0, 6);
 
     // Draw Health & Shield bar:
     glDrawArrays(GL_TRIANGLES, 12, 24);

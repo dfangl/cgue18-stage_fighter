@@ -37,6 +37,7 @@
 
 #include "helper/ImageGenerator.h"
 #include "helper/CompilerMacros.h"
+#include "manager/MenuManager.h"
 
 /*
  * main.cpp of Stage Fighter, this File contains the entry point of the executable and does bootstrap
@@ -148,6 +149,7 @@ int main(int UNUSED(argc), char** UNUSED(argv)) {
      *  Normally we should show a Loading Screen and pre-load all resources which are needed directly after Window creation
      *  for displaying stuff and then showing the Main menu of the Game with a level selection ...
      */
+    MenuManager::init(window);
 
     auto loadingLabel = std::make_shared<Label>("Generating resources", FontManager::get("Lato-64"), 0, 0, 1.0, glm::vec3(0.0, 0.0, 0.0));
     loadingLabel->setPosition(window->getWidth()/2.0f-loadingLabel->getWidth()/2.0f, window->getHeight()/2.0f-32.0f);
@@ -184,14 +186,11 @@ int main(int UNUSED(argc), char** UNUSED(argv)) {
     loadingLabel->setText("Loading Level ...");
     loadingLabel->setPosition(window->getWidth()/2.0f-loadingLabel->getWidth()/2.0f, window->getHeight()/2.0f-32.0f);
 
-    //auto _curTick = std::chrono::high_resolution_clock::now();
-    //window->render(_curTick - lastTick);
-
     /*
      * Load and start Test level so we can do something
      */
     auto level = std::make_shared<Level>("../resources/level/test.lua");
-    window->hideCursor();
+    //window->hideCursor();
     window->requestFocus();
 
     /*
@@ -218,72 +217,11 @@ int main(int UNUSED(argc), char** UNUSED(argv)) {
     window->getScene()->frustumCulling = false;
 
     /*
-     * Create a Label which displays the FPS counter on the Screen, better than just spamming the console with
-     * such a output
-     */
-    auto debugTextHud = std::make_shared<DebugTextHud>(window->getScene());
-
-    /*
-     * Initialize the GUI System "Nuklear" and the GameMenu which is displayed when pressing ESC
-     */
-    auto nuklear = std::make_shared<NuklearContext>(window);
-    auto gameMenu = std::make_shared<GameMenu>(nuklear, level);
-    auto helpMenu = std::make_shared<HelpMenu>(nuklear);
-    nuklear->add(gameMenu);
-    nuklear->add(helpMenu);
-
-    gameMenu->gamma = config["window"]["gamma"];
-
-    /*
-     * Disable the nuklear GUI, so it's invisible and does not capture events
-     * Add a Key Callback to the window so the GUI can be shown & hidden by the ESC key
-     */
-    nuklear->enabled = false;
-    window->registerKeyCallback([nuklear, helpMenu, level, gameMenu, window](int key, int UNUSED(scancode), int action, int UNUSED(mods)){
-        if(key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE) {
-            if (gameMenu->isVisible()){
-                nuklear->enabled = false;
-                gameMenu->hide();
-                level->resume();
-            } else {
-                level->pause();
-                nuklear->enabled = true;
-                gameMenu->show();
-            }
-        }
-
-        if(key == GLFW_KEY_F1 && action == GLFW_RELEASE) {
-            if (helpMenu->isVisible()) {
-                nuklear->enabled = false;
-                helpMenu->hide();
-                level->resume();
-            } else {
-                level->pause();
-                nuklear->enabled = true;
-                helpMenu->show();
-            }
-        }
-
-        if (key == GLFW_KEY_F10 && action == GLFW_RELEASE) {
-            window->showCursor();
-        }
-    });
-
-
-    /*
-     * Add Nuklear and the Debug HUD to the Window so they are drawn each Frame
-     */
-    window->addWidget(nuklear);
-    window->addWidget(debugTextHud);
-    window->registerKeyCallback(debugTextHud->getKeyCallback());
-
-    /*
      * ======= MAIN GAME LOOP =======
      */
 
     /*
      * While the window is open we want to render stuff ...
-     * TODO: First delta might be way too small for some simulation stuff
      */
 	while (window->isOpen()) {
 	    /*
@@ -299,16 +237,9 @@ int main(int UNUSED(argc), char** UNUSED(argv)) {
         level->tick(delta);
 
         /*
-         * Update Debug HUD information:
+         * Update the menus of the MenuManger
          */
-        debugTextHud->update(delta);
-
-        /*
-         * Process nuklear frame
-         * (Clear command buffer, capture events, ...)
-         */
-        nuklear->newFrame();
-
+        MenuManager::update(delta);
         /*
          * Finally draw all the Content which is registered to the Screen
          * (All Widgets and Object3Ds ->render(...) will be called)
@@ -321,10 +252,8 @@ int main(int UNUSED(argc), char** UNUSED(argv)) {
 	 */
 	level->destroy();
     window->showCursor();
-    //TODO: remove keyCallback of DebugHUD
 
-    debugTextHud.reset();
-    nuklear.reset();
+    MenuManager::destroy();
 	delete window;
 
     ShaderManager::destroy();

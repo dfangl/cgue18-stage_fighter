@@ -14,14 +14,14 @@ class GameMenu : public NuklearWidget {
 
 private:
     const std::shared_ptr<NuklearContext> ctx;
-    const std::shared_ptr<Level> level;
+    Level* level;
     const int HEIGHT = 380;
     const int WIDTH  = 250;
 
     int x,y;
 
 public:
-    explicit GameMenu(const std::shared_ptr<NuklearContext> &ctx, const std::shared_ptr<Level> &level);
+    explicit GameMenu(const std::shared_ptr<NuklearContext> &ctx, Level* level);
 
     void render() override;
     void resize(float x, float y) override;
@@ -29,13 +29,13 @@ public:
     void show() override;
     void hide() override;
 
-    float gamma;
+    float gamma     = 1.0f;
 
     // light stuff:
-    float ambient;
-    float diffuse;
-    float specular;
-    float power;
+    float ambient   = 0.0f;
+    float diffuse   = 0.0f;
+    float specular  = 0.0f;
+    float power     = 0.0f;
 
 };
 

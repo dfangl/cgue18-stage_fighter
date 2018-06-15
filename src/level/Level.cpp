@@ -11,6 +11,9 @@
 #include "../manager/TextureManager.h"
 
 #include "../object3d/Light.h"
+#include "../manager/MenuManager.h"
+
+#include "../widget/GameMenu.h"
 
 Level::Level(const std::string &file) : Logger("Level"), world(std::make_shared<BulletUniverse>(btVector3(0,-9.81f,0))) {
     winLoseLabel = std::make_shared<Label>("", FontManager::get("Metamorphous-64"), 0, 0, 1.0f, glm::vec3(1.0f, 1.0f, 1.0f));
@@ -97,12 +100,27 @@ Level::Level(const std::string &file) : Logger("Level"), world(std::make_shared<
 
     // TODO: validate file ...
 
+    // Display how long it took to load / parse all the LUA files
     auto curTick = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double, std::milli> delta =  curTick - past;
     logger->info("Finished loading file {} in {} ms", file, delta.count());
+
+    // Create Game Menu
+    this->gameMenu = std::make_shared<GameMenu>(MenuManager::getNuklearContext(), this);
+    this->gameMenuCallback = MenuManager::getWindow()->registerKeyCallback([this](int key, int UNUSED(scancode), int action, int UNUSED(mods)){
+       if (key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE) {
+           MenuManager::toggleMenu(MenuManager::View::GAME_MENU, true);
+       }
+    });
+
+    MenuManager::getMenus()[MenuManager::View::GAME_MENU] = gameMenu;
+
 }
 
 void Level::start(Window *window) {
+    // Set global MenuManager state:
+    MenuManager::transitionIntoLevel(this);
+
     /*
      * Manipulation internal state since Camera and Window must not be present while loading the Level stuff
      * (lazy loading or pre-loading)
@@ -330,12 +348,14 @@ void Level::show() {
 
 void Level::pause() {
     player->disable();
+    player->setCrosshairState(false);
     levelState = PAUSED;
     setLabel("Paused");
 }
 
 void Level::resume() {
     player->enable();
+    player->setCrosshairState(true);
     levelState = PLAYING;
     window->removeWidget(winLoseLabel);
 }
@@ -369,6 +389,7 @@ Level::~Level() {
     this->player->disable();
     this->hide();
     this->window->removeKeyPollingCallback(playerInputCallbackID);
+    this->window->removeKeyCallback(gameMenuCallback);
 }
 
 void Level::luaSpawnProjectile(const int projectile, const LuaVec3 &spawn, const LuaVec3 &target) {

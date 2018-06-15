@@ -38,6 +38,7 @@
 #include "LuaClassWrapper.h"
 
 class Light;
+class GameMenu;
 
 class Level : public Logger {
 
@@ -60,7 +61,7 @@ private:
 
     std::shared_ptr<Player> player;
     std::shared_ptr<Object3DAbstract> playerWitcheryPointer;
-    int playerInputCallbackID;
+    unsigned int playerInputCallbackID;
 
     std::shared_ptr<BulletUniverse> world;
     Window *window;
@@ -69,6 +70,9 @@ private:
 
     std::shared_ptr<Label> winLoseLabel;
     std::shared_ptr<Label> loadingStatusLabel;
+
+    std::shared_ptr<GameMenu> gameMenu;
+    unsigned int gameMenuCallback;
 
 protected:
     void setLabel(const std::string text);

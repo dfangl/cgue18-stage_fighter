@@ -3,8 +3,9 @@
 //
 
 #include "GameMenu.h"
+#include "../manager/MenuManager.h"
 
-GameMenu::GameMenu(const std::shared_ptr<NuklearContext> &ctx, const std::shared_ptr<Level> &level) : ctx(ctx), level(level) {
+GameMenu::GameMenu(const std::shared_ptr<NuklearContext> &ctx, Level* level) : ctx(ctx), level(level) {
     this->resize(ctx->window()->getWidth(), ctx->window()->getHeight());
 }
 
@@ -42,9 +43,7 @@ void GameMenu::render() {
         nk_layout_row_dynamic(ctx->context(), 25, 1);
         nk_layout_row_dynamic(ctx->context(), 25, 1);
         if (nk_button_label(ctx->context(), "Resume game")) {
-            ctx->enabled = false;
             this->hide();
-            level->resume();
         }
     }
 
@@ -70,13 +69,11 @@ void GameMenu::show() {
     diffuse = l.diffuse.x;
     power = l.power;
 
-    this->ctx->hideAll();
-
-    visible = true;
-    ctx->window()->showCursor();
+    level->pause();
+    this->visible = true;
 }
 
 void GameMenu::hide() {
-    visible = false;
-    ctx->window()->hideCursor();
+    level->resume();
+    this->visible = false;
 }

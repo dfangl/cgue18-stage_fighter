@@ -79,7 +79,7 @@ void Font::renderTextureAtlas() {
     for (auto &glyph : this->texData) {
         FT_Load_Char(face, glyph, FT_LOAD_RENDER);
         if (face->glyph->bitmap.buffer == nullptr) {
-            logger->error("Font does not contain glyph: {}!");
+            logger->error("Glyph '{}' (ASCII-Code:{}) does not have a font texture!", (char)glyph, glyph);
             continue;
         }
 

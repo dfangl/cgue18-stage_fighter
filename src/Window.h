@@ -29,9 +29,10 @@ private:
     GLFWmonitor* monitor;
     int width, height;
 
-    std::vector<std::function<void(double, double)>> mouseCallbacks;
-    std::vector<std::function<void(int, int, int, int)>> keyInputCallbacks;
-    std::vector<std::function<void(Window const *)>> inputPollCallbacks;
+    unsigned int callbackID = 0;
+    std::map<unsigned int, std::function<void(double, double)>> mouseCallbacks;
+    std::map<unsigned int, std::function<void(int, int, int, int)>> keyInputCallbacks;
+    std::map<unsigned int, std::function<void(Window const *)>> inputPollCallbacks;
 
     std::shared_ptr<Scene> scene;
     std::vector<std::shared_ptr<Widget>> widgets;
@@ -72,11 +73,12 @@ public:
     void addWidget(const std::shared_ptr<Widget> &widget);
     void removeWidget(const std::shared_ptr<Widget> &widget);
 
-    int registerMouseCallback(std::function<void(double,double)> callback);
-    int registerKeyCallback(std::function<void(int, int, int, int)> callback);
+    unsigned int registerMouseCallback(std::function<void(double,double)> callback);
+    unsigned int registerKeyCallback(std::function<void(int, int, int, int)> callback);
+    void removeKeyCallback(unsigned int callback);
 
-    int registerKeyPollingCallback(std::function<void(Window const *)> callback);
-    void removeKeyPollingCallback(int callback);
+    unsigned int registerKeyPollingCallback(std::function<void(Window const *)> callback);
+    void removeKeyPollingCallback(unsigned int callback);
 
     bool isOpen();
     void close();

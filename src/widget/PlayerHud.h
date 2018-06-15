@@ -78,6 +78,7 @@ public:
     void setEnemy(std::string &name, int health, int maxHealth);
 
     bool showEnemy = false;
+    bool showCrosshair = false;
 
 };
 
