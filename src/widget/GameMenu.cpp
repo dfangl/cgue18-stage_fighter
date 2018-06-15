@@ -12,7 +12,9 @@ void GameMenu::render() {
     if (!visible)
         return;
 
+    nk_style_set_font(ctx->context(), &ctx->getFonts()[1]->handle);
     if(nk_begin(ctx->context(), "Menu", nk_rect(x, y, WIDTH, HEIGHT), NK_WINDOW_TITLE)) {
+        nk_style_set_font(ctx->context(), &ctx->getFonts()[0]->handle);
         nk_layout_row_dynamic(ctx->context(), 12, 1);
         nk_label(ctx->context(), "--- Light ---", NK_TEXT_ALIGN_CENTERED);
         nk_layout_row_dynamic(ctx->context(), 25, 2);

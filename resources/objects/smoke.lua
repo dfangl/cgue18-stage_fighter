@@ -1,7 +1,7 @@
 particles.smoke = ParticleSystem(1.0, "particlesystem", "smoke_red.png", {
 
     init = function(this)
-        this.setSize(0.7, 0.7)
+        this.setSize(0.8, 0.8)
         this.nz1 = 29.2938648971363;
         this.nz2 = 24.1293682342339;
         this.nz3 = 39.3745902239486;

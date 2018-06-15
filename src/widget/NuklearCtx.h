@@ -13,6 +13,7 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <functional>
 
 #define NK_INCLUDE_FIXED_TYPES
 #define NK_INCLUDE_STANDARD_IO
@@ -58,6 +59,7 @@ private:
     struct nk_buffer cmds;
     struct nk_draw_null_texture null;
     struct nk_font_atlas atlas;
+    std::vector<struct nk_font *> fonts;
 
     Window *win;
 
@@ -87,6 +89,9 @@ public:
     void hideAll();
 
     bool enabled = true;
+
+
+    const std::vector<struct nk_font *> &getFonts() const { return this->fonts; };
 };
 
 #endif //STAGE_FIGHTER_NUKLEARCTX_H

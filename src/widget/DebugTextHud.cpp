@@ -37,6 +37,8 @@ DebugTextHud::DebugTextHud(const std::shared_ptr<Scene> &scene) : Logger("DebugH
                 default: { /* Nope no default handling here */ }
             }
     };
+
+    std::memset(this->fpsBuffer, 0, 64);
 }
 
 void DebugTextHud::toggleEffect(int id) {

@@ -78,6 +78,10 @@ void Font::renderTextureAtlas() {
     characters.clear();
     for (auto &glyph : this->texData) {
         FT_Load_Char(face, glyph, FT_LOAD_RENDER);
+        if (face->glyph->bitmap.buffer == nullptr) {
+            logger->error("Font does not contain glyph: {}!");
+            continue;
+        }
 
         glTexSubImage2D(
                 GL_TEXTURE_2D,

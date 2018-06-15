@@ -65,13 +65,14 @@ NuklearContext::NuklearContext(Window *window) {
 
     // TODO: integrate Font loading into Font Manager
     {
-        nk_font_atlas_init_default(&this->atlas);
-        nk_font_atlas_begin(&this->atlas);
+        nk_font_atlas_init_default(&atlas);
+        nk_font_atlas_begin(&atlas);
 
-        struct nk_font *font = nk_font_atlas_add_from_file(&atlas, "../resources/fonts/Lato-Regular.ttf", 12, nullptr);
+        struct nk_font *regular  = nk_font_atlas_add_from_file(&atlas, "../resources/fonts/Lato-Regular.ttf", 13, nullptr);
+        struct nk_font *headline = nk_font_atlas_add_from_file(&atlas, "../resources/fonts/Metamorphous-Regular.ttf", 26, nullptr);
 
         const void *image; int w, h;
-        image = nk_font_atlas_bake(&this->atlas, &w, &h, NK_FONT_ATLAS_RGBA32);
+        image = nk_font_atlas_bake(&atlas, &w, &h, NK_FONT_ATLAS_RGBA32);
 
         glGenTextures(1, &font_tex);
         glBindTexture(GL_TEXTURE_2D, font_tex);
@@ -79,12 +80,22 @@ NuklearContext::NuklearContext(Window *window) {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, (GLsizei)w, (GLsizei)h, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
 
-        nk_font_atlas_end(&this->atlas, nk_handle_id((int)font_tex), &this->null);
-        if (this->atlas.default_font)
-            nk_style_set_font(&this->ctx, &this->atlas.default_font->handle);
+        nk_font_atlas_end(&atlas, nk_handle_id((int)font_tex), &this->null);
+        if (atlas.default_font)
+            nk_style_set_font(&this->ctx, &atlas.default_font->handle);
 
-        nk_style_set_font(&ctx, &font->handle);
+        nk_style_set_font(&ctx, &regular->handle);
+
+        this->fonts.push_back(regular);
+        this->fonts.push_back(headline);
     }
+
+    // TODO: Callback to support multiple styles in multiple contexts
+    ctx.style.button.rounding = 0;
+    ctx.style.window.fixed_background = nk_style_item_color(nk_rgba(25, 25, 25, 200));
+    ctx.style.window.border = 0;
+    ctx.style.button.text_normal = nk_rgb(245, 245, 245);
+    ctx.style.text.color = nk_rgb(245, 245, 245);
 
 }
 

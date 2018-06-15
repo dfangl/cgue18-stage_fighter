@@ -8,7 +8,10 @@ void HelpMenu::render() {
     if(!visible)
         return;
 
+    nk_style_set_font(ctx->context(), &ctx->getFonts()[1]->handle);
     if(nk_begin(ctx->context(), "Help", nk_rect(x, y, WIDTH, HEIGHT), this->flags)) {
+
+        nk_style_set_font(ctx->context(), &ctx->getFonts()[0]->handle);
         nk_layout_row_dynamic(ctx->context(), 12, 1);
         nk_label(ctx->context(), "--- Movements ---", NK_TEXT_ALIGN_CENTERED);
         nk_layout_row_dynamic(ctx->context(), 25, 2);

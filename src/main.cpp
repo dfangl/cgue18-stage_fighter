@@ -115,6 +115,7 @@ int main(int UNUSED(argc), char** UNUSED(argv)) {
     FontManager::load("Lato-Regular", "Lato-12", 12);
     FontManager::load("Lato-Regular", "Lato-24", 24);
     FontManager::load("Lato-Regular", "Lato-64", 64);
+    FontManager::load("Metamorphous-Regular", "Metamorphous-64", 64);
     FontManager::preloadCharset(
             "abcdefghijklmnopqrstuvwxyz"
             "ABCDEFGHIJKLMNOPQRSTUVWXYZ"

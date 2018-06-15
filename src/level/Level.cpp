@@ -13,7 +13,7 @@
 #include "../object3d/Light.h"
 
 Level::Level(const std::string &file) : Logger("Level"), world(std::make_shared<BulletUniverse>(btVector3(0,-9.81f,0))) {
-    winLoseLabel = std::make_shared<Label>("", FontManager::get("Lato-64"), 0, 0, 1.0f, glm::vec3(1.0f, 1.0f, 1.0f));
+    winLoseLabel = std::make_shared<Label>("", FontManager::get("Metamorphous-64"), 0, 0, 1.0f, glm::vec3(1.0f, 1.0f, 1.0f));
     loadingStatusLabel = std::make_shared<Label>("", FontManager::get("Lato-12"), 0, 0, 1.0f, glm::vec3(0.0f, 0.0f, 0.0f));
 
     logger->info("Loading file {}", file);
