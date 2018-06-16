@@ -20,7 +20,7 @@
 class Level;
 class Scene;
 
-class ScriptedObject : public AbstractScriptedObject, public BulletObject, public Model3DObject {
+class ScriptedObject : virtual public AbstractScriptedObject, public BulletObject, public Model3DObject {
 
 private:
     const std::shared_ptr<BulletUniverse> world;

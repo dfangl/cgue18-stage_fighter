@@ -15,7 +15,7 @@
 #include "Entity.h"
 #include "AbstractScriptedObject.h"
 
-class ScriptedEntity : public Entity, public AbstractScriptedObject, public BulletObject, public Model3DObject {
+class ScriptedEntity : public Entity, virtual public AbstractScriptedObject, public BulletObject, public Model3DObject {
 
 private:
     std::shared_ptr<BulletUniverse> world;
@@ -24,7 +24,7 @@ private:
 public:
     ScriptedEntity(const std::string &name, int health, const btVector3 &pos, float bsRadius, const btQuaternion &rot, std::string model, float mass,
     glm::vec3 collisionOffset, btCollisionShape *hitbox, const std::shared_ptr<BulletUniverse> &world, kaguya::LuaTable scriptEnv);
-    ~ScriptedEntity();
+    ~ScriptedEntity() override;
 
     void think(Level *level, std::chrono::duration<double, std::milli> delta) override;
 

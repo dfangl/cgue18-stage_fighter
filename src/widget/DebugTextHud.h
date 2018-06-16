@@ -51,7 +51,7 @@ public:
     bool showFrameTime = false;
 
     void update(std::chrono::duration<double, std::milli> delta);
-    void render(const glm::mat4 &projection) override;
+    void render(const glm::mat4 &projection, float screenGamma) override;
     void resize(float x, float y) override;
 
     std::function<void(int,int,int,int)> &getKeyCallback();

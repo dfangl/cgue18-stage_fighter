@@ -33,6 +33,7 @@ private:
     std::map<unsigned int, std::function<void(double, double)>> mouseCallbacks;
     std::map<unsigned int, std::function<void(int, int, int, int)>> keyInputCallbacks;
     std::map<unsigned int, std::function<void(Window const *)>> inputPollCallbacks;
+    std::map<unsigned int, std::function<void(double, double)>> scrollCallback;
 
     std::shared_ptr<Scene> scene;
     std::vector<std::shared_ptr<Widget>> widgets;
@@ -70,6 +71,7 @@ public:
     void setScene(std::shared_ptr<Scene> &scene);
     std::shared_ptr<Scene> getScene() { return this->scene; }
 
+    void addWidgetTop(const std::shared_ptr<Widget> &widget);
     void addWidget(const std::shared_ptr<Widget> &widget);
     void removeWidget(const std::shared_ptr<Widget> &widget);
 
@@ -112,6 +114,7 @@ public:
      * @param gamma between 0.0 and + infinity
      */
     void setScreenGamma(float gamma);
+    float getScreenGamma() { return this->screenGamma; }
 
     // Stuff needed for C API, don't call directly
     void glfwWindowSizeChanged(int width, int height);

@@ -28,11 +28,30 @@ BulletUniverse::BulletUniverse(const btVector3 &gravity) {
 }
 
 BulletUniverse::~BulletUniverse() {
+    const auto objs = dynamicsWorld->getNumCollisionObjects();
+    if (objs > 0) {
+        auto logger = spdlog::get("console");
+        logger->warn("There are still Objects {} in the World!", objs);
+
+        while (dynamicsWorld->getNumCollisionObjects() > 0) {
+            auto p = dynamicsWorld->getCollisionObjectArray()[dynamicsWorld->getNumCollisionObjects()-1];
+            auto bO = (BulletObject*)(p->getUserPointer());
+            dynamicsWorld->removeCollisionObject(p);
+        }
+    }
+
     delete dynamicsWorld;
     delete solver;
-    delete collisionConfiguration;
     delete dispatcher;
+    delete collisionConfiguration;
     delete broadphase;
+
+    // Just for Debugging:
+    dynamicsWorld           = nullptr;
+    solver                  = nullptr;
+    dispatcher              = nullptr;
+    collisionConfiguration  = nullptr;
+    broadphase              = nullptr;
 }
 
 void BulletUniverse::addRigidBody(btRigidBody *body) {
@@ -91,14 +110,6 @@ void BulletUniverse::removeRigidBody(btRigidBody *body) {
     this->dynamicsWorld->removeRigidBody(body);
 }
 
-void BulletUniverse::addCollsionObject(btCollisionObject *body) {
-    this->dynamicsWorld->addCollisionObject(body);
-}
-
-void BulletUniverse::removeCollsipnObject(btCollisionObject *body) {
-    this->dynamicsWorld->removeCollisionObject(body);
-}
-
 void BulletUniverse::enableDebugging() {
     this->debugDrawer->setDebugMode(btIDebugDraw::DBG_DrawWireframe);// | btIDebugDraw::DBG_DrawAabb);
     this->dynamicsWorld->setDebugDrawer(debugDrawer.get());
@@ -112,8 +123,3 @@ void BulletUniverse::rayTest(const btVector3 &start, const btVector3 &end,
                              btCollisionWorld::ClosestRayResultCallback &rayCallback) {
     this->dynamicsWorld->rayTest(start, end, rayCallback);
 }
-
-void BulletUniverse::__simulate_fixed_step__(float d) {
-    dynamicsWorld->stepSimulation(d / 1000.0f, 1, 1.0f / 60.0f);
-}
-

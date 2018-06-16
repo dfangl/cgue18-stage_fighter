@@ -33,6 +33,7 @@ private:
 
 public:
     Player(Camera &camera, Window *window, const std::shared_ptr<BulletUniverse> &world);
+    ~Player() override = default;
 
     std::shared_ptr<PlayerHud> &getHud() { return this->hud; }
 

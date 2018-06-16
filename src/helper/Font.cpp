@@ -78,22 +78,22 @@ void Font::renderTextureAtlas() {
     characters.clear();
     for (auto &glyph : this->texData) {
         FT_Load_Char(face, glyph, FT_LOAD_RENDER);
-        if (face->glyph->bitmap.buffer == nullptr) {
-            logger->error("Glyph '{}' (ASCII-Code:{}) does not have a font texture!", (char)glyph, glyph);
-            continue;
-        }
 
-        glTexSubImage2D(
-                GL_TEXTURE_2D,
-                0,
-                offset,
-                0,
-                face->glyph->bitmap.width,
-                face->glyph->bitmap.rows,
-                GL_RED,
-                GL_UNSIGNED_BYTE,
-                face->glyph->bitmap.buffer
-        );
+        if (face->glyph->bitmap.buffer != nullptr)
+            glTexSubImage2D(
+                    GL_TEXTURE_2D,
+                    0,
+                    offset,
+                    0,
+                    face->glyph->bitmap.width,
+                    face->glyph->bitmap.rows,
+                    GL_RED,
+                    GL_UNSIGNED_BYTE,
+                    face->glyph->bitmap.buffer
+            );
+        else {
+            logger->error("Glyph '{}' (ASCII-Code:{}) does not have a font texture!", (char)glyph, glyph);
+        }
 
         characters[glyph] = {
                 glm::ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows),

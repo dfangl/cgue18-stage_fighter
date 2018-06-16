@@ -41,8 +41,6 @@ PlayerHud::PlayerHud(std::shared_ptr<Font> font, float width, float height) :
     glBufferData(GL_ARRAY_BUFFER,barVertices.size() * sizeof(float), barVertices.data(), GL_DYNAMIC_DRAW);
 
     glEnableVertexAttribArray(0);
-
-    glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), nullptr);
 
     glBindVertexArray(0);
@@ -54,8 +52,6 @@ PlayerHud::PlayerHud(std::shared_ptr<Font> font, float width, float height) :
     glBindVertexArray(enemyVAO);
     glBindBuffer(GL_ARRAY_BUFFER, enemyVBO);
     glBufferData(GL_ARRAY_BUFFER, enemyVertices.size() * sizeof(float), enemyVertices.data(), GL_DYNAMIC_DRAW);
-
-    glEnableVertexAttribArray(0);
 
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), nullptr);
@@ -70,13 +66,14 @@ PlayerHud::PlayerHud(std::shared_ptr<Font> font, float width, float height) :
 }
 
 
-void PlayerHud::render(const glm::mat4 &projection) {
+void PlayerHud::render(const glm::mat4 &projection, float screenGamma) {
     hudShader->use();
     texture->bind(GL_TEXTURE0);
 
     hudShader->setUniform("Texture", 0);
     hudShader->setUniform("projection", projection);
     hudShader->setUniform("visibility", 1.0f);
+    hudShader->setUniformIfNeeded("screenGamma", screenGamma);
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -94,21 +91,22 @@ void PlayerHud::render(const glm::mat4 &projection) {
 
     glBindVertexArray(hudVAO);
 
-    if (this->showCrosshair)
+    if (this->showCrosshair) {
         if (this->showEnemy) glDrawArrays(GL_TRIANGLES, 6, 6);
         else                 glDrawArrays(GL_TRIANGLES, 0, 6);
+    }
 
     // Draw Health & Shield bar:
     glDrawArrays(GL_TRIANGLES, 12, 24);
     glBindVertexArray(0);
 
     if (this->showEnemy) {
-        eNameLabel.render(projection);
-        eHealth.render(projection);
+        eNameLabel.render(projection, screenGamma);
+        eHealth.render(projection, screenGamma);
     }
 
-    hProgress.render(projection);
-    sProgress.render(projection); // already does glDisable(GL_BLEND)
+    hProgress.render(projection, screenGamma);
+    sProgress.render(projection, screenGamma); // already does glDisable(GL_BLEND)
 }
 
 void PlayerHud::resize(float x, float y) {

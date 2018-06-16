@@ -15,7 +15,7 @@ class GameMenu : public NuklearWidget {
 private:
     const std::shared_ptr<NuklearContext> ctx;
     Level* level;
-    const int HEIGHT = 380;
+    const int HEIGHT = 410;
     const int WIDTH  = 250;
 
     int x,y;
@@ -33,9 +33,7 @@ public:
 
     // light stuff:
     float ambient   = 0.0f;
-    float diffuse   = 0.0f;
-    float specular  = 0.0f;
-    float power     = 0.0f;
+    float lastFrameAmbient = 0.0f;
 
 };
 

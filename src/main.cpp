@@ -38,6 +38,8 @@
 #include "helper/ImageGenerator.h"
 #include "helper/CompilerMacros.h"
 #include "manager/MenuManager.h"
+#include "LaunchScreen.h"
+#include "GlobalGameState.h"
 
 /*
  * main.cpp of Stage Fighter, this File contains the entry point of the executable and does bootstrap
@@ -117,6 +119,7 @@ int main(int UNUSED(argc), char** UNUSED(argv)) {
     FontManager::load("Lato-Regular", "Lato-24", 24);
     FontManager::load("Lato-Regular", "Lato-64", 64);
     FontManager::load("Metamorphous-Regular", "Metamorphous-64", 64);
+    FontManager::load("Metamorphous-Regular", "Metamorphous-72", 72);
     FontManager::preloadCharset(
             "abcdefghijklmnopqrstuvwxyz"
             "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -151,7 +154,7 @@ int main(int UNUSED(argc), char** UNUSED(argv)) {
      */
     MenuManager::init(window);
 
-    auto loadingLabel = std::make_shared<Label>("Generating resources", FontManager::get("Lato-64"), 0, 0, 1.0, glm::vec3(0.0, 0.0, 0.0));
+    auto loadingLabel = std::make_shared<Label>("Generating resources", FontManager::get("Metamorphous-72"), 0, 0, 1.0, glm::vec3(0.9, 0.9, 0.9));
     loadingLabel->setPosition(window->getWidth()/2.0f-loadingLabel->getWidth()/2.0f, window->getHeight()/2.0f-32.0f);
     window->addWidget(loadingLabel);
 
@@ -189,23 +192,39 @@ int main(int UNUSED(argc), char** UNUSED(argv)) {
     /*
      * Load and start Test level so we can do something
      */
-    auto level = std::make_shared<Level>("../resources/level/test.lua");
-    //window->hideCursor();
+    //auto level = std::make_shared<Level>("../resources/level/test.lua");
+    window->hideCursor();
     window->requestFocus();
 
     /*
      * Start the Level
      */
-    level->start(window);
+    //level->start(window);
     window->removeWidget(loadingLabel);
+
+    /*
+     *  Create main screen and process debugging options to jump
+     *  directly into a level if given
+     */
+    auto main_screen = std::make_shared<LaunchScreen>(window);
+    if (config["debug"]["loadIntoLevel"].get<bool>()) {
+        auto levelFile = config["debug"]["levelFile"].get<std::string>();
+        console->info("Loading directly into Level: {}", levelFile);
+
+        GlobalGameState::level = std::make_shared<Level>(std::string("../resources/level/") + levelFile);
+        GlobalGameState::state = GlobalGameState::LEVEL_LOADING_FINISHED;
+    } else {
+        window->addWidget(main_screen);
+        main_screen->show();
+    }
 
     /*
      * For development purposes the Window can also handle direct camera movement aka "flying camera", we don't want
      * this in a game. Also the Player does directly control the camera ...
      * Disabling the Cursor is important so the Game does not loose the focus in window mode
      */
-    window->processCameraMouseMovement(true);
-    window->processCameraKeyMovement(false);
+    //window->processCameraMouseMovement(true);
+    //window->processCameraKeyMovement(false);
 
     // Toggle Free flying camera:
     //level->getPlayer()->disable();
@@ -215,6 +234,7 @@ int main(int UNUSED(argc), char** UNUSED(argv)) {
 
     // Does not work
     window->getScene()->frustumCulling = false;
+
 
     /*
      * ======= MAIN GAME LOOP =======
@@ -234,7 +254,31 @@ int main(int UNUSED(argc), char** UNUSED(argv)) {
         /*
          * Process level logic and so on
          */
-        level->tick(delta);
+        switch (GlobalGameState::state) {
+            case GlobalGameState::IN_MENU:break;
+
+            case GlobalGameState::LEVEL_LOADING_FINISHED:
+                main_screen->hide();
+                window->processCameraMouseMovement(true);
+                window->processCameraKeyMovement(false);
+                GlobalGameState::level->start(window);
+                break;
+
+            case GlobalGameState::IN_LEVEL:
+                GlobalGameState::level->tick(delta);
+                break;
+
+            case GlobalGameState::JUMP_TO_MAIN_SCREEN:
+                main_screen->show();
+                GlobalGameState::state = GlobalGameState::IN_MENU;
+                break;
+
+            case GlobalGameState::AFTER_LEVEL:
+                main_screen->show();
+                GlobalGameState::level.reset();
+                GlobalGameState::state = GlobalGameState::IN_MENU;
+                break;
+        }
 
         /*
          * Update the menus of the MenuManger
@@ -250,12 +294,20 @@ int main(int UNUSED(argc), char** UNUSED(argv)) {
 	/*
 	 * After closing the Window we have to delete all the Resources and such ...
 	 */
-	level->destroy();
+	//level->destroy();
     window->showCursor();
 
+    // Clean up all resources which depend on a OpenGL Context:
+    if (GlobalGameState::level.use_count() > 0 && GlobalGameState::level != nullptr) {
+        GlobalGameState::level.reset();
+    }
+
     MenuManager::destroy();
+
+    // Delete the OpenGL Context + Window
 	delete window;
 
+	// Delete all other resources ...
     ShaderManager::destroy();
     TextureManager::destroy();
     ModelManager::destroy();
@@ -267,5 +319,6 @@ int main(int UNUSED(argc), char** UNUSED(argv)) {
 	glfwTerminate();
 
 	// Exit with success state ...
+    // (All other destructors will be called in *some* order -> might break something)
 	exit(EXIT_SUCCESS);
 }

@@ -77,7 +77,7 @@ public:
     ~NuklearContext();
 
     void newFrame();
-    void render(const glm::mat4 &projection) override;
+    void render(const glm::mat4 &projection, float screenGamma) override;
 
     void resize(float x, float y) override;
 

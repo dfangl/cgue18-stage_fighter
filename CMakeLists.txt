@@ -284,7 +284,7 @@ add_executable(
         src/object3d/ParticleSystem.cpp src/object3d/ParticleSystem.h src/helper/CompilerMacros.h src/entity/InstancedProjectile.cpp
 		src/entity/InstancedProjectile.h src/object3d/particlesystem/ScriptedParticleSystem.cpp src/object3d/particlesystem/ScriptedParticleSystem.h
 		src/entity/ScriptedObject.cpp src/entity/ScriptedObject.h src/entity/AbstractScriptedObject.h
-        src/manager/MenuManager.cpp src/manager/MenuManager.h)
+        src/manager/MenuManager.cpp src/manager/MenuManager.h src/LaunchScreen.cpp src/LaunchScreen.h src/widget/Image.cpp src/widget/Image.h src/widget/SettingsMenu.cpp src/widget/SettingsMenu.h src/widget/LevelSelectMenu.cpp src/widget/LevelSelectMenu.h src/GlobalGameState.cpp src/GlobalGameState.h)
 
 set_target_properties("${BINARY}" PROPERTIES LINKER_LANGUAGE CXX)	
 	

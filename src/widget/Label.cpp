@@ -35,10 +35,11 @@ Label::~Label() {
     glDeleteBuffers(1, &VBO);
 }
 
-void Label::render(const glm::mat4 &projection) {
+void Label::render(const glm::mat4 &projection, float screenGamma) {
     shader->use();
     shader->setUniform("textColor", this->color);
     shader->setUniform("projection", projection);
+    shader->setUniformIfNeeded("screenGamma", screenGamma);
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

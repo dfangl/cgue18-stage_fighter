@@ -41,11 +41,11 @@ protected:
 
 public:
     explicit CameraEntity(Camera &camera,
-                          std::shared_ptr<BulletUniverse> world,
+                          const std::shared_ptr<BulletUniverse> &world,
                           btCollisionShape *bulletShape = new btBoxShape(btVector3(0.7f, 0.7, 0.7f)),
                           btScalar mass = 1.0f);
 
-    virtual ~CameraEntity();
+    ~CameraEntity() override;
 
     float entitySpeed = 7.0f;
     float jumpSpeed = 14.0f;

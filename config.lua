@@ -7,7 +7,7 @@
 window = {
     width=1280,         -- Width  of Window in px
     height=768,         -- Height of Window in px
-    vsync=true,         -- true to enable vsync false to disable
+    vsync=false,         -- true to enable vsync false to disable
 
     -- Set Fullscreen Mode:
     --      -2      Windowed Fullscreen (Experimental)
@@ -40,5 +40,9 @@ camera = {
 --      true to enable debugging or false to disable debuggiing
 debug = {
     bullet=false,        -- Create a Bullet Debug Context and draw all the Bounding Boxes as Lines to the screen
-    opengl=true         -- Debug OpenGL Context and enable error outputs for OpenGL
+    opengl=true,         -- Debug OpenGL Context and enable error outputs for OpenGL
+
+    -- Debug options for skipping the Main Menu
+    loadIntoLevel=false,  -- True if main screen should be skipped
+    levelFile="test.lua"     -- File name of the level which should be loaded
 }

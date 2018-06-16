@@ -125,7 +125,7 @@ NuklearContext::~NuklearContext() {
     nk_buffer_free(&this->cmds);
 }
 
-void NuklearContext::render(const glm::mat4 &projection) {
+void NuklearContext::render(const glm::mat4 &projection, float screenGamma) {
     if (!enabled) {
         nk_clear(&this->ctx);
         return;
@@ -151,6 +151,7 @@ void NuklearContext::render(const glm::mat4 &projection) {
     shader->use();
     shader->setUniform("ProjMtx", projection);
     shader->setUniform("Texture", 0);
+    shader->setUniformIfNeeded("screenGamma", screenGamma);
 
     // Bind VAO, VBO & EBO
     glBindVertexArray(vao);

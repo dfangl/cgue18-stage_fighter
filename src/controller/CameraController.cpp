@@ -11,7 +11,7 @@
 
 btVector3 CameraEntity::bulletMovementVector(0, 1, 0);
 
-CameraEntity::CameraEntity(Camera &camera, std::shared_ptr<BulletUniverse> world, btCollisionShape *bulletShape, btScalar mass) :
+CameraEntity::CameraEntity(Camera &camera, const std::shared_ptr<BulletUniverse> &world, btCollisionShape *bulletShape, btScalar mass) :
         BulletObject(btVector3(camera.getPosition().x,camera.getPosition().y,camera.getPosition().z), btQuaternion(0,0,0,1), bulletShape, mass), camera(camera){
     this->speed = btVector3(0.0, 0.0, 0.0);
     this->world = world;

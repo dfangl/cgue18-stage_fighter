@@ -46,10 +46,10 @@ void DebugTextHud::toggleEffect(int id) {
     effect[id] = !effect[id];
 }
 
-void DebugTextHud::render(const glm::mat4 &projection) {
+void DebugTextHud::render(const glm::mat4 &projection, float screenGamma) {
     if (showFrameTime) {
-        fpsLabel->render(projection);
-        cullingLabel->render(projection);
+        fpsLabel->render(projection, screenGamma);
+        cullingLabel->render(projection, screenGamma);
     }
 }
 

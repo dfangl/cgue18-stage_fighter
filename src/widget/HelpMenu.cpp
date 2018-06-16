@@ -50,8 +50,6 @@ void HelpMenu::resize(float x, float y) {
 }
 
 void HelpMenu::show() {
-//    this->ctx->hideAll();
-
     visible = true;
     ctx->window()->showCursor();
 }

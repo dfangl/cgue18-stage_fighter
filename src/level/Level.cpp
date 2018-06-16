@@ -14,6 +14,7 @@
 #include "../manager/MenuManager.h"
 
 #include "../widget/GameMenu.h"
+#include "../GlobalGameState.h"
 
 Level::Level(const std::string &file) : Logger("Level"), world(std::make_shared<BulletUniverse>(btVector3(0,-9.81f,0))) {
     winLoseLabel = std::make_shared<Label>("", FontManager::get("Metamorphous-64"), 0, 0, 1.0f, glm::vec3(1.0f, 1.0f, 1.0f));
@@ -98,7 +99,8 @@ Level::Level(const std::string &file) : Logger("Level"), world(std::make_shared<
     // Finally load file
     state.dofile(file);
 
-    // TODO: validate file ...
+    auto skyboxTex = std::make_shared<CubemapTexture>(state["skybox"]["file"], state["skybox"]["ext"]);
+    this->skybox = std::make_shared<Skybox>(skyboxTex, ShaderManager::load("skybox"));
 
     // Display how long it took to load / parse all the LUA files
     auto curTick = std::chrono::high_resolution_clock::now();
@@ -114,12 +116,13 @@ Level::Level(const std::string &file) : Logger("Level"), world(std::make_shared<
     });
 
     MenuManager::getMenus()[MenuManager::View::GAME_MENU] = gameMenu;
-
+    GlobalGameState::state = GlobalGameState::IN_LEVEL;
 }
 
 void Level::start(Window *window) {
     // Set global MenuManager state:
     MenuManager::transitionIntoLevel(this);
+    GlobalGameState::state = GlobalGameState::IN_LEVEL;
 
     /*
      * Manipulation internal state since Camera and Window must not be present while loading the Level stuff
@@ -127,10 +130,11 @@ void Level::start(Window *window) {
      */
     this->window = window;
     this->window->addWidget(this->loadingStatusLabel);
+    this->window->getScene()->setSkybox(skybox);
     auto past = std::chrono::high_resolution_clock::now();
 
     this->player = std::make_shared<Player>(window->getScene()->getCamera(), window, world);
-    this->playerWitcheryPointer = std::shared_ptr<Object3DAbstract>(dynamic_cast<Object3DAbstract *>(this->player.get()));
+    //this->playerWitcheryPointer = std::shared_ptr<Object3DAbstract>(dynamic_cast<Object3DAbstract *>(this->player.get()));
 
     /*
      * Enable the Debugging Stuff of bullet if debugging is enabled
@@ -214,14 +218,6 @@ void Level::start(Window *window) {
     player->lookAt(pLookAt->vec3);
 }
 
-void Level::destroy() {
-    this->hide();
-
-    this->entities.clear();
-    this->statics.clear();
-    window->removeKeyPollingCallback(playerInputCallbackID);
-}
-
 void Level::tick(std::chrono::duration<double, std::milli> delta) {
     if (levelState != PLAYING)
         return;
@@ -285,7 +281,7 @@ void Level::tick(std::chrono::duration<double, std::milli> delta) {
         logger->info("You won!");
     }
 
-    if (player->getHealth() < 0) {
+    if (player->getHealth() <= 0) {
         pause();
         levelState = LOST;
         this->setLabel("You lost");
@@ -310,7 +306,7 @@ void Level::resetEnvironment() {
 }
 
 void Level::hide() {
-    pause();
+    pause(false);
     for (auto &entity : this->entities ) this->window->getScene()->removeObject(entity);
     for (auto &obj    : this->statics  ) this->window->getScene()->removeObject(obj);
     for (auto &obj    : this->sObjects ) { this->window->getScene()->removeObject(obj); obj->hide(window->getScene().get()); }
@@ -318,7 +314,7 @@ void Level::hide() {
 
     this->window->removeWidget(player->getHud());
     this->window->removeWidget(winLoseLabel);
-    this->window->getScene()->removeObject(this->playerWitcheryPointer);
+    this->window->getScene()->removeObject(this->player);
     for (auto &projectile : this->projectiles) {
         const std::shared_ptr<Object3DAbstract> ptr = std::dynamic_pointer_cast<Object3DAbstract>(projectile);
         this->window->getScene()->removeObject(ptr);
@@ -338,7 +334,7 @@ void Level::show() {
         this->window->addWidget(winLoseLabel);
     }
 
-    this->window->getScene()->addObject(this->playerWitcheryPointer);
+    this->window->getScene()->addObject(this->player);
     for (auto &projectile : this->projectiles) {
         const std::shared_ptr<Object3DAbstract> ptr = std::dynamic_pointer_cast<Object3DAbstract>(projectile);
         this->window->getScene()->addObject(projectile);
@@ -346,11 +342,11 @@ void Level::show() {
     }
 }
 
-void Level::pause() {
+void Level::pause(bool showStatus) {
     player->disable();
     player->setCrosshairState(false);
     levelState = PAUSED;
-    setLabel("Paused");
+    if (showStatus) setLabel("Paused");
 }
 
 void Level::resume() {
@@ -386,10 +382,13 @@ void Level::setLoadingStatus(std::string thing, int cur, int max) {
 }
 
 Level::~Level() {
-    this->player->disable();
-    this->hide();
     this->window->removeKeyPollingCallback(playerInputCallbackID);
     this->window->removeKeyCallback(gameMenuCallback);
+    for (auto &b : this->bullet)
+        world->removeRigidBody(b->getRigidBody());
+
+    this->player->disable();
+    this->hide();
 }
 
 void Level::luaSpawnProjectile(const int projectile, const LuaVec3 &spawn, const LuaVec3 &target) {

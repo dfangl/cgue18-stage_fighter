@@ -15,6 +15,7 @@ std::vector<unsigned char> ImageGenerator::marble(unsigned int width, unsigned i
     std::vector<unsigned char> data;
     data.reserve(height * width * (rgba ? 4 : 3));
 
+    // TODO: make one loop and use OpenMP to speed things up
     for (unsigned int x=0; x < width; x++)
         for (unsigned int y=0; y < height; y++) {
             float nx = (float)x / width - 0.5f;
@@ -30,8 +31,6 @@ std::vector<unsigned char> ImageGenerator::marble(unsigned int width, unsigned i
                     .125 * stb_perlin_ridge_noise3(4 * nx, 8 * ny, nz, 2.0, 0.5, 0.9, 24, 4, 8, 64);
             auto value = 1.9f * (glm::pow(noise / 2.5f, 3.23463) + 0.5) - 0.5;
             value = glm::pow(value, 2.0);
-
-            //spdlog::get("console")->info("({},{}) noise: {}, value: {}", x,y, noise, value);
 
             auto r = static_cast<unsigned char>(UCHAR_MAX - value * color.r * UCHAR_MAX);
             auto g = static_cast<unsigned char>(UCHAR_MAX - value * color.g * UCHAR_MAX);

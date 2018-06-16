@@ -169,23 +169,10 @@ unsigned int Window::registerKeyCallback(std::function<void(int, int, int, int)>
 }
 
 void Window::render(std::chrono::duration<double, std::milli> &delta) {
-    {
-        auto error = glGetError();
-        if(error != GL_NO_ERROR) {
-            spdlog::get("console")->error("[window->render function entry] OpenGL Error Code: {}", error);
-        }
-    }
-
     // Clear Window before drawing
-    glClearColor(0.63f, 0.79f, 0.94f, 1.0f);
+    //glClearColor(0.63f, 0.79f, 0.94f, 1.0f);
+    glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    {
-        auto error = glGetError();
-        if(error != GL_NO_ERROR) {
-            spdlog::get("console")->error("[window->render start] OpenGL Error Code: {}", error);
-        }
-    }
 
     /*
      * Process all callbacks which do want to poll input states such a key states
@@ -220,22 +207,8 @@ void Window::render(std::chrono::duration<double, std::milli> &delta) {
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
 
-    {
-        auto error = glGetError();
-        if(error != GL_NO_ERROR) {
-            spdlog::get("console")->error("[window render -> before scene] OpenGL Error Code: {}", error);
-        }
-    }
-
     // Render all Objects to the Window
     this->scene->render(delta);
-
-    {
-        auto error = glGetError();
-        if(error != GL_NO_ERROR) {
-            spdlog::get("console")->error("[window render -> after scene] OpenGL Error Code: {}", error);
-        }
-    }
 
     // Models don't disable backface culling if they enabled it
     glDisable(GL_CULL_FACE);
@@ -243,14 +216,7 @@ void Window::render(std::chrono::duration<double, std::milli> &delta) {
 
     // Render all Widgets:
     for (auto &widget : this->widgets) {
-        widget->render(this->widgetProjectionMatrix);
-
-        {
-            auto error = glGetError();
-            if(error != GL_NO_ERROR) {
-                spdlog::get("console")->error("[Widget:] OpenGL Error Code: {}", error);
-            }
-        }
+        widget->render(this->widgetProjectionMatrix, screenGamma);
     }
 
     // Swap Buffers and listen to events (as GLFW suggests)
@@ -298,13 +264,14 @@ void Window::removeWidget(const std::shared_ptr<Widget> &widget) {
     );
 }
 
-void Window::glfwMouseButtonCallback(int button, int action, int UNUSED(mods)) {
+void Window::glfwMouseButtonCallback(int UNUSED(button), int UNUSED(action), int UNUSED(mods)) {
     // TODO: implement me
-    logger->info("Mouse Button: {}, action: {}", button, action);
+    //logger->info("Mouse Button: {}, action: {}", button, action);
 }
 
-void Window::glfwScrollCallback(double xoffset, double yoffset) {
-    logger->info("Scroll: {}x{}", xoffset, yoffset);
+void Window::glfwScrollCallback(double UNUSED(xoffset), double UNUSED(yoffset)) {
+    // TODO: implement me
+    //logger->info("Scroll: {}x{}", xoffset, yoffset);
 }
 
 void Window::setClipboardString(const char *text) const {
@@ -336,6 +303,10 @@ void Window::requestFocus() {
 
 void Window::removeKeyCallback(unsigned int callback) {
     this->keyInputCallbacks.erase(callback);
+}
+
+void Window::addWidgetTop(const std::shared_ptr<Widget> &widget) {
+    this->widgets.insert(widgets.begin(), widget);
 }
 
 

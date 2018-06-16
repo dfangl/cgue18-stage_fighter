@@ -70,7 +70,7 @@ public:
     PlayerHud(const PlayerHud&) = delete;
     PlayerHud &operator=(const PlayerHud&) = delete;
 
-    void render(const glm::mat4 &projection) override;
+    void render(const glm::mat4 &projection, float screenGamma) override;
     void resize(float x, float y) override;
 
     void setHealth(int health);

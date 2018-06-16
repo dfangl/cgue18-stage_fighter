@@ -60,7 +60,7 @@ private:
     std::vector<std::shared_ptr<ScriptedObject>> sObjects;
 
     std::shared_ptr<Player> player;
-    std::shared_ptr<Object3DAbstract> playerWitcheryPointer;
+    //std::shared_ptr<Object3DAbstract> playerWitcheryPointer;
     unsigned int playerInputCallbackID;
 
     std::shared_ptr<BulletUniverse> world;
@@ -74,6 +74,8 @@ private:
     std::shared_ptr<GameMenu> gameMenu;
     unsigned int gameMenuCallback;
 
+    std::shared_ptr<Skybox> skybox;
+
 protected:
     void setLabel(const std::string text);
     void setLoadingStatus(std::string thing, int cur, int max);
@@ -85,19 +87,18 @@ public:
     void start(Window *window);
     void tick(std::chrono::duration<double, std::milli> delta);
 
-    void destroy();
     void resetEnvironment();
 
     void hide();
     void show();
 
-    void pause();
+    void pause(bool showStatus = true);
     void resume();
 
     LevelState getLevelState() const { return this->levelState; }
 
     std::shared_ptr<Player> getPlayer() const { return this->player; }
-    std::shared_ptr<BulletUniverse> getWorld() const { return this->world; }
+    const std::shared_ptr<BulletUniverse> &getWorld() const { return this->world; }
 
     void despawn(Entity *entity);
 

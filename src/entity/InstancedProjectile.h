@@ -38,8 +38,10 @@ private:
         glm::vec3 direction;
 
         std::shared_ptr<ScriptedParticleSystem> smoke;
+        std::shared_ptr<BulletUniverse> world;
 
         Projectile(const btVector3 &pos, const btVector3 &target, InstancedProjectile *parent, float speed);
+        ~Projectile();
 
         void collideWith(BulletObject* other) override;
         void move(std::chrono::duration<double, std::milli> delta);

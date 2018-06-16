@@ -16,6 +16,8 @@ player = {
     speed    = 5.5
 }
 
+skybox = { file="../resources/texture/skybox/Daylight Box", ext=".jpg"}
+
 objects = {
     statics.coliseum(vec3(0,0,0), vec4(0,0,0,1)),
     statics.wall(vec3(-42.8338, -42.5088,       0), vec4(0,0,0,1), "north"),
@@ -39,9 +41,11 @@ entities = {
 }
 
 lights = {
+    -- First Light gets manupulated by the Game settings
+    PointLight(vec3(0,0,0), vec3(0.6,0.6,0.6), vec3(0,0,0), vec3(0,0,0), 0),
     PointLight(
         vec3(-50.188 , -35 , 0.0), -- Position
-        vec3(0.6,0.6,0.6), -- Ambient
+        vec3(0.0,0.0,0.0), -- Ambient
         vec3(0.2,0.2,0.2), -- Diffuse
         vec3(0.5,0.5,0.5), -- Specular
         20.0               -- Light power
