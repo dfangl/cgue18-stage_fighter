@@ -20,6 +20,7 @@
 #include "../object3d/particlesystem/ScriptedParticleSystem.h"
 #include "../entity/InstancedProjectile.h"
 #include "../entity/ScriptedObject.h"
+#include "../object3d/Trigger.h"
 
 // ********************
 // ==== Glm Vectors ===
@@ -312,6 +313,23 @@ public:
             }
 
         return ret;
+    }
+
+};
+
+class LuaTrigger {
+
+protected:
+    const LuaVec3 position;
+    const float radius;
+    const kaguya::LuaTable env;
+
+public:
+    LuaTrigger(const LuaVec3 &position, const float radius, kaguya::LuaTable table)
+            : position(position), radius(radius), env(table) {}
+
+    std::shared_ptr<Trigger> toTrigger() {
+        return std::make_shared<Trigger>(position.vec3, radius, env);
     }
 
 };

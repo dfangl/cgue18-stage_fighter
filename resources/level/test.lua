@@ -40,6 +40,13 @@ entities = {
     dynamics.turret("Turret #4", 5,  vec3(-50.2492,-32.5088,5), vec4(0.707107/2,0.707107/2,0,0.707107), behavior.doNothing())
 }
 
+triggers = {
+    Trigger(vec3(-24.7897,-42.5088,1.65117), 5, {
+        left = function() level:hideTextbox() end,
+        entered = function() level:showTextbox("Hi,\nI'm a very special turret and will always shoot in your direction\n\nBtw pls don't kill me :/") end
+    })
+}
+
 lights = {
     -- First Light gets manupulated by the Game settings
     PointLight(vec3(0,0,0), vec3(0.6,0.6,0.6), vec3(0,0,0), vec3(0,0,0), 0),

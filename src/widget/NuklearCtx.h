@@ -87,6 +87,7 @@ public:
     Window *window() { return this->win; }
 
     bool enabled = true;
+    bool disableInput = false;
 
     const std::vector<struct nk_font *> &getFonts() const { return this->fonts; };
     void clear() { this->widgets.clear(); }

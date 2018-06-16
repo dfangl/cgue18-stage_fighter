@@ -220,6 +220,12 @@ void NuklearContext::newFrame() {
     if (!enabled)
         return;
 
+    if (disableInput) {
+        nk_input_begin(&ctx);
+        nk_input_end(&ctx);
+        return;
+    }
+
     nk_input_begin(&ctx);
 
     double x,y;

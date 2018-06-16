@@ -20,6 +20,7 @@ void MenuManager::init(Window *window) {
     MenuManager::debugTextHud = std::make_shared<DebugTextHud>(window->getScene());
     MenuManager::menus[MenuManager::View::HELP_MENU] = std::make_shared<HelpMenu>(MenuManager::nkContext);
     MenuManager::menus[MenuManager::View::LEVEL_FINISHED_MENU] = std::make_shared<BackToMenuWindow>(MenuManager::nkContext);
+    MenuManager::menus[MenuManager::View::LEVEL_TEXT_BOX] = std::make_shared<TextBoxWindow>(MenuManager::nkContext);
 
     // Add Debug stuff to Window:
     window->addWidget(debugTextHud);
@@ -43,6 +44,10 @@ void MenuManager::destroy() {
 }
 
 void MenuManager::hideMenu(bool hideCursor) {
+    // Let's just avoid all crashes ...
+    if (currentVisibleMenu == View::NONE)
+        return;
+
     menus[currentVisibleMenu]->hide();
     currentVisibleMenu = View::NONE;
 

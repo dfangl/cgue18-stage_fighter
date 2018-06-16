@@ -36,6 +36,7 @@
 #include "../object3d/Model3DObject.h"
 
 #include "LuaClassWrapper.h"
+#include "../widget/TextBoxWindow.h"
 
 class Light;
 class GameMenu;
@@ -58,6 +59,7 @@ private:
     std::vector<Light> lights;
     std::vector<std::shared_ptr<InstancedProjectile>> projectiles;
     std::vector<std::shared_ptr<ScriptedObject>> sObjects;
+    std::vector<std::shared_ptr<Trigger>> triggers;
 
     std::shared_ptr<Player> player;
     //std::shared_ptr<Object3DAbstract> playerWitcheryPointer;
@@ -105,6 +107,10 @@ public:
     // Lua Binding part:
     void luaSpawnProjectile(const int projectile, const LuaVec3 &spawn, const LuaVec3 &target);
     LuaVec3 luaGetPlayerPos();
+
+    void luaSpawnEnitity(const LuaEntity &entity, const LuaVec3 &spawn);
+    void luaShowTextbox(const std::string &text);
+    void luaHideTextbox();
 
 };
 

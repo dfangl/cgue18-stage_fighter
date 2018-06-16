@@ -12,7 +12,7 @@
 LaunchScreen::LaunchScreen(Window *window)
         : ctx(std::make_shared<NuklearContext>(window)),
           header(std::string("Stage Fighter"), FontManager::get("Metamorphous-72") , 1.0f, 1.0f, 1.0f, glm::vec3(0.09f, 0.09f, 0.09f)),
-          background(0,0,window->getWidth(), window->getHeight(),TextureManager::load("start_screen_background.jpg")) {
+          background(0,0,window->getWidth(), window->getHeight(),TextureManager::load("__gen_marble")) {
 
     this->not_so_smart_pointer = std::shared_ptr<LaunchScreen>(this);
 

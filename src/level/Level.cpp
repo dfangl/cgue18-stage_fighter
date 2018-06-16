@@ -4,6 +4,7 @@
 
 #include "Level.h"
 
+#include <memory>
 #include <glm/gtc/quaternion.hpp>
 #include <stb_perlin.h>
 
@@ -82,12 +83,19 @@ Level::Level(const std::string &file) : Logger("Level"), world(std::make_shared<
                     .setConstructors<LuaProjectile(std::string, std::string, float, float, float, LuaVec3&, LuaScriptedParticleSystem&)>()
     );
 
+    state["Trigger"].setClass(
+            kaguya::UserdataMetatable<LuaTrigger>()
+                    .setConstructors<LuaTrigger(LuaVec3&, float, kaguya::LuaTable)>()
+    );
 
     // Register Level to use global functions everywhere:
     state["Level"].setClass(
             kaguya::UserdataMetatable<Level>()
                     .addFunction("spawnProjectile", &Level::luaSpawnProjectile)
                     .addFunction("getPlayerPos", &Level::luaGetPlayerPos)
+                    .addFunction("spawnEntity", &Level::luaSpawnEnitity)
+                    .addFunction("showTextbox", &Level::luaShowTextbox)
+                    .addFunction("hideTextbox", &Level::luaHideTextbox)
     );
     state["level"] = this;
 
@@ -112,6 +120,7 @@ Level::Level(const std::string &file) : Logger("Level"), world(std::make_shared<
     this->gameMenuCallback = MenuManager::getWindow()->registerKeyCallback([this](int key, int UNUSED(scancode), int action, int UNUSED(mods)){
        if (key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE) {
            MenuManager::toggleMenu(MenuManager::View::GAME_MENU, true);
+           MenuManager::getNuklearContext()->disableInput = false;
        }
     });
 
@@ -197,14 +206,20 @@ void Level::start(Window *window) {
         this->projectiles.push_back(projectile.second->toProjectile(world));
     }
 
+    c=1;
+    all = static_cast<int>( state["triggers"].size());
+    for(auto &projectile : state["triggers"].map<int, LuaTrigger *>()) {
+        this->setLoadingStatus("triggers", c++, all);
+        this->triggers.push_back(projectile.second->toTrigger());
+    }
+
     this->logger->info("Loaded {} entities", entities.size());
     this->logger->info("Loaded {} objects", statics.size());
     this->logger->info("Loaded {} collision primitives", bullet.size());
     this->logger->info("Loaded {} light sources", lights.size());
     this->logger->info("Loaded {} projectiles", projectiles.size());
     this->logger->info("Loaded {} scripted objects", sObjects.size());
-
-    //this->logger->info("Player.add={}", (void*)player.get());
+    this->logger->info("Loaded {} triggers", triggers.size());
 
     this->window->removeWidget(this->loadingStatusLabel);
 
@@ -256,6 +271,10 @@ void Level::tick(std::chrono::duration<double, std::milli> delta) {
         oldEntities.clear();
     }
 
+    /*
+     * Update all the Scripted and non scripted
+     * Objects and Entities in the world
+     */
     for (auto &pSys : this->projectiles)
         pSys->think(delta);
 
@@ -270,9 +289,17 @@ void Level::tick(std::chrono::duration<double, std::milli> delta) {
         entity->think(this, delta);
     }
 
+    // Update player stuff
     player->think(delta);
     player->computeEnemyInView(entities);
 
+
+    // Process triggers
+    for (auto &trigger : this->triggers) {
+        trigger->update(player->getPosition());
+    }
+
+    // Finally check for the win condition
     if (enemyH <= 0) {
         pause();
         levelState = WON;
@@ -299,6 +326,7 @@ void Level::resetEnvironment() {
     this->lights.clear();           // might have been modified
     this->sObjects.clear();         // scripted objects, don't trust that they behave the same
     this->projectiles.clear();      // instanced projectiles (warning: contains black magic)
+    this->triggers.clear();         // nobody knows their internal state
     // statics & bullet objects from them are re-used
 
     // Clear lights in Window
@@ -412,4 +440,23 @@ LuaVec3 Level::luaGetPlayerPos() {
 
 void Level::despawn(Entity *entity) {
     this->oldEntities.push_back(entity);
+}
+
+void Level::luaSpawnEnitity(const LuaEntity &entity, const LuaVec3 &spawn) {
+    auto nEntity = entity.toEntity3D(world);
+    nEntity->setPosition(spawn.vec3, glm::quat(0,0,0,1));
+
+    this->newEntities.push_back(nEntity);
+}
+
+void Level::luaShowTextbox(const std::string &text) {
+    std::dynamic_pointer_cast<TextBoxWindow>(MenuManager::getMenus()[MenuManager::LEVEL_TEXT_BOX])->setText(text);
+    MenuManager::showMenu(MenuManager::LEVEL_TEXT_BOX, false);
+
+    // Just for debugging
+    this->logger->info("Show Text: {}", text);
+}
+
+void Level::luaHideTextbox() {
+    MenuManager::hideMenu(false);
 }
