@@ -37,6 +37,7 @@ protected:
     Camera &camera;
 
     bool canJump = false;
+    glm::mat4 modelMatrix;
     btVector3 stickyVelocity;
 
 public:

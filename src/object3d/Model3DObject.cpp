@@ -550,3 +550,14 @@ glm::quat Model3DObject::getAnimationRotation() {
     const auto result = glm::quat(rotVector.w, rotVector.x, rotVector.y, rotVector.z);
     return result;
 }
+
+void Model3DObject::setModelMatrix(const glm::mat4 &worldMatrix) {
+    recomputeInstanceBuffer = true;
+
+    // Apply world and model matrix
+    glm::mat4 modelMatrix  = worldMatrix * this->nodeMatrix;
+    glm::mat4 normalMatrix = glm::transpose(glm::inverse(modelMatrix));
+
+    instancedModelMatrix[0] = modelMatrix;
+    instancedNormalMatrix[0] = normalMatrix;
+}

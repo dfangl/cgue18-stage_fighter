@@ -153,7 +153,7 @@ public:
                     ret->getTextures().push_back(TextureManager::load(texture.second));
                 }
             }
-            
+
         return ret;
     }
 

@@ -48,6 +48,7 @@ void CameraEntity::think(std::chrono::duration<double, std::milli> delta) {
     auto bT = this->getTransformation();
     auto o = bT.getOrigin();
     this->camera.update(glm::vec3(o.x(), o.y(), o.z()));
+    this->modelMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(o.x(), o.y(), o.z()));
 
     float zVelocity = 0.0f;
     float xVelocity = 0.0f;

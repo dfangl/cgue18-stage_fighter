@@ -109,6 +109,8 @@ public:
     void updateModelMatrix() { this->prepareModelMatrices(); }
     void clearInstances();
 
+    void setModelMatrix(const glm::mat4 &mat) override;
+
     void enableAnimation(const Animation &);
     void disableAnimation();
     void applyAnimation(float currentTime);

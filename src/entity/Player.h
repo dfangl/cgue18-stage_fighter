@@ -23,6 +23,7 @@ private:
 
     std::shared_ptr<Model3DObject> shieldModel;
     std::shared_ptr<Model3DObject> weaponModel;
+    glm::mat4 animationMatrix = glm::mat4(1.0f);
 
     float shieldAnimationTime = 0.0f;
     float shieldRegTime = 0.0f;

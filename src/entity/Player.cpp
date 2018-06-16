@@ -52,6 +52,8 @@ Player::Player(Camera &camera, Window *window, const std::shared_ptr<BulletUnive
     this->oSpeed = CameraEntity::entitySpeed;
     this->oJumpSpeed = CameraEntity::jumpSpeed;
     this->stickyVelocity = btVector3(0,0,0);
+
+    this->animationMatrix = glm::translate(this->animationMatrix, glm::vec3(0,-0.13f,0));
 }
 
 void Player::think(std::chrono::duration<double, std::milli> delta) {
@@ -92,7 +94,7 @@ void Player::think(std::chrono::duration<double, std::milli> delta) {
     CameraEntity::think(delta);
     const float angle = glm::radians(shieldAnimationTime + camera.getYaw());
     const glm::quat rot = glm::quat(-glm::cos(angle/2.0f), 0, glm::sin(angle/2.0f), 0);
-    const glm::vec3 sPos = glm::vec3(camera.getPosition().x, camera.getPosition().y - 0.13f, camera.getPosition().z);
+    //const glm::vec3 sPos = glm::vec3(camera.getPosition().x, camera.getPosition().y - 0.13f, camera.getPosition().z);
 
     // Todo play the animation every time mouse was pressed and not while mouse is pressed
     if (window->getMouseButton(GLFW_MOUSE_BUTTON_LEFT)) {
@@ -106,11 +108,9 @@ void Player::think(std::chrono::duration<double, std::milli> delta) {
     const float wAngle = glm::radians(camera.getYaw() - 18.0f);
     const glm::quat wRot = glm::quat(-glm::cos(wAngle/2.0f), 0, glm::sin(wAngle/2.0f), 0);
 
-
-    shieldModel->setRotation(rot);
-    shieldModel->setOrigin(sPos);
-    weaponModel->setRotation(wRot * sRot);
-    weaponModel->setOrigin(sPos);
+                              //player position * object offset * frame rotation
+    shieldModel->setModelMatrix(modelMatrix * animationMatrix * glm::toMat4(rot));
+    weaponModel->setModelMatrix(modelMatrix * animationMatrix * glm::toMat4(wRot * sRot));
 
     //this->shieldModel->applyAnimation(static_cast<float>(delta.count() / 5000.0f));
 
