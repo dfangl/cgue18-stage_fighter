@@ -13,7 +13,8 @@ class GlobalGameState {
 
 public:
     enum State {
-        IN_MENU, IN_LEVEL, LEVEL_LOADING_FINISHED, JUMP_TO_MAIN_SCREEN, AFTER_LEVEL
+        IN_MENU, IN_LEVEL, LEVEL_LOADING_FINISHED, JUMP_TO_MAIN_SCREEN, AFTER_LEVEL,
+        LEVEL_PLAY_AGAIN
     };
 
     static State state;

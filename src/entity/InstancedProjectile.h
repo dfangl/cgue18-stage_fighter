@@ -30,9 +30,9 @@ class InstancedProjectile : /*public Entity,*/ public Model3DObject, virtual pub
 private:
     class Projectile : public BulletObject {
     public:
+        InstancedProjectile *parent;
         int idx;
         unsigned int instanceID;
-        InstancedProjectile *parent;
         float lifeTime = 10000.0f; // 10 sec
         float speed;
         glm::vec3 direction;
@@ -41,7 +41,7 @@ private:
         std::shared_ptr<BulletUniverse> world;
 
         Projectile(const btVector3 &pos, const btVector3 &target, InstancedProjectile *parent, float speed);
-        ~Projectile();
+        ~Projectile() override;
 
         void collideWith(BulletObject* other) override;
         void move(std::chrono::duration<double, std::milli> delta);

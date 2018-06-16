@@ -154,7 +154,7 @@ int main(int UNUSED(argc), char** UNUSED(argv)) {
      */
     MenuManager::init(window);
 
-    auto loadingLabel = std::make_shared<Label>("Generating resources", FontManager::get("Metamorphous-72"), 0, 0, 1.0, glm::vec3(0.9, 0.9, 0.9));
+    auto loadingLabel = std::make_shared<Label>("Generating resources ...", FontManager::get("Metamorphous-72"), 0, 0, 1.0, glm::vec3(0.9, 0.9, 0.9));
     loadingLabel->setPosition(window->getWidth()/2.0f-loadingLabel->getWidth()/2.0f, window->getHeight()/2.0f-32.0f);
     window->addWidget(loadingLabel);
 
@@ -171,35 +171,16 @@ int main(int UNUSED(argc), char** UNUSED(argv)) {
         std::chrono::duration<double, std::milli> deltaT = _curTick - lastTick;
 
         window->render(deltaT);
-
         lastTick = _curTick;
     }
 
     auto texData = asyncTexData.get();
     TextureManager::store("__gen_marble", texData, 256, 256);
 
-    // TODO: integrate skybox loading into level loading
-    auto skyboxTex = std::make_shared<CubemapTexture>("../resources/texture/skybox/Daylight Box", ".jpg");
-    auto skybox = std::make_shared<Skybox>(skyboxTex, ShaderManager::load("skybox"));
-    window->getScene()->setSkybox(skybox);
-
     /*
-     * Render a Loading Level Frame before loading the Level, this may take a while ...
+     * "Steal" the focus from another Window if it has been taken ...
      */
-    loadingLabel->setText("Loading Level ...");
-    loadingLabel->setPosition(window->getWidth()/2.0f-loadingLabel->getWidth()/2.0f, window->getHeight()/2.0f-32.0f);
-
-    /*
-     * Load and start Test level so we can do something
-     */
-    //auto level = std::make_shared<Level>("../resources/level/test.lua");
-    window->hideCursor();
     window->requestFocus();
-
-    /*
-     * Start the Level
-     */
-    //level->start(window);
     window->removeWidget(loadingLabel);
 
     /*
@@ -214,7 +195,6 @@ int main(int UNUSED(argc), char** UNUSED(argv)) {
         GlobalGameState::level = std::make_shared<Level>(std::string("../resources/level/") + levelFile);
         GlobalGameState::state = GlobalGameState::LEVEL_LOADING_FINISHED;
     } else {
-        window->addWidget(main_screen);
         main_screen->show();
     }
 
@@ -262,6 +242,7 @@ int main(int UNUSED(argc), char** UNUSED(argv)) {
                 window->processCameraMouseMovement(true);
                 window->processCameraKeyMovement(false);
                 GlobalGameState::level->start(window);
+                GlobalGameState::state = GlobalGameState::IN_LEVEL;
                 break;
 
             case GlobalGameState::IN_LEVEL:
@@ -277,6 +258,12 @@ int main(int UNUSED(argc), char** UNUSED(argv)) {
                 main_screen->show();
                 GlobalGameState::level.reset();
                 GlobalGameState::state = GlobalGameState::IN_MENU;
+                break;
+
+            case GlobalGameState::LEVEL_PLAY_AGAIN:
+                GlobalGameState::level->resetEnvironment();
+                window->hideCursor();
+                GlobalGameState::state = GlobalGameState::IN_LEVEL;
                 break;
         }
 

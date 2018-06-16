@@ -56,7 +56,8 @@ public:
 
     void clear();
 
-    void setSkybox(std::shared_ptr<Skybox> &skybox) { this->skybox = skybox; }
+    void setSkybox(const std::shared_ptr<Skybox> &skybox) { this->skybox = skybox; }
+    void removeSkybox() { this->skybox = nullptr; }
 
     std::shared_ptr<GLDebugDrawer> bulletDebugDrawer;
 

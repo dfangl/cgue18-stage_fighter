@@ -22,7 +22,7 @@ private:
     glm::vec3 collisionOffset;
 
 public:
-    ScriptedEntity(const std::string &name, int health, const btVector3 &pos, float bsRadius, const btQuaternion &rot, std::string model, float mass,
+    ScriptedEntity(const std::string &name, int health, const btVector3 &pos, float bsRadius, const btQuaternion &rot, const std::string &model, float mass,
     glm::vec3 collisionOffset, btCollisionShape *hitbox, const std::shared_ptr<BulletUniverse> &world, kaguya::LuaTable scriptEnv);
     ~ScriptedEntity() override;
 

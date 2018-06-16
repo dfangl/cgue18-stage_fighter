@@ -13,7 +13,7 @@
 
 
 InstancedProjectile::Projectile::Projectile(const btVector3 &pos, const btVector3 &target, InstancedProjectile *parent, float speed)
-        : parent(parent), BulletObject(pos, btQuaternion(0,0,0,1),  new btBoxShape(parent->collisionBox), parent->mass) {
+        : BulletObject(pos, btQuaternion(0,0,0,1),  new btBoxShape(parent->collisionBox), parent->mass), parent(parent) {
     this->speed = speed;
     this->kind = BulletObject::BULLET;
 
@@ -80,7 +80,7 @@ InstancedProjectile::InstancedProjectile(float bsRadius, const std::shared_ptr<t
                                          const btScalar &mass, std::shared_ptr<BulletUniverse> &world,
                                          const LuaScriptedParticleSystem *ps)
         : Model3DObject(glm::vec3(0,0,0), bsRadius, model, shader, INST_PREALLOC),
-          collisionBox(bulletShape), mass(mass), world(world), ps(ps) {
+          world(world), ps(ps), collisionBox(bulletShape), mass(mass) {
     this->projectiles.reserve(INST_PREALLOC);
     this->clearInstances();
 }

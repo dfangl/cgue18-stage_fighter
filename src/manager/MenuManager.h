@@ -19,7 +19,8 @@ class MenuManager {
 
 public:
     enum View {
-        GAME_MENU, HELP_MENU, MAIN_MENU, NONE, LEVEL_SELECT, SETTINGS_MENU
+        GAME_MENU, HELP_MENU, MAIN_MENU, NONE, LEVEL_SELECT, SETTINGS_MENU,
+        LEVEL_FINISHED_MENU
     };
 
 private:

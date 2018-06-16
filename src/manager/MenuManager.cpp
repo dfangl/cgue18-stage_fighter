@@ -4,6 +4,7 @@
 
 #include "MenuManager.h"
 #include "../widget/HelpMenu.h"
+#include "../widget/BackToMenuWindow.h"
 
 Window* MenuManager::window = nullptr;
 Level* MenuManager::level = nullptr;
@@ -18,6 +19,7 @@ void MenuManager::init(Window *window) {
     MenuManager::nkContext = std::make_shared<NuklearContext>(window);
     MenuManager::debugTextHud = std::make_shared<DebugTextHud>(window->getScene());
     MenuManager::menus[MenuManager::View::HELP_MENU] = std::make_shared<HelpMenu>(MenuManager::nkContext);
+    MenuManager::menus[MenuManager::View::LEVEL_FINISHED_MENU] = std::make_shared<BackToMenuWindow>(MenuManager::nkContext);
 
     // Add Debug stuff to Window:
     window->addWidget(debugTextHud);

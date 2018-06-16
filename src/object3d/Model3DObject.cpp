@@ -188,6 +188,12 @@ Model3DObject::Model3DObject(const glm::vec3 &position, float bsRadius,const std
     }
 }
 
+Model3DObject::~Model3DObject() {
+    glDeleteVertexArrays(1, &VAO);
+    for (auto &vbo : this->vbos)
+        glDeleteBuffers(1, &vbo);
+}
+
 void Model3DObject::draw() {
     // Re-construct the VBOs only if a instance has moved
     if (instances > 0 && recomputeInstanceBuffer) {

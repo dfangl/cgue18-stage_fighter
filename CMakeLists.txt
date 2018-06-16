@@ -45,7 +45,7 @@ if(MSVC)
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
 	endif()
 elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -pedantic")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall") # -Wextra -pedantic
 endif()
 
 message("CXX Flags          : ${CMAKE_CXX_FLAGS}")
@@ -284,7 +284,7 @@ add_executable(
         src/object3d/ParticleSystem.cpp src/object3d/ParticleSystem.h src/helper/CompilerMacros.h src/entity/InstancedProjectile.cpp
 		src/entity/InstancedProjectile.h src/object3d/particlesystem/ScriptedParticleSystem.cpp src/object3d/particlesystem/ScriptedParticleSystem.h
 		src/entity/ScriptedObject.cpp src/entity/ScriptedObject.h src/entity/AbstractScriptedObject.h
-        src/manager/MenuManager.cpp src/manager/MenuManager.h src/LaunchScreen.cpp src/LaunchScreen.h src/widget/Image.cpp src/widget/Image.h src/widget/SettingsMenu.cpp src/widget/SettingsMenu.h src/widget/LevelSelectMenu.cpp src/widget/LevelSelectMenu.h src/GlobalGameState.cpp src/GlobalGameState.h)
+        src/manager/MenuManager.cpp src/manager/MenuManager.h src/LaunchScreen.cpp src/LaunchScreen.h src/widget/Image.cpp src/widget/Image.h src/widget/SettingsMenu.cpp src/widget/SettingsMenu.h src/widget/LevelSelectMenu.cpp src/widget/LevelSelectMenu.h src/GlobalGameState.cpp src/GlobalGameState.h src/widget/BackToMenuWindow.cpp src/widget/BackToMenuWindow.h)
 
 set_target_properties("${BINARY}" PROPERTIES LINKER_LANGUAGE CXX)	
 	

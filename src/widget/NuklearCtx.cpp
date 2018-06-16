@@ -91,12 +91,7 @@ NuklearContext::NuklearContext(Window *window) {
     }
 
     // TODO: Callback to support multiple styles in multiple contexts
-    ctx.style.button.rounding = 0;
-    ctx.style.window.fixed_background = nk_style_item_color(nk_rgba(15, 15, 15, 225));
-    ctx.style.window.border = 0;
-    ctx.style.button.text_normal = nk_rgb(245, 245, 245);
-    ctx.style.text.color = nk_rgb(245, 245, 245);
-
+   this->resetStyle();
 }
 
 void NuklearContext::nkHandlePaste(nk_handle usr, struct nk_text_edit *edit) {
@@ -242,9 +237,13 @@ void NuklearContext::add(std::shared_ptr<NuklearWidget> widget) {
     widgets.push_back(widget);
 }
 
-/*
-void NuklearContext::hideAll() {
-    for (auto &w : this->widgets)
-        w->hide();
+void NuklearContext::resetStyle() {
+    ctx.style.button.rounding = 0;
+    ctx.style.window.fixed_background = nk_style_item_color(nk_rgba(15, 15, 15, 215));
+    ctx.style.window.border = 0;
+    ctx.style.button.border = 0;
+    ctx.style.button.text_normal = nk_rgb(245, 245, 245);
+    ctx.style.button.text_hover = nk_rgb(245, 245, 245);
+    ctx.style.button.normal = nk_style_item_color(nk_rgb(66, 66, 66));
+    ctx.style.text.color = nk_rgb(245, 245, 245);
 }
-*/

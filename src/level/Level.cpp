@@ -48,12 +48,12 @@ Level::Level(const std::string &file) : Logger("Level"), world(std::make_shared<
     state["Entity"].setClass(kaguya::UserdataMetatable<LuaEntity>());
     state["ScriptedEntity"].setClass(
             kaguya::UserdataMetatable<LuaScriptedEntity, LuaEntity>()
-                    .setConstructors<LuaScriptedEntity(std::string, int, LuaVec3&, float, LuaVec4&, std::string, float, LuaBtCollisionShape &, kaguya::LuaTable)>()
+                    .setConstructors<LuaScriptedEntity(std::string, int, LuaVec3&, float, LuaVec4&, std::string, float, LuaBtBox &, kaguya::LuaTable)>()
     );
     state["ScriptedObject"].setClass(
             kaguya::UserdataMetatable<LuaScriptedObject>()
                     .setConstructors<LuaScriptedObject(std::string, std::string, LuaVec3&, float, LuaVec4&,
-                                                       LuaBtCollisionShape&, kaguya::LuaTable, int, kaguya::LuaTable)>()
+                                                       LuaBtBox&, kaguya::LuaTable, int, kaguya::LuaTable)>()
     );
 
 
@@ -116,13 +116,11 @@ Level::Level(const std::string &file) : Logger("Level"), world(std::make_shared<
     });
 
     MenuManager::getMenus()[MenuManager::View::GAME_MENU] = gameMenu;
-    GlobalGameState::state = GlobalGameState::IN_LEVEL;
 }
 
 void Level::start(Window *window) {
     // Set global MenuManager state:
     MenuManager::transitionIntoLevel(this);
-    GlobalGameState::state = GlobalGameState::IN_LEVEL;
 
     /*
      * Manipulation internal state since Camera and Window must not be present while loading the Level stuff
@@ -169,13 +167,14 @@ void Level::start(Window *window) {
 
     c=1;
     all = static_cast<int>(state["objects"].size());
-    for (auto &obj : state["objects"].map<int, LuaStaticObject *>()) {
-        this->setLoadingStatus("objects", c++, all);
-        this->statics.push_back(obj.second->toModel());
+    if (statics.empty())
+        for (auto &obj : state["objects"].map<int, LuaStaticObject *>()) {
+            this->setLoadingStatus("objects", c++, all);
+            this->statics.push_back(obj.second->toModel());
 
-        auto col = obj.second->collisions();
-        this->bullet.insert(bullet.end(), col.begin(), col.end());
-    }
+            auto col = obj.second->collisions();
+            this->bullet.insert(bullet.end(), col.begin(), col.end());
+        }
 
     c=1;
     all = static_cast<int>(state["scriptedObjects"].size());
@@ -213,8 +212,8 @@ void Level::start(Window *window) {
     std::chrono::duration<double, std::milli> delta = curTick - past;
     logger->info("Level loaded in {} ms", delta.count());
 
+    this->levelState = PLAYING;
     this->show();
-
     player->lookAt(pLookAt->vec3);
 }
 
@@ -277,29 +276,38 @@ void Level::tick(std::chrono::duration<double, std::milli> delta) {
     if (enemyH <= 0) {
         pause();
         levelState = WON;
-        this->setLabel("You won!");
-        logger->info("You won!");
+        this->setLabel("Victory!");
+        MenuManager::showMenu(MenuManager::LEVEL_FINISHED_MENU);
     }
 
     if (player->getHealth() <= 0) {
         pause();
         levelState = LOST;
-        this->setLabel("You lost");
-        logger->info("You lost!");
+        this->setLabel("Game Over!");
+        MenuManager::showMenu(MenuManager::LEVEL_FINISHED_MENU);
     }
 }
 
 void Level::resetEnvironment() {
+    this->levelState = Level::PAUSED;
     this->hide();
 
     // Clear generated Level
-    this->entities.clear();
-    this->oldEntities.clear();
-    this->bullet.clear();
-    this->lights.clear();
-    this->sObjects.clear();
+    this->entities.clear();         // Moved, must be re-created
+    this->oldEntities.clear();      // tmp array
+    this->newEntities.clear();      // tmp array
+    this->lights.clear();           // might have been modified
+    this->sObjects.clear();         // scripted objects, don't trust that they behave the same
+    this->projectiles.clear();      // instanced projectiles (warning: contains black magic)
+    // statics & bullet objects from them are re-used
 
+    // Clear lights in Window
+    window->getScene()->getLights().clear();
     this->window->removeKeyPollingCallback(playerInputCallbackID);
+
+    // Remove static bullet stuff
+    for (auto &b : this->bullet)
+        world->removeRigidBody(b->getRigidBody());
 
     // Re-Load from Lua Environment
     this->start(this->window);
@@ -315,6 +323,7 @@ void Level::hide() {
     this->window->removeWidget(player->getHud());
     this->window->removeWidget(winLoseLabel);
     this->window->getScene()->removeObject(this->player);
+    this->window->getScene()->removeSkybox();
     for (auto &projectile : this->projectiles) {
         const std::shared_ptr<Object3DAbstract> ptr = std::dynamic_pointer_cast<Object3DAbstract>(projectile);
         this->window->getScene()->removeObject(ptr);
@@ -335,6 +344,7 @@ void Level::show() {
     }
 
     this->window->getScene()->addObject(this->player);
+    this->window->getScene()->setSkybox(this->skybox);
     for (auto &projectile : this->projectiles) {
         const std::shared_ptr<Object3DAbstract> ptr = std::dynamic_pointer_cast<Object3DAbstract>(projectile);
         this->window->getScene()->addObject(projectile);

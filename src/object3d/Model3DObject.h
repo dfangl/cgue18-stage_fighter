@@ -92,6 +92,7 @@ public:
      */
     Model3DObject(const glm::vec3 &position, float bsRadius, const std::shared_ptr<tinygltf::Model> &model,
                   const std::shared_ptr<Shader> &shader, int instances = 0);
+    ~Model3DObject();
 
     std::vector<std::shared_ptr<Texture>> &getTextures() { return this->textures; }
 
