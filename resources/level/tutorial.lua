@@ -20,7 +20,7 @@ player = {
 skybox = { file="../resources/texture/skybox/Daylight Box", ext=".jpg"}
 
 objects = {
-    statics.tutorial_ground(vec3(0,0,0), vec4(0,0.707107,0,-0.707107)),
+    statics.tutorial_ground(vec3(0,0,0), vec4(0,0.707107,0,0.707107)),
     statics.house_1(vec3(-72.7361,0,65.5897), vec4(0,-0.997505,0,-0.070596)),
     statics.house_2(vec3(-34.3156,0,64.1813), vec4(0,0.998308,0,-0.058153)),
     statics.house_3(vec3(-61.7535,0,25.6816), vec4(0,0.7365,0,-0.676438)),
