@@ -43,6 +43,6 @@ debug = {
     opengl=true,         -- Debug OpenGL Context and enable error outputs for OpenGL
 
     -- Debug options for skipping the Main Menu
-    loadIntoLevel=false,  -- True if main screen should be skipped
-    levelFile="test.lua"     -- File name of the level which should be loaded
+    loadIntoLevel=true,  -- True if main screen should be skipped
+    levelFile="tutorial.lua"     -- File name of the level which should be loaded
 }

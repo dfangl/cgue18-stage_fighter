@@ -3,8 +3,6 @@
 --
 
 levels = {
-    ["Development Level"] = {
-        file="test.lua",
-        difficulty=5
-    }
+	["Tutorial"] = { file="tutorial.lua" },
+    ["Development Level"] = { file="test.lua" }
 }

@@ -60,6 +60,7 @@ private:
     std::vector<std::shared_ptr<InstancedProjectile>> projectiles;
     std::vector<std::shared_ptr<ScriptedObject>> sObjects;
     std::vector<std::shared_ptr<Trigger>> triggers;
+    std::vector<std::shared_ptr<ScriptedParticleSystem>> particleSystem;
 
     std::shared_ptr<Player> player;
     //std::shared_ptr<Object3DAbstract> playerWitcheryPointer;

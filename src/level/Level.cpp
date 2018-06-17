@@ -213,6 +213,17 @@ void Level::start(Window *window) {
         this->triggers.push_back(projectile.second->toTrigger());
     }
 
+    c=1;
+    all = static_cast<int>( state["particlesystem"].size());
+    if (particleSystem.empty())
+        for(auto &t : state["particlesystem"].map<int, kaguya::LuaTable>()) {
+            this->setLoadingStatus("particles", c++, all);
+            const auto position = t.second["position"].get<LuaVec3>();
+            const auto ps = t.second["particle"].get<LuaScriptedParticleSystem>();
+
+            this->particleSystem.push_back(ps.toParticleSystem(position.vec3, t.second["number"], true));
+        }
+
     this->logger->info("Loaded {} entities", entities.size());
     this->logger->info("Loaded {} objects", statics.size());
     this->logger->info("Loaded {} collision primitives", bullet.size());
@@ -220,6 +231,7 @@ void Level::start(Window *window) {
     this->logger->info("Loaded {} projectiles", projectiles.size());
     this->logger->info("Loaded {} scripted objects", sObjects.size());
     this->logger->info("Loaded {} triggers", triggers.size());
+    this->logger->info("Loaded {} particles", particleSystem.size());
 
     this->window->removeWidget(this->loadingStatusLabel);
 
@@ -347,6 +359,7 @@ void Level::hide() {
     for (auto &obj    : this->statics  ) this->window->getScene()->removeObject(obj);
     for (auto &obj    : this->sObjects ) { this->window->getScene()->removeObject(obj); obj->hide(window->getScene().get()); }
     for (auto &light  : this->lights   ) this->window->getScene()->removeLight(light);
+    for (auto &ps     : this->particleSystem) this->window->getScene()->removeParticleSystem(ps);
 
     this->window->removeWidget(player->getHud());
     this->window->removeWidget(winLoseLabel);
@@ -365,6 +378,7 @@ void Level::show() {
     for (auto &obj    : this->statics  ) this->window->getScene()->addObject(obj);
     for (auto &obj    : this->sObjects ) { this->window->getScene()->addObject(obj); obj->show(window->getScene().get()); }
     for (auto &light  : this->lights   ) this->window->getScene()->addLight(light);
+    for (auto &ps     : this->particleSystem) this->window->getScene()->addParticleSystem(ps);
 
     this->window->addWidget(player->getHud());
     if (levelState != PLAYING) {

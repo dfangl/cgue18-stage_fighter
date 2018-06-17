@@ -6,7 +6,7 @@ behavior = {}
 -- An empty behavior which does nothing
 behavior.doNothing = function ()
     return {
-        mustBeKilled = false,
+        mustBeKilled = true,
         think = function(this, delta) end
     }
 end

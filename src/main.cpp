@@ -192,6 +192,7 @@ int main(int UNUSED(argc), char** UNUSED(argv)) {
         auto levelFile = config["debug"]["levelFile"].get<std::string>();
         console->info("Loading directly into Level: {}", levelFile);
 
+        window->hideCursor();
         GlobalGameState::level = std::make_shared<Level>(std::string("../resources/level/") + levelFile);
         GlobalGameState::state = GlobalGameState::LEVEL_LOADING_FINISHED;
     } else {

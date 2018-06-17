@@ -47,6 +47,8 @@ triggers = {
     })
 }
 
+particlesystem = {}
+
 lights = {
     -- First Light gets manupulated by the Game settings
     PointLight(vec3(0,0,0), vec3(0.6,0.6,0.6), vec3(0,0,0), vec3(0,0,0), 0),

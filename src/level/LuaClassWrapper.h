@@ -219,12 +219,17 @@ public:
     LuaScriptedParticleSystem(float radius, const std::string shader, const std::string texture, kaguya::LuaTable scriptEnv)
             : bsRadius(radius), shader(shader), texture(texture), env(scriptEnv) {}
 
-    std::shared_ptr<ScriptedParticleSystem> toParticleSystem(const glm::vec3 &position, unsigned int particles) const {
-        return std::make_shared<ScriptedParticleSystem>(
+    std::shared_ptr<ScriptedParticleSystem> toParticleSystem(const glm::vec3 &position, unsigned int particles, bool generate = false) const {
+        auto tmp = std::make_shared<ScriptedParticleSystem>(
                 position, bsRadius, ShaderManager::load(shader, true), TextureManager::load(texture),
                 particles, env
 
         );
+
+        if (generate)
+            tmp->init();
+
+        return tmp;
     }
 
 };
