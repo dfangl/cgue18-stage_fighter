@@ -77,7 +77,7 @@ void main() {
     }
 
 
-    vec3 color = ambient + diffuse + specular;
+    vec3 color = ambient;
 
     //color = ceil(color * CEL_LIGHT_LEVELS)/ CEL_LIGHT_LEVELS;
 
@@ -85,6 +85,8 @@ void main() {
     if (texture_count > 1)
         color = color * texture2D(texture_1, fs_in.texcoord_0).xyz;
 
+    color = color + diffuse + specular;
     color = pow(color, vec3(1.0/screenGamma));
+
     FragColor = vec4(color, 1.0);
 }

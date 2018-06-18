@@ -95,9 +95,8 @@ void main() {
         specular += specularLight * vec3(texColor) * spec ;// * celBrightness;
     }
 
-    vec3 color = ambient + diffuse + specular;
-    color = color * texture2D(texture_5, fs_in.texcoord_0).xyz; // Apply lightmap
-
+    vec3 color = ambient * texture2D(texture_5, fs_in.texcoord_0).xyz + diffuse + specular;
     color = pow(color, vec3(1.0/screenGamma));
+
     FragColor = vec4(color, 1.0);
 }

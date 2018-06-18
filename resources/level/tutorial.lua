@@ -17,6 +17,7 @@ player = {
     speed    = 5.5
 }
 
+
 skybox = { file="../resources/texture/skybox/Daylight Box", ext=".jpg"}
 
 objects = {

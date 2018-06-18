@@ -228,7 +228,6 @@ public:
         std::vector<std::shared_ptr<Shader>> shaders;
         for (auto &shad : shader.map<int, std::string>()) {
             shaders.push_back(ShaderManager::load(shad.second, true));
-
         }
         auto tmp = std::make_shared<ScriptedParticleSystem>(
                 position, bsRadius, shaders, TextureManager::load(texture),
