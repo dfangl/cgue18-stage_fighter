@@ -43,6 +43,10 @@ public:
     double x() { return vec3.x; }
     double y() { return vec3.y; }
     double z() { return vec3.z; }
+
+    double distance(LuaVec3 &other) {
+        return glm::distance(this->vec3, other.vec3);
+    }
 };
 
 class LuaVec4 {

@@ -17,7 +17,7 @@ scripted.platformX = function(position, speed, min, max)
             this.setLinearVelocity(this.dir)
             this.setGravity(this.zero)
             this.setAngularFactor(this.zero)
-            this.setRotation(this.rot)
+            --this.setRotation(this.rot)
         end,
 
         init = function(this)

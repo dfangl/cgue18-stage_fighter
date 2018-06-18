@@ -31,6 +31,7 @@ Level::Level(const std::string &file) : Logger("Level"), world(std::make_shared<
                     .addFunction("x", &LuaVec3::x)
                     .addFunction("y", &LuaVec3::y)
                     .addFunction("z", &LuaVec3::z)
+                    .addFunction("distance", &LuaVec3::distance)
     );
     state["vec4"].setClass(
             kaguya::UserdataMetatable<LuaVec4>()

@@ -31,8 +31,9 @@ ScriptedObject::ScriptedObject(const glm::vec3 &pos, const glm::quat &rot, btCol
         p->init();
     });
     environment["setRotation"] = kaguya::function([this](LuaVec4 &rot) {
-        dynamic_cast<BulletObject*>(this)->setRotation(rot.toQuat());
+        //dynamic_cast<BulletObject*>(this)->setRotation(rot.toQuat());
         dynamic_cast<Model3DObject*>(this)->setRotation(rot.toGlmQuat());
+        dynamic_cast<Model3DObject*>(this)->updateModelMatrix();
     });
     environment["disableDeactivation"] = kaguya::function([this](){ rigidBody->setActivationState(DISABLE_DEACTIVATION); });
 

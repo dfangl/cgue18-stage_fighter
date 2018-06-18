@@ -11,6 +11,10 @@
 
 #define INST_PREALLOC (300)
 
+#include <iostream>
+#include <thread>
+#include <spdlog/spdlog.h>
+
 
 InstancedProjectile::Projectile::Projectile(const btVector3 &pos, const btVector3 &target, InstancedProjectile *parent, float speed)
         : BulletObject(pos, btQuaternion(0,0,0,1),  new btBoxShape(parent->collisionBox), parent->mass), parent(parent) {
@@ -69,7 +73,10 @@ void InstancedProjectile::Projectile::move(std::chrono::duration<double, std::mi
     this->smoke->setOrigin(position);
 }
 
-void InstancedProjectile::Projectile::collideWith(BulletObject* UNUSED(other)) {
+void InstancedProjectile::Projectile::collideWith(BulletObject* other) {
+    if (other->getKind() == BulletObject::ENEMY && lifeTime > 9000)
+        return;
+
     if (this->idx >= 0) {
         this->idx = -idx;
     }
@@ -126,7 +133,7 @@ void InstancedProjectile::render(Scene *scene) {
 
 void InstancedProjectile::spawn(const btVector3 &pos, const btVector3 &target, float speed) {
     const auto projectile = std::make_shared<Projectile>(pos, target, this, speed);
-    projectile->idx = static_cast<int>(projectiles.size() - 1);
+    projectile->idx = 100;
 
     //world->addRigidBody(projectile->getRigidBody());
     projectiles.push_back(projectile);

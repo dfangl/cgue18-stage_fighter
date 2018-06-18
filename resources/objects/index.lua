@@ -37,3 +37,4 @@ projectile.rocket = 1; projectiles[1] = Projectile("bullet", {"standard-instance
 -- Load all scripted objects:
 dofile(root.."platformX.lua")
 dofile(root.."platformY.lua")
+dofile(root.."question_mark.lua")

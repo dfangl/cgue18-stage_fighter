@@ -50,3 +50,26 @@ behavior.shootCircle = function(projectile, spawnSpeed, numofProjectiles)
         end
     }
 end
+
+behavior.shootAtPlayerInRange = function(projectile, spawnSpeed, range)
+    return {
+        spawnTime = spawnSpeed,
+
+        think = function(this, delta)
+            this.spawnTime = this.spawnTime - delta
+            local position = this.getPosition();
+            local player   = level:getPlayerPos();
+            local distance = position:distance(player)
+
+
+
+            if (this.spawnTime < 0) then
+                this.spawnTime = spawnSpeed
+
+                if (distance <= range) then
+                    ai.shootAtPlayer(this, projectile)
+                end
+            end
+        end
+    }
+end
