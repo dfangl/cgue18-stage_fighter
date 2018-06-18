@@ -60,19 +60,20 @@ void main() {
         float sDotN = max( dot(s,n), 0.0 );
         float rDotV = max( dot(r,v), 0.0 );
         float spec  = pow( rDotV, 32);          // TODO: How to get this from a PBR Shader Model?
-
+        float metallic = dot(fs_in.normal_0, v);
+        metallic = smoothstep(0.4,0.6,metallic);
+        metallic = metallic/2 + 0.5;
+        float cel = ceil(sDotN * CEL_LIGHT_LEVELS) / CEL_LIGHT_LEVELS;
 
         // Calculate actual light values from diffuse / specular maps
         vec3 diffuseLight  = light[i].diffuse  * light[i].power / lDist;
         vec3 specularLight = light[i].specular * light[i].power / lDist;
 
         ambient  += light[i].ambient * vec3(texture(texture_0, fs_in.texcoord_0));
-        diffuse  += diffuseLight  * vec3(texture(texture_0, fs_in.texcoord_0)) * sDotN;
-        specular += specularLight * vec3(texture(texture_0, fs_in.texcoord_0)) * spec;
+        diffuse  += diffuseLight  * vec3(texture(texture_0, fs_in.texcoord_0)) * sDotN * cel * metallic;
+        specular += specularLight * vec3(texture(texture_0, fs_in.texcoord_0)) * spec * cel * metallic;
     }
 
-    diffuse = ceil(diffuse * CEL_LIGHT_LEVELS) / CEL_LIGHT_LEVELS;;
-    specular = ceil(specular * CEL_LIGHT_LEVELS) / CEL_LIGHT_LEVELS;;
 
     vec3 color = ambient;
 
