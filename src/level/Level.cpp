@@ -43,17 +43,17 @@ Level::Level(const std::string &file) : Logger("Level"), world(std::make_shared<
 
     state["StaticObject"].setClass(
             kaguya::UserdataMetatable<LuaStaticObject>()
-                .setConstructors<LuaStaticObject(std::string,std::string,LuaVec3,float,LuaVec4,kaguya::LuaTable,kaguya::LuaTable)>()
+                .setConstructors<LuaStaticObject(std::string,kaguya::LuaTable,LuaVec3,float,LuaVec4,kaguya::LuaTable,kaguya::LuaTable)>()
     );
 
     state["Entity"].setClass(kaguya::UserdataMetatable<LuaEntity>());
     state["ScriptedEntity"].setClass(
             kaguya::UserdataMetatable<LuaScriptedEntity, LuaEntity>()
-                    .setConstructors<LuaScriptedEntity(std::string, int, LuaVec3&, float, LuaVec4&, std::string, float, LuaBtBox &, kaguya::LuaTable)>()
+                    .setConstructors<LuaScriptedEntity(std::string, kaguya::LuaTable,int, LuaVec3&, float, LuaVec4&, std::string, float, LuaBtBox &, kaguya::LuaTable)>()
     );
     state["ScriptedObject"].setClass(
             kaguya::UserdataMetatable<LuaScriptedObject>()
-                    .setConstructors<LuaScriptedObject(std::string, std::string, LuaVec3&, float, LuaVec4&,
+                    .setConstructors<LuaScriptedObject(std::string, kaguya::LuaTable, LuaVec3&, float, LuaVec4&,
                                                        LuaBtBox&, kaguya::LuaTable, int, kaguya::LuaTable)>()
     );
 
@@ -75,12 +75,12 @@ Level::Level(const std::string &file) : Logger("Level"), world(std::make_shared<
 
     state["ParticleSystem"].setClass(
             kaguya::UserdataMetatable<LuaScriptedParticleSystem>()
-                    .setConstructors<LuaScriptedParticleSystem(float, std::string, std::string, kaguya::LuaTable)>()
+                    .setConstructors<LuaScriptedParticleSystem(float, kaguya::LuaTable, std::string, kaguya::LuaTable)>()
     );
 
     state["Projectile"].setClass(
             kaguya::UserdataMetatable<LuaProjectile>()
-                    .setConstructors<LuaProjectile(std::string, std::string, float, float, float, LuaVec3&, LuaScriptedParticleSystem&)>()
+                    .setConstructors<LuaProjectile(std::string, kaguya::LuaTable, float, float, float, LuaVec3&, LuaScriptedParticleSystem&)>()
     );
 
     state["Trigger"].setClass(

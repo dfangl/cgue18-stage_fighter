@@ -127,7 +127,8 @@ public:
 
 class LuaStaticObject {
 protected:
-    const std::string model, shader;
+    const std::string model;
+    const kaguya::LuaTable shader;
     const LuaVec3 position;
     const LuaVec4 rotation;
     const kaguya::LuaTable bullet;
@@ -135,14 +136,17 @@ protected:
     const float bsRadius;
 
 public:
-    LuaStaticObject(const std::string model, const std::string shader, const LuaVec3 position, float bsRadius,
+    LuaStaticObject(const std::string model, const kaguya::LuaTable shader, const LuaVec3 position, float bsRadius,
                     const LuaVec4 rotation, const kaguya::LuaTable bullet, kaguya::LuaTable texO)
             :  model(model), shader(shader), position(position),  rotation(rotation), bullet(bullet), texOverride(texO),
                 bsRadius(bsRadius) {}
 
     std::shared_ptr<Model3DObject> toModel() const {
-
-        auto ret = std::make_shared<Model3DObject>(position.vec3, bsRadius, ModelManager::load(model), std::vector<std::shared_ptr<Shader>> {ShaderManager::load(shader)}, 0);
+        std::vector<std::shared_ptr<Shader>> shaders;
+        for (auto &shad : shader.map<int, std::string>()) {
+            shaders.push_back(ShaderManager::load(shad.second));
+        }
+        auto ret = std::make_shared<Model3DObject>(position.vec3, bsRadius, ModelManager::load(model), shaders, 0);
         ret->setRotation(rotation.toGlmQuat());
         ret->updateModelMatrix();
 
@@ -212,17 +216,21 @@ class LuaScriptedParticleSystem {
 
 protected:
     const float bsRadius;
-    const std::string shader;
+    const kaguya::LuaTable shader;
     const std::string texture;
     const kaguya::LuaTable env;
 
 public:
-    LuaScriptedParticleSystem(float radius, const std::string shader, const std::string texture, kaguya::LuaTable scriptEnv)
+    LuaScriptedParticleSystem(float radius, const kaguya::LuaTable shader, const std::string texture, kaguya::LuaTable scriptEnv)
             : bsRadius(radius), shader(shader), texture(texture), env(scriptEnv) {}
 
     std::shared_ptr<ScriptedParticleSystem> toParticleSystem(const glm::vec3 &position, unsigned int particles, bool generate = false) const {
+        std::vector<std::shared_ptr<Shader>> shaders;
+        for (auto &shad : shader.map<int, std::string>()) {
+            shaders.push_back(ShaderManager::load(shad.second));
+        }
         auto tmp = std::make_shared<ScriptedParticleSystem>(
-                position, bsRadius, std::vector<std::shared_ptr<Shader>> { ShaderManager::load(shader, true)}, TextureManager::load(texture),
+                position, bsRadius, shaders, TextureManager::load(texture),
                 particles, env
 
         );
@@ -238,7 +246,7 @@ public:
 class LuaProjectile {
 protected:
     const std::string model;
-    const std::string shader;
+    const kaguya::LuaTable shader;
     const LuaVec3 hitbox;
     const float speed;
     const float radius;
@@ -246,13 +254,17 @@ protected:
     const LuaScriptedParticleSystem ps;
 
 public:
-    LuaProjectile(std::string model, std::string shader, float speed, float radius, float mass, const LuaVec3 &hitbox, LuaScriptedParticleSystem &ps) :
+    LuaProjectile(std::string model, kaguya::LuaTable shader, float speed, float radius, float mass, const LuaVec3 &hitbox, LuaScriptedParticleSystem &ps) :
             model(model), shader(shader), hitbox(hitbox), speed(speed), radius(radius), mass(mass), ps(ps) {
     }
 
     std::shared_ptr<InstancedProjectile> toProjectile(std::shared_ptr<BulletUniverse> &world) const {
+        std::vector<std::shared_ptr<Shader>> shaders;
+        for (auto &shad : shader.map<int, std::string>()) {
+            shaders.push_back(ShaderManager::load(shad.second));
+        }
         return std::make_shared<InstancedProjectile>(
-                radius, ModelManager::load(model), std::vector<std::shared_ptr<Shader>> {ShaderManager::load(shader)}, hitbox.toVector3(), mass,
+                radius, ModelManager::load(model), shaders, hitbox.toVector3(), mass,
                 world, &ps
         );
     }
@@ -262,6 +274,7 @@ class LuaScriptedEntity : public LuaEntity {
 
 protected:
     const std::string name;
+    const kaguya::LuaTable shader;
     const int health;
     const LuaVec4 rot;
     const std::string model;
@@ -272,13 +285,17 @@ protected:
     const float bsRadius;
 
 public:
-    LuaScriptedEntity(std::string name, int health, const LuaVec3 &pos, float bsRadius, const LuaVec4 &rot, std::string model,
+    LuaScriptedEntity(std::string name, kaguya::LuaTable shader, int health, const LuaVec3 &pos, float bsRadius, const LuaVec4 &rot, std::string model,
                       float mass, const LuaBtBox &hitbox, kaguya::LuaTable env) :
-    LuaEntity(pos), name(name), health(health), rot(rot), model(model), mass(mass), hitbox(hitbox), hitBoxOffset(hitbox.position),
+    LuaEntity(pos), name(name), shader(shader), health(health), rot(rot), model(model), mass(mass), hitbox(hitbox), hitBoxOffset(hitbox.position),
     env(env), bsRadius(bsRadius) {}
 
     std::shared_ptr<Entity> toEntity3D(const std::shared_ptr<BulletUniverse> &world) const override {
-        return std::make_shared<ScriptedEntity>(name, health, position.toVector3(), bsRadius, rot.toQuat(), model, mass, hitBoxOffset.vec3, hitbox.generateShape(), world, env);
+        std::vector<std::shared_ptr<Shader>> shaders;
+        for (auto &shad : shader.map<int, std::string>()) {
+            shaders.push_back(ShaderManager::load(shad.second));
+        }
+        return std::make_shared<ScriptedEntity>(name, shaders, health, position.toVector3(), bsRadius, rot.toQuat(), model, mass, hitBoxOffset.vec3, hitbox.generateShape(), world, env);
     }
 
 };
@@ -286,7 +303,8 @@ public:
 class LuaScriptedObject {
 
 protected:
-    const std::string model, shader;
+    const std::string model;
+    const kaguya::LuaTable shader;
     const LuaVec3 position;
     const LuaVec4 rotation;
     const LuaBtBox bullet;
@@ -297,14 +315,18 @@ protected:
     const double mass;
 
 public:
-    LuaScriptedObject(const std::string model, const std::string shader, const LuaVec3 &position, float bsRadius,
+    LuaScriptedObject(const std::string model, const kaguya::LuaTable shader, const LuaVec3 &position, float bsRadius,
                       const LuaVec4 &rotation, const LuaBtBox &bullet, const kaguya::LuaTable &texO, int i, const kaguya::LuaTable &env)
     :  model(model), shader(shader), position(position),  rotation(rotation), bullet(bullet), texOverride(texO),
        bsRadius(bsRadius), instances(i), env(env), mass(bullet.mass) {}
 
     std::shared_ptr<ScriptedObject> toScriptedObject(const std::shared_ptr<BulletUniverse> &world) const {
+        std::vector<std::shared_ptr<Shader>> shaders;
+        for (auto &shad : shader.map<int, std::string>()) {
+            shaders.push_back(ShaderManager::load(shad.second));
+        }
         auto ret = std::make_shared<ScriptedObject>(position.vec3, rotation.toGlmQuat(), bullet.generateShape(), mass, bsRadius,
-                                                    ModelManager::load(model), std::vector<std::shared_ptr<Shader>> {ShaderManager::load(shader)}, instances,
+                                                    ModelManager::load(model), shaders, instances,
                                                     env, world
         );
 

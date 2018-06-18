@@ -13,11 +13,11 @@
 
 #include "../helper/CompilerMacros.h"
 
-ScriptedEntity::ScriptedEntity(const std::string &name, int health, const btVector3 &pos, float bsRadius, const btQuaternion &rot,
+ScriptedEntity::ScriptedEntity(const std::string &name, const std::vector<std::shared_ptr<Shader>> &shaders, int health, const btVector3 &pos, float bsRadius, const btQuaternion &rot,
                                const std::string &model, float mass, glm::vec3 collisionOffset, btCollisionShape *hitbox,
                                const std::shared_ptr<BulletUniverse> &world, kaguya::LuaTable scriptEnv)
         : AbstractScriptedObject(scriptEnv, false), BulletObject(pos, rot, hitbox, mass),
-          Model3DObject(glm::vec3(pos.x(),pos.y(),pos.z()), bsRadius, ModelManager::load(model), std::vector<std::shared_ptr<Shader>> {ShaderManager::load("standard")}) {
+          Model3DObject(glm::vec3(pos.x(),pos.y(),pos.z()), bsRadius, ModelManager::load(model), shaders) {
 
     this->world = world;
     this->collisionOffset = collisionOffset;

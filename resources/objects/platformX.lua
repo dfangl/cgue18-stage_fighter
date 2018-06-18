@@ -1,5 +1,5 @@
 scripted.platformX = function(position, speed, min, max)
-    return ScriptedObject("platform", "standard", position,  1, vec4(0.707107,0,0.707107,0), BoxShape(vec3(0,0,0), vec4(0,0,0,1), 8000, vec3(1, 0.449138/2, 1)), {}, 0, {
+    return ScriptedObject("platform", {"standard"}, position,  1, vec4(0.707107,0,0.707107,0), BoxShape(vec3(0,0,0), vec4(0,0,0,1), 8000, vec3(1, 0.449138/2, 1)), {}, 0, {
         zero = vec3(0,0,0),
         rot  = vec4(0.707107,0,0.707107,0),
         sticky = true,

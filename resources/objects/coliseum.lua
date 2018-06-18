@@ -2,7 +2,7 @@ statics.coliseum =
 function (position, rotation)
     return StaticObject(
         "coliseum",     -- Model File
-        "standard-splat",     -- Shader
+        {"standard-splat"},     -- Shader
         position,       -- Position
         324.826/2, -- Culling Sphere radius
         rotation,  -- Rotation

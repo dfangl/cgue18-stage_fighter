@@ -1,4 +1,4 @@
-particles.rocket = ParticleSystem(1.0, "particlesystem", "explosion.png", {
+particles.rocket = ParticleSystem(1.0, {"particlesystem"}, "explosion.png", {
     -- Only a magic number for the speed
     speed = 0.025 * 1.0 / 60.0,
     particles = 8,

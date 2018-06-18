@@ -2,7 +2,7 @@ statics.tutorial_ground =
 function (position, rotation)
     return StaticObject(
         "level/tutorial/ground",
-        "standard-splat",
+        {"standard-splat"},
         position,
         156.80/2,
         rotation,

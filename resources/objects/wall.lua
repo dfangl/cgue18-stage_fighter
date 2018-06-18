@@ -2,7 +2,7 @@ statics.wall =
 function (position, rotation, lightmap_orientation)
     return StaticObject(
             "wall",
-            "standard",
+            {"standard"},
             position,
             5.96413/2,
             rotation,

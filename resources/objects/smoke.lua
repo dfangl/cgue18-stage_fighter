@@ -1,4 +1,4 @@
-particles.smoke = ParticleSystem(1.0, "particlesystem", "smoke_red.png", {
+particles.smoke = ParticleSystem(1.0, {"particlesystem"}, "smoke_red.png", {
 
     init = function(this)
         this.setSize(0.8, 0.8)

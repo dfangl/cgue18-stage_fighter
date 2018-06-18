@@ -1,4 +1,4 @@
-particles.explosion = ParticleSystem(1.0, "particlesystem", "explosion.png", {
+particles.explosion = ParticleSystem(1.0, {"particlesystem"}, "explosion.png", {
 
     init = function(this)
         this.setSize(13.0, 13.0)

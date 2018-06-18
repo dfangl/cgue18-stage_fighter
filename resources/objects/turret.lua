@@ -2,6 +2,7 @@ dynamics.turret =
 function (name, health, position, rotation, behavior)
     return ScriptedEntity(
             name,
+            {"standard"},
             health,
             position,
             2.52301/2,
