@@ -79,6 +79,7 @@ public:
 
     bool showEnemy = false;
     bool showCrosshair = false;
+    float hitEnemyVisibility = 0.0f;
 
 };
 

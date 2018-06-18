@@ -28,7 +28,9 @@ in VS_OUT {
 } fs_in;
 
 uniform vec3 camera_position;
+uniform int texture_count;
 uniform sampler2D texture_0;
+uniform sampler2D texture_1;
 
 uniform Material material;
 
@@ -71,6 +73,10 @@ void main() {
     }
 
     vec3 color = ambient + diffuse + specular;
+
+    // Apply lightmap only if sampler is a valid texture
+    if (texture_count > 1)
+        color = color * texture2D(texture_1, fs_in.texcoord_0).xyz;
 
     color = pow(color, vec3(1.0/screenGamma));
     FragColor = vec4(color, 1.0);

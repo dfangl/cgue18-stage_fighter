@@ -123,3 +123,7 @@ void BulletUniverse::rayTest(const btVector3 &start, const btVector3 &end,
                              btCollisionWorld::ClosestRayResultCallback &rayCallback) {
     this->dynamicsWorld->rayTest(start, end, rayCallback);
 }
+
+void BulletUniverse::contactTest(btRigidBody *body, btCollisionWorld::ContactResultCallback &callback) {
+    this->dynamicsWorld->contactTest(body, callback);
+}

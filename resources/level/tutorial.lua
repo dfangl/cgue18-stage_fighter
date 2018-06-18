@@ -21,9 +21,9 @@ skybox = { file="../resources/texture/skybox/Daylight Box", ext=".jpg"}
 
 objects = {
     statics.tutorial_ground(vec3(0,0,0), vec4(0,0.707107,0,0.707107)),
-    statics.house_1(vec3(-72.7361,0,65.5897), vec4(0,-0.997505,0,-0.070596)),
-    statics.house_2(vec3(-34.3156,0,64.1813), vec4(0,0.998308,0,-0.058153)),
-    statics.house_3(vec3(-61.7535,0,25.6816), vec4(0,0.7365,0,-0.676438)),
+    statics.house_1(vec3(-65.8838,0,71.5784), vec4(0,-0.999674,0,0.025531)),
+    statics.house_3(vec3(-25.6816,0,61.7535), vec4(0,0.085469,0,0.996341)),
+    statics.house_2(vec3(-64.1813,0,34.3156), vec4(0,0.818018,0,0.575193)),
     statics.coliseum(vec3(181.036,40.5924,-15.9153), vec4(0,-0.073578,0,-0.073578)),
 
     -- make a question mark or so ...
@@ -35,13 +35,13 @@ objects = {
 
 scriptedObjects = {}
 particlesystem = {
-    { position=vec3(-72.7361,5,65.5897), number=45, particle=particles.explosion },
-    { position=vec3(-34.3156,5,64.1813), number=45, particle=particles.explosion },
-    { position=vec3(-61.7535,5,25.6816), number=45, particle=particles.explosion }
+    { position=vec3(-65.8838,5,71.5784), number=45, particle=particles.explosion },
+    { position=vec3(-64.1813,5,34.3156), number=45, particle=particles.explosion },
+    { position=vec3(-25.6816,5,61.7535), number=45, particle=particles.explosion }
 }
 
 entities = {
-    dynamics.turret("Broken turret", 3,  vec3(5,5,5), vec4(0.707107/2,0.707107/2,0,0.707107), behavior.doNothing())
+    dynamics.turret("Broken turret", 5,  vec3(5,5,5), vec4(0.707107/2,0.707107/2,0,0.707107), behavior.doNothing())
 }
 
 triggers = {
@@ -74,11 +74,6 @@ triggers = {
 lights = {
     -- First Light gets manupulated by the Game settings
     PointLight(vec3(0,0,0), vec3(0.6,0.6,0.6), vec3(0,0,0), vec3(0,0,0), 0),
-
-    -- Light for fires:
-    PointLight(vec3(-72.7361,0,65.5897), vec3(0.0,0.0,0.0), vec3(0.9,0.1,0.1), vec3(0.3,0,0), 80),
-    PointLight(vec3(-34.3156,0,64.1813), vec3(0.0,0.0,0.0), vec3(0.9,0.1,0.1), vec3(0.3,0,0), 80),
-    PointLight(vec3(-61.7535,0,25.6816), vec3(0.0,0.0,0.0), vec3(0.9,0.1,0.1), vec3(0.3,0,0), 80),
 
     -- Light for Question mark 1:
     PointLight(vec3(-50.1786, 3.5, 45.2672), vec3(0.0,0.0,0.0), vec3(0.3,0.3,0.3), vec3(0.2,0.2,0.2), 25),

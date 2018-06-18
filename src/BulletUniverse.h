@@ -51,12 +51,16 @@ public:
     bool isDebugging() const { return debug; }
 
     void drawDebug();
+
     void rayTest(const btVector3 &start, const btVector3 &end, btCollisionWorld::ClosestRayResultCallback &rayCallback);
+    void contactTest(btRigidBody *body, btCollisionWorld::ContactResultCallback &callback);
 
     /*
      * Flag is only applied to new instances, use enableDebugging on existing instances to start debugging
      */
     static bool debuggingFlag;
+
+
 };
 
 

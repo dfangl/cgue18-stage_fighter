@@ -220,6 +220,7 @@ void Model3DObject::drawNode(const tinygltf::Node &node) {
     if (instances == 0) {
         shader->setUniform("model", instancedModelMatrix[0]);
         shader->setUniform("nModel", instancedNormalMatrix[0]);
+        shader->setUniformIfNeeded("texture_count", (int)textures.size());
     }
 
     this->drawMesh(mesh, VAO, meshDrawMode);
