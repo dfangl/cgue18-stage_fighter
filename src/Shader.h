@@ -25,6 +25,8 @@ private:
     // ID of the Shader in OpenGL
     GLuint shaderID;
 
+    std::string name;
+
     // Mapping of uniform locations and their names
     std::map<std::string, GLint> mapping;
     std::map<std::string, GLint> attributes;
@@ -55,16 +57,16 @@ public:
     /*
      * Create a Shader from a Vertex and a Fragment shader code
      */
-    Shader(const std::string vertexCode, const std::string fragmentCode);
-    Shader(const std::string vertexCode, const std::string fragmentCode, const std::string geomentryCode);
-    explicit Shader(const std::string computeCode);
+    Shader(const std::string vertexCode, const std::string fragmentCode, const std::string &name);
+    Shader(const std::string vertexCode, const std::string fragmentCode, const std::string geomentryCode, const std::string &name);
+    explicit Shader(const std::string computeCode, const std::string &name);
 
     /*
      * Load a Shader from a vertex and a fragment shader file
      */
-    static std::shared_ptr<Shader> fromFile(const std::string vertex, const std::string fragment, const std::string geoemtry);
-    static std::shared_ptr<Shader> fromFile(const std::string vertex, const std::string fragment);
-    static std::shared_ptr<Shader> fromFile(const std::string compute);
+    static std::shared_ptr<Shader> fromFile(const std::string vertex, const std::string fragment, const std::string geoemtry, const std::string &name);
+    static std::shared_ptr<Shader> fromFile(const std::string vertex, const std::string fragment, const std::string &name);
+    static std::shared_ptr<Shader> fromFile(const std::string compute, const std::string &name);
 
     ~Shader();
 
@@ -114,6 +116,8 @@ public:
     void recompile();
 
     bool hasLightDataSet = false;
+
+    const std::string getName();
 };
 
 

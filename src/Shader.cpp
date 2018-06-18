@@ -8,15 +8,15 @@
 #include <sstream>
 #include <iostream>
 
-Shader::Shader(const std::string vertexCode, const std::string fragmentCode) : Logger("Shader"){
+Shader::Shader(const std::string vertexCode, const std::string fragmentCode, const std::string &name) : Logger("Shader"), name{name} {
     this->shaderID = compile(vertexCode, fragmentCode, "");
 }
 
-Shader::Shader(const std::string vertexCode, const std::string fragmentCode, const std::string geometryCode) : Logger("Shader"){
+Shader::Shader(const std::string vertexCode, const std::string fragmentCode, const std::string geometryCode, const std::string &name) : Logger("Shader"), name{name}{
     this->shaderID = compile(vertexCode, fragmentCode, geometryCode);
 }
 
-Shader::Shader(const std::string computeCode) {
+Shader::Shader(const std::string computeCode, const std::string &name) : name{name} {
     this->shaderID = compileComputeShader(computeCode);
 }
 
@@ -68,10 +68,10 @@ void Shader::setUniform(const GLint location, const glm::mat4 &mat) {
     glUniformMatrix4fv(location, 1, GL_FALSE, &mat[0][0]);
 }
 
-std::shared_ptr<Shader> Shader::fromFile(const std::string vertex, const std::string fragment) {
+std::shared_ptr<Shader> Shader::fromFile(const std::string vertex, const std::string fragment, const std::string &name) {
     Shader::Code code = Shader::loadFromFile(vertex, fragment, "");
 
-    auto shader = std::make_shared<Shader>(code.vertex, code.fragment);
+    auto shader = std::make_shared<Shader>(code.vertex, code.fragment, name);
     shader->loadedFromFile = true;
     shader->vertexFilePath = vertex;
     shader->fragmentFilePath = fragment;
@@ -79,10 +79,10 @@ std::shared_ptr<Shader> Shader::fromFile(const std::string vertex, const std::st
     return shader;
 }
 
-std::shared_ptr<Shader> Shader::fromFile(const std::string vertex, const std::string fragment, const std::string geoemtry) {
+std::shared_ptr<Shader> Shader::fromFile(const std::string vertex, const std::string fragment, const std::string geoemtry, const std::string &name) {
     Shader::Code code = Shader::loadFromFile(vertex, fragment, geoemtry);
 
-    auto shader = std::make_shared<Shader>(code.vertex, code.fragment, code.geometry);
+    auto shader = std::make_shared<Shader>(code.vertex, code.fragment, code.geometry, name);
     shader->loadedFromFile = true;
     shader->vertexFilePath = vertex;
     shader->fragmentFilePath = fragment;
@@ -91,10 +91,10 @@ std::shared_ptr<Shader> Shader::fromFile(const std::string vertex, const std::st
     return shader;
 }
 
-std::shared_ptr<Shader> Shader::fromFile(const std::string compute) {
+std::shared_ptr<Shader> Shader::fromFile(const std::string compute, const std::string &name) {
     Shader::Code code = Shader::loadFromFile(compute);
 
-    auto shader = std::make_shared<Shader>(code.compute);
+    auto shader = std::make_shared<Shader>(code.compute, name);
     shader->loadedFromFile = true;
     shader->computeFilePath = compute;
 
@@ -399,5 +399,9 @@ void Shader::logOnProgError(GLuint program, const char *message) {
 
         delete infoLog;
     }
+}
+
+const std::string Shader::getName() {
+    return name;
 }
 

@@ -1,5 +1,7 @@
 #version 430 core
 
+#define OUTLINES_STRENGTH 0.01
+
 out VS_OUT {
     vec2 texcoord_0;
     vec3 normal_0;
@@ -16,9 +18,6 @@ uniform mat4 view;
 uniform mat4 projection;
 
 void main() {
-   gl_Position =  projection * view  * model * vec4(position, 1.0);
-
-   vs_out.FragPos    = vec3(model * vec4(position, 1.0));
-   vs_out.texcoord_0 = texcoord_0;
-   vs_out.normal_0   = mat3(nModel) * normal;
+    vec4 tPos   = vec4(position + normal * OUTLINES_STRENGTH, 1.0);
+    gl_Position =  projection * view  * model * tPos;
 }

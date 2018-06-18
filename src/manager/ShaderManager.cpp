@@ -18,8 +18,8 @@ void ShaderManager::destroy() {
 std::shared_ptr<Shader> ShaderManager::load(const std::string &name, bool withGeometry) {
     if(shaderLib.find(name) == shaderLib.end()) {
         shaderLib[name] = withGeometry ?
-                          Shader::fromFile(root + name + ".vert", root + name + ".frag", root + name + ".geom") :
-                          Shader::fromFile(root + name + ".vert", root + name + ".frag");
+                          Shader::fromFile(root + name + ".vert", root + name + ".frag", root + name + ".geom", name) :
+                          Shader::fromFile(root + name + ".vert", root + name + ".frag", name);
     }
 
     return shaderLib[name];
@@ -36,7 +36,7 @@ void ShaderManager::recompileAll() {
 
 std::shared_ptr<Shader> ShaderManager::loadCompute(const std::string &name) {
     if(shaderLib.find(name) == shaderLib.end()) {
-        shaderLib[name] = Shader::fromFile(root + name + ".comp");
+        shaderLib[name] = Shader::fromFile(root + name + ".comp", name);
     }
 
     return shaderLib[name];
