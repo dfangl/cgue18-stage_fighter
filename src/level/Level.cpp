@@ -319,7 +319,7 @@ void Level::tick(std::chrono::duration<double, std::milli> delta) {
         MenuManager::showMenu(MenuManager::LEVEL_FINISHED_MENU);
     }
 
-    if (player->getHealth() <= 0) {
+    if (player->getHealth() <= 0 || player->getPosition().y < state["deathHeight"].get<float>()) {
         pause();
         levelState = LOST;
         this->setLabel("Game Over!");
