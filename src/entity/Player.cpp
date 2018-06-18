@@ -169,7 +169,11 @@ void Player::computeEnemyInView(std::vector<std::shared_ptr<Entity>> &entities) 
     }
 }
 
-void Player::collideWith(BulletObject *other) { }
+void Player::collideWith(BulletObject *other) {
+    if (other->getKind() == BulletObject::BULLET)
+        if (!this->isBlocking)
+            this->health = std::max(0, health - 1);
+}
 
 BulletObject::Kind Player::getEntityKind() {
     return BulletObject::PLAYER;
