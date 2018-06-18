@@ -38,7 +38,7 @@ scriptedObjects = {
 entities = {
     dynamics.turret("Turret #1", 10,  vec3(-24.7897,-42.5088,1.65117), vec4(0,0,0,1), behavior.shootAtPlayer(projectile.rocket, 200)),
     dynamics.turret("Turret #2", 10,  vec3(-50.2492,-42.5088,-25.1359), vec4(0,0.707107,0,0.707107), behavior.shootCircle(projectile.rocket, 800, 36)),
-    dynamics.turret("Turret #4", 5,  vec3(-50.2492,-32.5088,5), vec4(0.707107/2,0.707107/2,0,0.707107), behavior.doNothing())
+    dynamics.turret("Broken turret", 5,  vec3(-50.2492,-32.5088,5), vec4(0.707107/2,0.707107/2,0,0.707107), behavior.doNothing())
 }
 
 triggers = {
@@ -48,7 +48,9 @@ triggers = {
     })
 }
 
-particlesystem = {}
+particlesystem = {
+    { position=vec3(-48.2492,-40.5088,5), number=10, particle=particles.burning_turret }
+}
 
 lights = {
     -- First Light gets manupulated by the Game settings

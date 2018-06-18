@@ -44,5 +44,5 @@ debug = {
 
     -- Debug options for skipping the Main Menu
     loadIntoLevel=true,  -- True if main screen should be skipped
-    levelFile="tutorial.lua"     -- File name of the level which should be loaded
+    levelFile="test.lua"     -- File name of the level which should be loaded
 }
