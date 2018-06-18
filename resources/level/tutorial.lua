@@ -28,6 +28,8 @@ objects = {
 
     -- make a question mark or so ...
     StaticObject("question_mark", "standard", vec3(-50.1786, 1, 45.2672),  0.2, vec4(0,0,0,1), { BoxShape(vec3(0,0,0), vec4(0,0,0,1), 0, vec3(0.1/2, 0.1/2, 0.1/2)) }),
+    -- make a test ball for cel shading
+    StaticObject("ball", "standard", vec3(-55.1786, 1, 45.2672),  0.2, vec4(0,0,0,1), { BoxShape(vec3(-55.1786, 2.14664, 45.2672), vec4(0,0,0,1), 0, vec3(0.576059/2, 2.14664/2, 1.96413/2)) }),
 
 }
 
@@ -79,5 +81,6 @@ lights = {
     PointLight(vec3(-61.7535,0,25.6816), vec3(0.0,0.0,0.0), vec3(0.9,0.1,0.1), vec3(0.3,0,0), 80),
 
     -- Light for Question mark 1:
-    PointLight(vec3(-50.1786, 3.5, 45.2672), vec3(0.0,0.0,0.0), vec3(0.3,0.3,0.3), vec3(0.2,0.2,0.2), 25)
+    PointLight(vec3(-50.1786, 3.5, 45.2672), vec3(0.0,0.0,0.0), vec3(0.3,0.3,0.3), vec3(0.2,0.2,0.2), 25),
+    PointLight(vec3(-54.1786, 3.5, 45.2672), vec3(0.0,0.0,0.0), vec3(0.3,0.3,0.3), vec3(0.2,0.2,0.2), 25)
 }
