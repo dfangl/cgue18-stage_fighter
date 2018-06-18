@@ -374,6 +374,7 @@ void APIENTRY glDebugOutput(GLenum source, GLenum type, GLuint id, GLenum severi
         default: typeStr = "Unknown";
     };
 
+    // Todo: actually change loglevel in logger
     std::string severityStr;
     switch (severity) {
         case GL_DEBUG_SEVERITY_HIGH:         severityStr = "high"; break;
