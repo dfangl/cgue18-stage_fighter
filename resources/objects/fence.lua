@@ -2,7 +2,7 @@ statics.fence =
 function (position, rotation)
     return StaticObject(
             "fence",
-            {"standard"},
+            {"outlines", "standard"},
             position,
             3.19442/2,
             rotation,

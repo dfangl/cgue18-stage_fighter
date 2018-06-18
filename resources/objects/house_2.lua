@@ -2,7 +2,7 @@ statics.house_2 =
 function (position, rotation)
     return StaticObject(
         "House_2",
-        {"standard"},
+        {"outlines", "standard"},
         position,
         15.388/2,
         rotation,
