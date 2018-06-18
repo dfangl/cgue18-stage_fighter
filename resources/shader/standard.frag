@@ -1,6 +1,6 @@
 #version 430 core
 
-#define CEL_LIGHT_LEVELS 5
+#define CEL_LIGHT_LEVELS 3
 #define MAX_LIGHTS 30
 
 struct Material {

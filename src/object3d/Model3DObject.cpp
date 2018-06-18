@@ -263,32 +263,36 @@ void Model3DObject::drawNode(const tinygltf::Node &node, std::shared_ptr<Shader>
 
 void Model3DObject::drawMesh(const tinygltf::Mesh &mesh, GLuint &VAO, GLenum &mode, std::shared_ptr<Shader> &shader) {
     auto &primitive = mesh.primitives[0];
+    if (shader->getName() != "outlines") {
+        // Process Material (is this already parsed ?):
+        auto &material = this->gltfModel->materials[primitive.material];
+        if (!material.values["doubleSided"].bool_value) glEnable(GL_CULL_FACE);
+        else
+            glDisable(GL_CULL_FACE);
 
-    // Process Material (is this already parsed ?):
-    auto &material = this->gltfModel->materials[primitive.material];
-    if (!material.values["doubleSided"].bool_value)     glEnable(GL_CULL_FACE);
-    else                                                glDisable(GL_CULL_FACE);
+        auto emissiveFactor = material.values["emissiveFactor"].number_array;
+        auto baseColorFactor = material.values["baseColorFactor"].number_array;
+        auto metallicFactor = material.values["metallicFactor"].Factor();
+        auto roughnessFactor = material.values["roughnessFactor"].Factor();
 
-    auto emissiveFactor = material.values["emissiveFactor"].number_array;
-    auto baseColorFactor = material.values["baseColorFactor"].number_array;
-    auto metallicFactor = material.values["metallicFactor"].Factor();
-    auto roughnessFactor = material.values["roughnessFactor"].Factor();
+        const glm::vec3 baseColor = glm::vec3(baseColorFactor[0], baseColorFactor[1], baseColorFactor[2]);
 
-    const glm::vec3 baseColor = glm::vec3(baseColorFactor[0],baseColorFactor[1],baseColorFactor[2]);
+        shader->setUniform("material.baseColor", baseColor);
+        shader->setUniform("material.metallic", (float) metallicFactor);
+        shader->setUniform("material.roughness", (float) roughnessFactor);
 
-    shader->setUniform("material.baseColor", baseColor);
-    shader->setUniform("material.metallic", (float)metallicFactor);
-    shader->setUniform("material.roughness", (float)roughnessFactor);
-
-    // Bind Texture (Error?)
-    // baseColorTexture is not set every time (exporter fuckup?)
-    //const auto texId = material.values["baseColorTexture"].TextureIndex();
-    for (size_t i=0; i<textures.size(); i++) {
-        auto &texture = this->textures[i];
-        texture->bind(static_cast<GLenum>(GL_TEXTURE0 + i));
-        shader->setUniform(texture_name_vec[i], (GLint)i);
+        // Bind Texture (Error?)
+        // baseColorTexture is not set every time (exporter fuckup?)
+        //const auto texId = material.values["baseColorTexture"].TextureIndex();
+        for (size_t i = 0; i < textures.size(); i++) {
+            auto &texture = this->textures[i];
+            texture->bind(static_cast<GLenum>(GL_TEXTURE0 + i));
+            shader->setUniform(texture_name_vec[i], (GLint) i);
+        }
+    } else {
+        glEnable(GL_CULL_FACE);
+        glCullFace(GL_FRONT);
     }
-
     glBindVertexArray(VAO);
 
     // Byte offset is 0 which differs from buffer view byte offset -> wtf?
@@ -310,6 +314,7 @@ void Model3DObject::drawMesh(const tinygltf::Mesh &mesh, GLuint &VAO, GLenum &mo
         );
 
     glBindVertexArray(0);
+    glCullFace(GL_BACK);
 }
 
 void Model3DObject::setOrigin(const glm::vec3 &vec) {

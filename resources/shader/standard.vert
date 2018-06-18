@@ -21,4 +21,5 @@ void main() {
    vs_out.FragPos    = vec3(model * vec4(position, 1.0));
    vs_out.texcoord_0 = texcoord_0;
    vs_out.normal_0   = mat3(nModel) * normal;
+
 }
