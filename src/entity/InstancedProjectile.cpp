@@ -76,10 +76,10 @@ void InstancedProjectile::Projectile::collideWith(BulletObject* UNUSED(other)) {
 }
 
 InstancedProjectile::InstancedProjectile(float bsRadius, const std::shared_ptr<tinygltf::Model> &model,
-                                         const std::shared_ptr<Shader> &shader, const btVector3 &bulletShape,
+                                         const std::vector<std::shared_ptr<Shader>> &shaders, const btVector3 &bulletShape,
                                          const btScalar &mass, std::shared_ptr<BulletUniverse> &world,
                                          const LuaScriptedParticleSystem *ps)
-        : Model3DObject(glm::vec3(0,0,0), bsRadius, model, shader, INST_PREALLOC),
+        : Model3DObject(glm::vec3(0,0,0), bsRadius, model, shaders, INST_PREALLOC),
           world(world), ps(ps), collisionBox(bulletShape), mass(mass) {
     this->projectiles.reserve(INST_PREALLOC);
     this->clearInstances();

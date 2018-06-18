@@ -18,11 +18,11 @@ private:
     const std::shared_ptr<CubemapTexture> cubemap;
 
 public:
-    Skybox(const std::shared_ptr<CubemapTexture> &cubemap, const std::shared_ptr<Shader> &shader);
+    Skybox(const std::shared_ptr<CubemapTexture> &cubemap, const std::vector<std::shared_ptr<Shader>> &shader);
 
     void render(Scene *scene) override;
 
-    void draw() override;
+    void draw(std::shared_ptr<Shader> &shader) override;
 };
 
 

@@ -141,7 +141,8 @@ public:
                 bsRadius(bsRadius) {}
 
     std::shared_ptr<Model3DObject> toModel() const {
-        auto ret = std::make_shared<Model3DObject>(position.vec3, bsRadius, ModelManager::load(model), ShaderManager::load(shader), 0);
+
+        auto ret = std::make_shared<Model3DObject>(position.vec3, bsRadius, ModelManager::load(model), std::vector<std::shared_ptr<Shader>> {ShaderManager::load(shader)}, 0);
         ret->setRotation(rotation.toGlmQuat());
         ret->updateModelMatrix();
 
@@ -221,7 +222,7 @@ public:
 
     std::shared_ptr<ScriptedParticleSystem> toParticleSystem(const glm::vec3 &position, unsigned int particles, bool generate = false) const {
         auto tmp = std::make_shared<ScriptedParticleSystem>(
-                position, bsRadius, ShaderManager::load(shader, true), TextureManager::load(texture),
+                position, bsRadius, std::vector<std::shared_ptr<Shader>> { ShaderManager::load(shader, true)}, TextureManager::load(texture),
                 particles, env
 
         );
@@ -251,7 +252,7 @@ public:
 
     std::shared_ptr<InstancedProjectile> toProjectile(std::shared_ptr<BulletUniverse> &world) const {
         return std::make_shared<InstancedProjectile>(
-                radius, ModelManager::load(model), ShaderManager::load(shader), hitbox.toVector3(), mass,
+                radius, ModelManager::load(model), std::vector<std::shared_ptr<Shader>> {ShaderManager::load(shader)}, hitbox.toVector3(), mass,
                 world, &ps
         );
     }
@@ -303,7 +304,7 @@ public:
 
     std::shared_ptr<ScriptedObject> toScriptedObject(const std::shared_ptr<BulletUniverse> &world) const {
         auto ret = std::make_shared<ScriptedObject>(position.vec3, rotation.toGlmQuat(), bullet.generateShape(), mass, bsRadius,
-                                                    ModelManager::load(model), ShaderManager::load(shader), instances,
+                                                    ModelManager::load(model), std::vector<std::shared_ptr<Shader>> {ShaderManager::load(shader)}, instances,
                                                     env, world
         );
 

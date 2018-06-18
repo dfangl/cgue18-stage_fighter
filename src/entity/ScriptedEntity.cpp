@@ -17,7 +17,7 @@ ScriptedEntity::ScriptedEntity(const std::string &name, int health, const btVect
                                const std::string &model, float mass, glm::vec3 collisionOffset, btCollisionShape *hitbox,
                                const std::shared_ptr<BulletUniverse> &world, kaguya::LuaTable scriptEnv)
         : AbstractScriptedObject(scriptEnv, false), BulletObject(pos, rot, hitbox, mass),
-          Model3DObject(glm::vec3(pos.x(),pos.y(),pos.z()), bsRadius, ModelManager::load(model), ShaderManager::load("standard")) {
+          Model3DObject(glm::vec3(pos.x(),pos.y(),pos.z()), bsRadius, ModelManager::load(model), std::vector<std::shared_ptr<Shader>> {ShaderManager::load("standard")}) {
 
     this->world = world;
     this->collisionOffset = collisionOffset;

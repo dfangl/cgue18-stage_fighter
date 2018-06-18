@@ -49,7 +49,7 @@ public:
 
     int getDebugMode() const override;
 
-    void draw() override;
+    void draw(std::shared_ptr<Shader> &shader) override;
 
 };
 

@@ -40,7 +40,7 @@ class Object3D : virtual public Object3DAbstract {
 
 protected:
     GLuint VBO = 0, VAO = 0;//, EBO = 0;
-    std::shared_ptr<Shader> shader;
+    std::vector<std::shared_ptr<Shader>> shaders;
 
     glm::vec3 position;
     glm::mat4 model = glm::mat4(1.0f);
@@ -48,7 +48,7 @@ protected:
     float boundingSphereRadius;
 
 public:
-    explicit Object3D(const glm::vec3 &position, float boundingSphereRadius, const std::shared_ptr<Shader> &shader);
+    explicit Object3D(const glm::vec3 &position, float boundingSphereRadius, const std::vector<std::shared_ptr<Shader>> &shader);
 
     /**
      * This function does apply all the matries to the shader
@@ -59,7 +59,7 @@ public:
     /**
      * This function should implement the drawing logic of the Object
      */
-    virtual void draw() = 0;
+    virtual void draw(std::shared_ptr<Shader> &shader) = 0;
 
     virtual void rotate(float angle, const glm::vec3 &vec);
     virtual void rotate(const glm::quat &quat);

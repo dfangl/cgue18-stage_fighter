@@ -1,6 +1,6 @@
 #version 430 core
 
-#define CEL_LIGHT_LEVELS 2
+#define CEL_LIGHT_LEVELS 5
 #define MAX_LIGHTS 30
 
 struct Material {
@@ -62,20 +62,24 @@ void main() {
         float spec  = pow( rDotV, 32);          // TODO: How to get this from a PBR Shader Model?
 
         // Cel stuff:
-        //float level = floor(sDotN * CEL_LIGHT_LEVELS);
-        //float celBrightness = level / CEL_LIGHT_LEVELS;
+        float level = floor(sDotN * CEL_LIGHT_LEVELS);
+        float celBrightness = level / CEL_LIGHT_LEVELS;
 
-        // Calculate acctual light values from diffuse / specular maps
+
+
+        // Calculate actual light values from diffuse / specular maps
         vec3 diffuseLight  = light[i].diffuse  * light[i].power / lDist;
         vec3 specularLight = light[i].specular * light[i].power / lDist;
 
         ambient  += light[i].ambient * vec3(texture(texture_0, fs_in.texcoord_0));
-        diffuse  += diffuseLight  * vec3(texture(texture_0, fs_in.texcoord_0)) * sDotN;// * celBrightness;
-        specular += specularLight * vec3(texture(texture_0, fs_in.texcoord_0)) * spec ;// * celBrightness;
+        diffuse  += diffuseLight  * vec3(texture(texture_0, fs_in.texcoord_0)) * sDotN * celBrightness;
+        specular += specularLight * vec3(texture(texture_0, fs_in.texcoord_0)) * spec  * celBrightness;
     }
 
 
     vec3 color = ambient + diffuse + specular;
+
+    //color = ceil(color * CEL_LIGHT_LEVELS)/ CEL_LIGHT_LEVELS;
 
     // Apply lightmap only if sampler is a valid texture
     if (texture_count > 1)

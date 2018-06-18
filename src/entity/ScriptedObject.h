@@ -31,7 +31,7 @@ private:
 
 public:
     ScriptedObject(const glm::vec3 &pos, const glm::quat &rotation, btCollisionShape *, btScalar mass,
-                   float bsRadius, const std::shared_ptr<tinygltf::Model> &model, const std::shared_ptr<Shader> &shader,
+                   float bsRadius, const std::shared_ptr<tinygltf::Model> &model, const std::vector<std::shared_ptr<Shader>> &shader,
                    int instances, kaguya::LuaTable env, const std::shared_ptr<BulletUniverse> &world);
     ~ScriptedObject();
 

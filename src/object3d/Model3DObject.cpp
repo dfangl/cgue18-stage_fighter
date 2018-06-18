@@ -22,8 +22,8 @@ static std::string texture_name_vec[] = {
 };
 
 Model3DObject::Model3DObject(const glm::vec3 &position, float bsRadius,const std::shared_ptr<tinygltf::Model> &model,
-                             const std::shared_ptr<Shader> &shader, int instances)
-    : Object3D(position, bsRadius, shader) {
+                             const std::vector<std::shared_ptr<Shader>> &shaders, int instances)
+    : Object3D(position, bsRadius, shaders) {
     this->instances = instances;
     this->gltfModel = model;
 
@@ -31,7 +31,7 @@ Model3DObject::Model3DObject(const glm::vec3 &position, float bsRadius,const std
     for (auto &bufferView : model->bufferViews) {
         tinygltf::Buffer &buffer = model->buffers[bufferView.buffer];
 
-        if(bufferView.target == 0) {
+        if (bufferView.target == 0) {
             logger->warn("bufferView.target is 0, skipping entry");
             continue;
         }
@@ -99,12 +99,21 @@ Model3DObject::Model3DObject(const glm::vec3 &position, float bsRadius,const std
         const tinygltf::Accessor &accessor = gltfModel->accessors[attribute.second];
 
         size_t size;
-        switch(accessor.type) {
-            case TINYGLTF_TYPE_SCALAR: size = 1; break;
-            case TINYGLTF_TYPE_VEC2  : size = 2; break;
-            case TINYGLTF_TYPE_VEC3  : size = 3; break;
-            case TINYGLTF_TYPE_VEC4  : size = 4; break;
-            default: throw std::runtime_error("Unknown accessor type!");
+        switch (accessor.type) {
+            case TINYGLTF_TYPE_SCALAR:
+                size = 1;
+                break;
+            case TINYGLTF_TYPE_VEC2  :
+                size = 2;
+                break;
+            case TINYGLTF_TYPE_VEC3  :
+                size = 3;
+                break;
+            case TINYGLTF_TYPE_VEC4  :
+                size = 4;
+                break;
+            default:
+                throw std::runtime_error("Unknown accessor type!");
         }
 
         // Some of these attributes are read from gltf
@@ -114,14 +123,16 @@ Model3DObject::Model3DObject(const glm::vec3 &position, float bsRadius,const std
 
         auto byteStride = accessor.ByteStride(gltfModel->bufferViews[accessor.bufferView]);
         glBindBuffer(GL_ARRAY_BUFFER, this->vbos[accessor.bufferView]);
-        this->shader->setVertexAttributePointer(attrName,
-                                                static_cast<GLuint>(size),
-                                                static_cast<GLenum>(accessor.componentType),
-                                                static_cast<GLboolean>(accessor.normalized ? GL_TRUE : GL_FALSE),
-                                                byteStride,
-                                                BUFFER_OFFSET(char, accessor.byteOffset));
-        if (instances > 0 )
-            this->shader->setVertexAttribDivisor(attrName, 0);
+        for (const auto &shader : shaders) {
+            shader->setVertexAttributePointer(attrName,
+                                              static_cast<GLuint>(size),
+                                              static_cast<GLenum>(accessor.componentType),
+                                              static_cast<GLboolean>(accessor.normalized ? GL_TRUE : GL_FALSE),
+                                              byteStride,
+                                              BUFFER_OFFSET(char, accessor.byteOffset));
+            if (instances > 0)
+                shader->setVertexAttribDivisor(attrName, 0);
+        }
     }
 
     // Bind EBO (indices) to the VAO
@@ -129,43 +140,66 @@ Model3DObject::Model3DObject(const glm::vec3 &position, float bsRadius,const std
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->vbos[indexAccess.bufferView]);
 
     GLenum mode;
-    switch(primitive.mode) {
-        case TINYGLTF_MODE_TRIANGLES        : mode = GL_TRIANGLES;      break;
-        case TINYGLTF_MODE_TRIANGLE_STRIP   : mode = GL_TRIANGLE_STRIP; break;
-        case TINYGLTF_MODE_TRIANGLE_FAN     : mode = GL_TRIANGLE_FAN;   break;
-        case TINYGLTF_MODE_POINTS           : mode = GL_POINTS;         break;
-        case TINYGLTF_MODE_LINE             : mode = GL_LINE;           break;
-        case TINYGLTF_MODE_LINE_LOOP        : mode = GL_LINE_LOOP;      break;
-        default: throw std::runtime_error("Unknown primitive mode!");
+    switch (primitive.mode) {
+        case TINYGLTF_MODE_TRIANGLES        :
+            mode = GL_TRIANGLES;
+            break;
+        case TINYGLTF_MODE_TRIANGLE_STRIP   :
+            mode = GL_TRIANGLE_STRIP;
+            break;
+        case TINYGLTF_MODE_TRIANGLE_FAN     :
+            mode = GL_TRIANGLE_FAN;
+            break;
+        case TINYGLTF_MODE_POINTS           :
+            mode = GL_POINTS;
+            break;
+        case TINYGLTF_MODE_LINE             :
+            mode = GL_LINE;
+            break;
+        case TINYGLTF_MODE_LINE_LOOP        :
+            mode = GL_LINE_LOOP;
+            break;
+        default:
+            throw std::runtime_error("Unknown primitive mode!");
     }
 
     meshDrawMode = mode;
     // Only to the following part if instances are used, otherwise these values will be set per uniform
     if (instances > 0) {
-        const auto mLoc = shader->getAttribLocation("model");
-        if (mLoc == -1)
-            throw std::runtime_error("Unable to set instanced VAO attributes (sure that is the right shader?)");
+        for (const auto &shader : shaders) {
+            const auto mLoc = shader->getAttribLocation("model");
+            if (mLoc == -1)
+                throw std::runtime_error("Unable to set instanced VAO attributes (sure that is the right shader?)");
 
-        glBindBuffer(GL_ARRAY_BUFFER, modelMatrixInstanceVBO);
-        shader->setVertexAttributePointer(mLoc + 0, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(0 * sizeof(glm::vec4)));
-        shader->setVertexAttributePointer(mLoc + 1, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(1 * sizeof(glm::vec4)));
-        shader->setVertexAttributePointer(mLoc + 2, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
-        shader->setVertexAttributePointer(mLoc + 3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(3 * sizeof(glm::vec4)));
-        shader->setVertexAttribDivisor(mLoc, 4, 1);
+            glBindBuffer(GL_ARRAY_BUFFER, modelMatrixInstanceVBO);
+            shader->setVertexAttributePointer(mLoc + 0, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4),
+                                              (void *) (0 * sizeof(glm::vec4)));
+            shader->setVertexAttributePointer(mLoc + 1, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4),
+                                              (void *) (1 * sizeof(glm::vec4)));
+            shader->setVertexAttributePointer(mLoc + 2, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4),
+                                              (void *) (2 * sizeof(glm::vec4)));
+            shader->setVertexAttributePointer(mLoc + 3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4),
+                                              (void *) (3 * sizeof(glm::vec4)));
+            shader->setVertexAttribDivisor(mLoc, 4, 1);
 
-        const auto nLoc = shader->getAttribLocation("nModel");
-        if (nLoc == -1)
-            throw std::runtime_error("Unable to set instanced VAO attributes (sure that is the right shader?)");
+            const auto nLoc = shader->getAttribLocation("nModel");
+            if (nLoc == -1)
+                throw std::runtime_error("Unable to set instanced VAO attributes (sure that is the right shader?)");
 
 
-        glBindBuffer(GL_ARRAY_BUFFER, normalMatrixInstanceVBO);
-        shader->setVertexAttributePointer(nLoc + 0, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(0 * sizeof(glm::vec4)));
-        shader->setVertexAttributePointer(nLoc + 1, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(1 * sizeof(glm::vec4)));
-        shader->setVertexAttributePointer(nLoc + 2, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
-        shader->setVertexAttributePointer(nLoc + 3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(3 * sizeof(glm::vec4)));
-        shader->setVertexAttribDivisor(nLoc, 4, 1);
+            glBindBuffer(GL_ARRAY_BUFFER, normalMatrixInstanceVBO);
+            shader->setVertexAttributePointer(nLoc + 0, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4),
+                                              (void *) (0 * sizeof(glm::vec4)));
+            shader->setVertexAttributePointer(nLoc + 1, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4),
+                                              (void *) (1 * sizeof(glm::vec4)));
+            shader->setVertexAttributePointer(nLoc + 2, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4),
+                                              (void *) (2 * sizeof(glm::vec4)));
+            shader->setVertexAttributePointer(nLoc + 3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4),
+                                              (void *) (3 * sizeof(glm::vec4)));
+            shader->setVertexAttribDivisor(nLoc, 4, 1);
 
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
+            glBindBuffer(GL_ARRAY_BUFFER, 0);
+        }
     }
 
     glBindVertexArray(0);
@@ -183,7 +217,7 @@ Model3DObject::Model3DObject(const glm::vec3 &position, float bsRadius,const std
      * Note: The Shaders do not support texture less rendering, if supported delete this line:
      */
     if (textures.empty()) {
-        spdlog::get("console")->critical(".glft Model did not contain any textures, loading fallback one");
+        spdlog::get("console")->warn(".glft Model did not contain any textures, loading fallback one");
         this->textures.push_back(TextureManager::load("wall.jpg"));
     }
 }
@@ -194,7 +228,7 @@ Model3DObject::~Model3DObject() {
         glDeleteBuffers(1, &vbo);
 }
 
-void Model3DObject::draw() {
+void Model3DObject::draw(std::shared_ptr<Shader>  &shader) {
     // Re-construct the VBOs only if a instance has moved
     if (instances > 0 && recomputeInstanceBuffer) {
         // Push them to the GPU
@@ -209,10 +243,10 @@ void Model3DObject::draw() {
     }
 
     // Render all the instances with nodes to first mesh in default scene
-    this->drawNode(gltfModel->nodes[gltfNodeIndex]);
+    this->drawNode(gltfModel->nodes[gltfNodeIndex], shader);
 }
 
-void Model3DObject::drawNode(const tinygltf::Node &node) {
+void Model3DObject::drawNode(const tinygltf::Node &node, std::shared_ptr<Shader> &shader) {
     //if(node.mesh != -1) {
     auto &mesh = this->gltfModel->meshes[node.mesh];
 
@@ -223,11 +257,11 @@ void Model3DObject::drawNode(const tinygltf::Node &node) {
         shader->setUniformIfNeeded("texture_count", (int)textures.size());
     }
 
-    this->drawMesh(mesh, VAO, meshDrawMode);
+    this->drawMesh(mesh, VAO, meshDrawMode, shader);
     //}
 }
 
-void Model3DObject::drawMesh(const tinygltf::Mesh &mesh, GLuint &VAO, GLenum &mode) {
+void Model3DObject::drawMesh(const tinygltf::Mesh &mesh, GLuint &VAO, GLenum &mode, std::shared_ptr<Shader> &shader) {
     auto &primitive = mesh.primitives[0];
 
     // Process Material (is this already parsed ?):

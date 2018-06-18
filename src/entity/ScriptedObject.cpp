@@ -10,11 +10,11 @@
 #include "../Scene.h"
 
 ScriptedObject::ScriptedObject(const glm::vec3 &pos, const glm::quat &rot, btCollisionShape* bulletShape, btScalar mass,
-                               float bsRadius, const std::shared_ptr<tinygltf::Model> &model, const std::shared_ptr<Shader> &shader,
+                               float bsRadius, const std::shared_ptr<tinygltf::Model> &model, const std::vector<std::shared_ptr<Shader>> &shaders,
                                int instances, kaguya::LuaTable env, const std::shared_ptr<BulletUniverse> &world)
         : AbstractScriptedObject(env, false),
           BulletObject(btVector3(pos.x, pos.y, pos.z), btQuaternion(rot.y, rot.z, rot.w, rot.w), bulletShape, mass),
-          Model3DObject(position, bsRadius, model, shader, instances), world(world) {
+          Model3DObject(position, bsRadius, model, shaders, instances), world(world) {
     Model3DObject::setRotation(rot);
     this->updateModelMatrix();
 

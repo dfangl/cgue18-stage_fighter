@@ -6,10 +6,10 @@
 #include "../../level/LuaClassWrapper.h"
 
 ScriptedParticleSystem::ScriptedParticleSystem(const glm::vec3 &position, float radius,
-                                               const std::shared_ptr<Shader> &shader,
+                                               const std::vector<std::shared_ptr<Shader>> &shaders,
                                                const std::shared_ptr<Texture> &texture, unsigned int particles,
                                                kaguya::LuaTable scriptEnv)
-        : ParticleSystem(position, radius, shader, texture, particles) {
+        : ParticleSystem(position, radius, shaders, texture, particles) {
     this->scriptEnv = scriptEnv;
 
     this->scriptEnv["setSize"] = kaguya::function([this](float x, float y) { this->setSize(glm::vec2(x,y)); });

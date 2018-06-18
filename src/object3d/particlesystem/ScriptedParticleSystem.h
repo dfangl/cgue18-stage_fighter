@@ -17,7 +17,7 @@ protected:
     void generateParticles(unsigned int count) override;
 
 public:
-    ScriptedParticleSystem(const glm::vec3 &position, float radius, const std::shared_ptr<Shader> &shader,
+    ScriptedParticleSystem(const glm::vec3 &position, float radius, const std::vector<std::shared_ptr<Shader>> &shader,
                            const std::shared_ptr<Texture> &texture, unsigned int particles, kaguya::LuaTable scriptEnv);
 
     void init();

@@ -59,12 +59,12 @@ protected:
     void loadSSBO();
 
 public:
-    ParticleSystem(const glm::vec3 &position, float radius, std::shared_ptr<Shader> shader, std::shared_ptr<Texture> texture,
+    ParticleSystem(const glm::vec3 &position, float radius, std::vector<std::shared_ptr<Shader>> shader, std::shared_ptr<Texture> texture,
                    unsigned int particles);
     virtual ~ParticleSystem();
 
     void update(Scene *scene);
-    void draw() override;
+    void draw(std::shared_ptr<Shader> &shader) override;
     void setSize(const glm::vec2 &);
 
     void uploadSSBOtoGPU() { this->particles = static_cast<unsigned int>(data.size()); this->loadSSBO(); }

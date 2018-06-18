@@ -37,13 +37,13 @@ Player::Player(Camera &camera, Window *window, const std::shared_ptr<BulletUnive
             camera.getPosition(),
             1.0f,
             ModelManager::load("shield"),
-            ShaderManager::load("standard")
+            std::vector<std::shared_ptr<Shader>> {ShaderManager::load("standard")}
     );
     this->weaponModel = std::make_shared<Model3DObject>(
             camera.getPosition(),
             1.0f,
             ModelManager::load("Sword"),
-            ShaderManager::load("standard")
+            std::vector<std::shared_ptr<Shader>> {ShaderManager::load("standard")}
     );
 
 

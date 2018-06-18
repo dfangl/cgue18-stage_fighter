@@ -61,7 +61,7 @@ private:
     int renderPass = 0;
 
 public:
-    InstancedProjectile(float bsRadius, const std::shared_ptr<tinygltf::Model> &model, const std::shared_ptr<Shader> &shader,
+    InstancedProjectile(float bsRadius, const std::shared_ptr<tinygltf::Model> &model, const std::vector<std::shared_ptr<Shader>> &shader,
                         const btVector3 &bulletShape, const btScalar &mass, std::shared_ptr<BulletUniverse> &world,
                         const LuaScriptedParticleSystem *ps);
     ~InstancedProjectile();

@@ -15,26 +15,28 @@
 #include <iostream>
 
 void Object3D::render(Scene *scene) {
-    this->shader->use();
-    this->shader->setUniformIfNeeded("model", this->model);
-    this->shader->setUniform("view", scene->getCamera().getViewMatrix());
-    this->shader->setUniform("projection", scene->getCamera().getProjectionMatrix());
+    for (auto &shader : shaders) {
+        shader->use();
+        shader->setUniformIfNeeded("model", this->model);
+        shader->setUniform("view", scene->getCamera().getViewMatrix());
+        shader->setUniform("projection", scene->getCamera().getProjectionMatrix());
 
-    this->shader->setUniformIfNeeded("camera_position", scene->getCamera().getPosition());
-    this->shader->setUniformIfNeeded("screenGamma", scene->gamma);
+        shader->setUniformIfNeeded("camera_position", scene->getCamera().getPosition());
+        shader->setUniformIfNeeded("screenGamma", scene->gamma);
 
-    const auto lightsPos = shader->getLocation("lights");
-    if (lightsPos >= 0) {
-        this->shader->setUniform("lights", (int)scene->getLights().size());
-        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, scene->getLightVBO());
+        const auto lightsPos = shader->getLocation("lights");
+        if (lightsPos >= 0) {
+            shader->setUniform("lights", (int) scene->getLights().size());
+            glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, scene->getLightVBO());
+        }
+
+        this->draw(shader);
+        glUseProgram(0);
     }
-
-    this->draw();
-    glUseProgram(0);
 }
 
-Object3D::Object3D(const glm::vec3 &position, float boundingSphereRadius, const std::shared_ptr<Shader> &shader) {
-    this->shader = shader;
+Object3D::Object3D(const glm::vec3 &position, float boundingSphereRadius, const std::vector<std::shared_ptr<Shader>> &shader) {
+    this->shaders = shader;
     this->boundingSphereRadius = boundingSphereRadius;
 
     setOrigin(position);

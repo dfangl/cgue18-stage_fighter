@@ -75,8 +75,8 @@ private:
     void prepareModelMatrices();
     void prepareModelMatrices(const unsigned long pos);
 
-    void drawNode(const tinygltf::Node &node);
-    void drawMesh(const tinygltf::Mesh &mesh, GLuint &VAO, GLenum &mode);
+    void drawNode(const tinygltf::Node &node, std::shared_ptr<Shader> &shader);
+    void drawMesh(const tinygltf::Mesh &mesh, GLuint &VAO, GLenum &mode, std::shared_ptr<Shader> &shader);
 
     glm::mat4 getNodeMatrix();
 
@@ -91,12 +91,12 @@ public:
      * @param instances 0 = no instances, >0 instances are used
      */
     Model3DObject(const glm::vec3 &position, float bsRadius, const std::shared_ptr<tinygltf::Model> &model,
-                  const std::shared_ptr<Shader> &shader, int instances = 0);
+                  const std::vector<std::shared_ptr<Shader>> &shader, int instances = 0);
     ~Model3DObject();
 
     std::vector<std::shared_ptr<Texture>> &getTextures() { return this->textures; }
 
-    void draw() override;
+    void draw(std::shared_ptr<Shader> &shader) override;
 
     // Instancing not fully implemented !
     unsigned int addInstance(const glm::vec3 &vec, const glm::quat &rot);

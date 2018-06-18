@@ -108,7 +108,7 @@ Level::Level(const std::string &file) : Logger("Level"), world(std::make_shared<
     state.dofile(file);
 
     auto skyboxTex = std::make_shared<CubemapTexture>(state["skybox"]["file"], state["skybox"]["ext"]);
-    this->skybox = std::make_shared<Skybox>(skyboxTex, ShaderManager::load("skybox"));
+    this->skybox = std::make_shared<Skybox>(skyboxTex, std::vector<std::shared_ptr<Shader>> {ShaderManager::load("skybox")});
 
     // Display how long it took to load / parse all the LUA files
     auto curTick = std::chrono::high_resolution_clock::now();

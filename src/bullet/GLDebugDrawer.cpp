@@ -6,7 +6,7 @@
 
 #include <glad/glad.h>
 
-GLDebugDrawer::GLDebugDrawer() : Logger("Bullet"), Object3D(glm::vec3(0,0,0), 0.0f, ShaderManager::load("bulletdebug")) {
+GLDebugDrawer::GLDebugDrawer() : Logger("Bullet"), Object3D(glm::vec3(0,0,0), 0.0f, std::vector<std::shared_ptr<Shader>> { ShaderManager::load("bulletdebug") }) {
     this->debugMode = btIDebugDraw::DBG_NoDebug;
 
     // Reserve some memory>
@@ -50,7 +50,7 @@ GLDebugDrawer::~GLDebugDrawer() {
     glDeleteBuffers(1, &VBO);
 }
 
-void GLDebugDrawer::draw() {
+void GLDebugDrawer::draw(std::shared_ptr<Shader> &shader) {
     //TODO: Shader ???
 
     glDisable(GL_CULL_FACE);

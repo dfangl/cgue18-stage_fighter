@@ -12,9 +12,9 @@
 
 #include "../helper/CompilerMacros.h"
 
-ParticleSystem::ParticleSystem(const glm::vec3 &position, float radius, std::shared_ptr<Shader> shader,
+ParticleSystem::ParticleSystem(const glm::vec3 &position, float radius, std::vector<std::shared_ptr<Shader>> shaders,
                                std::shared_ptr<Texture> texture, unsigned int count) :
-    Object3D(position, radius, shader) {
+    Object3D(position, radius, shaders) {
 
     // TODO: move to constructor or let child initialize
     this->compute = ShaderManager::loadCompute("particlesystem-compute");
@@ -37,10 +37,11 @@ ParticleSystem::ParticleSystem(const glm::vec3 &position, float radius, std::sha
     glEnableVertexAttribArray(1);
 
     glBindVertexArray(0);
-
-    shader->use();
-    shader->setUniform("texture_0", 0);
-    glUseProgram(0);
+    for (auto &shader : shaders) {
+        shader->use();
+        shader->setUniform("texture_0", 0);
+        glUseProgram(0);
+    }
 }
 
 ParticleSystem::~ParticleSystem() {
@@ -102,7 +103,7 @@ void ParticleSystem::update(Scene *scene) {
     glMemoryBarrier(GL_VERTEX_ATTRIB_ARRAY_BARRIER_BIT);
 }
 
-void ParticleSystem::draw() {
+void ParticleSystem::draw(std::shared_ptr<Shader> &shader) {
     glDisable(GL_CULL_FACE);
     glEnable(GL_BLEND);
     glDepthMask(GL_FALSE);
