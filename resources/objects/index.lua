@@ -23,6 +23,7 @@ dofile(root.."tutorial-ground.lua")
 dofile(root.."house_1.lua")
 dofile(root.."house_2.lua")
 dofile(root.."house_3.lua")
+dofile(root.."fence.lua")
 
 -- load all particle systems
 dofile(root.."rocket-smoke.lua")

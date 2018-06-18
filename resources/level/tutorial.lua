@@ -27,6 +27,11 @@ objects = {
     statics.house_2(vec3(-64.1813,0,34.3156), vec4(0,0.818018,0,0.575193)),
     statics.coliseum(vec3(181.036,40.5924,-15.9153), vec4(0,-0.073578,0,-0.073578)),
 
+    statics.fence(vec3(-34.4248,0,43.0125), vec4(0,-0.510005,0,0.860171)),
+    statics.fence(vec3(-32.0085,0,44.677 ), vec4(0, 0.113551,0,0.993532)),
+    statics.fence(vec3(-26.8121,0,35.942 ), vec4(0, 0.54663,0,0.837375)),
+
+
     -- make a question mark or so ...
     StaticObject("question_mark", {"standard"}, vec3(-50.1786, 1, 45.2672),  0.2, vec4(0,0,0,1), { BoxShape(vec3(0,0,0), vec4(0,0,0,1), 0, vec3(0.1/2, 0.1/2, 0.1/2)) }),
     -- make a test ball for cel shading
@@ -35,6 +40,7 @@ objects = {
 }
 
 scriptedObjects = {}
+
 particlesystem = {
     { position=vec3(-65.8838,5,71.5784), number=45, particle=particles.explosion },
     { position=vec3(-64.1813,5,34.3156), number=45, particle=particles.explosion },
