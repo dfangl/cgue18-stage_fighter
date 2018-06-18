@@ -1,5 +1,5 @@
 #version 430 core
-uniform float visibility;
+uniform float visibility = 1.0f;
 uniform sampler2D Texture;
 uniform float screenGamma = 1.0f;
 
@@ -11,5 +11,9 @@ void main() {
         discard;
     }
 
-    FragColor = pow(texture(Texture, texcoord), vec4(1.0/screenGamma));
+    vec4 color = texture(Texture, texcoord);
+    color.a    = color.a * visibility;
+    color.rgb  = pow(color.rgb, vec3(1.0/screenGamma));
+
+    FragColor = color;
 }

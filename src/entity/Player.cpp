@@ -18,7 +18,9 @@
 Player::Player(Camera &camera, Window *window, const std::shared_ptr<BulletUniverse> &world) :
         CameraEntity(camera, world, new btSphereShape(0.7f), 1.0f),
         Logger("Player"),
-        hud(std::make_shared<PlayerHud>(FontManager::get("Lato-24"), camera.getViewPort().z, camera.getViewPort().w))
+        hud(std::make_shared<PlayerHud>(FontManager::get("Lato-24"), camera.getViewPort().z, camera.getViewPort().w)),
+        weaponHurtBox(btVector3(0,0,0), btQuaternion(0,0,0,1), new btSphereShape(0.8f), 0),
+        weaponHitCallback(this, weaponHurtBox.getRigidBody())
         {
 
     this->window = window;
@@ -96,11 +98,17 @@ void Player::think(std::chrono::duration<double, std::milli> delta) {
     const glm::quat rot = glm::quat(-glm::cos(angle/2.0f), 0, glm::sin(angle/2.0f), 0);
     //const glm::vec3 sPos = glm::vec3(camera.getPosition().x, camera.getPosition().y - 0.13f, camera.getPosition().z);
 
-    // Todo play the animation every time mouse was pressed and not while mouse is pressed
-    if (window->getMouseButton(GLFW_MOUSE_BUTTON_LEFT)) {
-        weaponAngle = std::min(65.0f, weaponAngle + (float)delta.count() / 3.2f);
-    } else {
+    auto leftMButton = window->getMouseButton(GLFW_MOUSE_BUTTON_LEFT);
+    if (leftMButton == GLFW_PRESS) {
+        weaponAngle = std::min(65.0f, weaponAngle + (float)delta.count() / 2.6f);
+        if (!isHitting && weaponAngle < 20.0f) {
+            isHitting = true;
+        }
+    } else if (leftMButton == GLFW_RELEASE || revertHitAnimation){
         weaponAngle = std::max(-24.0f, weaponAngle - (float)delta.count() / 1.2f);
+        if (weaponAngle > 20.0f)
+            isHitting = false;
+
     }
 
     const float wSwingAngle = glm::radians(weaponAngle);
@@ -114,6 +122,14 @@ void Player::think(std::chrono::duration<double, std::milli> delta) {
 
     //this->shieldModel->applyAnimation(static_cast<float>(delta.count() / 5000.0f));
 
+    if (isHitting) {
+        const auto hurtBoxOffset = camera.getFront() * (0.8f + 0.7f);
+        const auto hurtBoxPositon = camera.getPosition() + hurtBoxOffset;
+        weaponHurtBox.setOrigin(btVector3(hurtBoxPositon.x, hurtBoxPositon.y, hurtBoxPositon.z), btQuaternion(0,0,0,1));
+        world->contactTest(weaponHurtBox.getRigidBody(), weaponHitCallback);
+    }
+
+    hud->hitEnemyVisibility = std::max(0.0f, hud->hitEnemyVisibility - (float)delta.count() / 750.0f);
     hud->setHealth(health);
     hud->setShield(shield);
 }
@@ -153,25 +169,7 @@ void Player::computeEnemyInView(std::vector<std::shared_ptr<Entity>> &entities) 
     }
 }
 
-void Player::collideWith(BulletObject *other) {
-
-    switch (other->getKind()) {
-        case BULLET: if (!this->isBlocking) this->health = std::max(0, health - 1); break;
-        case ENEMY:
-            if (window->getMouseButton(GLFW_MOUSE_BUTTON_LEFT)) {
-                logger->info("Hit with Enemy ({})!", (void*)other);
-
-                auto *enemy = dynamic_cast<Entity *>(other);
-                enemy->receiveDamage(1);
-            }
-            break;
-        case PLAYER:break;
-        case ENVIRONMENT:break;
-        case WEAPON:break;
-        case PLATFORM:break;
-    }
-
-}
+void Player::collideWith(BulletObject *other) { }
 
 BulletObject::Kind Player::getEntityKind() {
     return BulletObject::PLAYER;

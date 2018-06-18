@@ -12,7 +12,7 @@ dofile("../resources/ai/index.lua")
 
 -- Set Player properties:
 player = {
-    position = vec3(-58.7911, 1, 55.9402),
+    position = vec3(-5, 1, 1),--vec3(-58.7911, 1, 55.9402),
     lookAt   = vec3(-24.7897,-42.5088,1.65117),
     speed    = 5.5
 }
@@ -39,7 +39,7 @@ particlesystem = {
 }
 
 entities = {
-    dynamics.turret("Broken turret", 3,  vec3(5,5,5), vec4(0.707107/2,0.707107/2,0,0.707107), behavior.doNothing())
+    dynamics.turret("Broken turret", 300,  vec3(5,5,5), vec4(0.707107/2,0.707107/2,0,0.707107), behavior.doNothing())
 }
 
 triggers = {

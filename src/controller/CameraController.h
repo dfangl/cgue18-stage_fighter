@@ -28,13 +28,13 @@ private:
     float jump = 0.0f;
     bool enabled = true;
 
-    std::shared_ptr<BulletUniverse> world;
     std::function<void(Window const *)> keyboardCallback;
 
     static btVector3 bulletMovementVector;
 
 protected:
     Camera &camera;
+    std::shared_ptr<BulletUniverse> world;
 
     bool canJump = false;
     glm::mat4 modelMatrix;

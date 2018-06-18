@@ -7,12 +7,12 @@
 #include "../manager/TextureManager.h"
 
 PlayerHud::PlayerHud(std::shared_ptr<Font> font, float width, float height) :
-    font(font), hudShader(ShaderManager::load("hud")),
+    font(font), hudShader(ShaderManager::load("hud")), texture(TextureManager::load("HUD.png")),
+    eNameLabel(std::string(""), font, 1.0f, 1.0f, 1.0f, glm::vec3(1.0f, 1.0f, 1.0f)),
     hProgress(std::string(""), font, 1.0f, 1.0f, 1.0f, glm::vec3(1.0f, 1.0f, 1.0f)),
     sProgress(std::string(""), font, 1.0f, 1.0f, 1.0f, glm::vec3(1.0f, 1.0f, 1.0f)),
-    eNameLabel(std::string(""), font, 1.0f, 1.0f, 1.0f, glm::vec3(1.0f, 1.0f, 1.0f)),
     eHealth(std::string(""), font, 1.0f, 1.0f, 1.0f, glm::vec3(1.0f, 1.0f, 1.0f)),
-    height(height), width(width), texture(TextureManager::load("HUD.png")) {
+    height(height), width(width) {
 
     // create a valid data pointer
     hudVertices.reserve(36);
@@ -92,8 +92,13 @@ void PlayerHud::render(const glm::mat4 &projection, float screenGamma) {
     glBindVertexArray(hudVAO);
 
     if (this->showCrosshair) {
-        if (this->showEnemy) glDrawArrays(GL_TRIANGLES, 6, 6);
-        else                 glDrawArrays(GL_TRIANGLES, 0, 6);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+
+        if (this->showEnemy) {
+            hudShader->setUniform("visibility", hitEnemyVisibility);
+            glDrawArrays(GL_TRIANGLES, 6, 6);
+            hudShader->setUniform("visibility", 1.0f);
+        }
     }
 
     // Draw Health & Shield bar:
