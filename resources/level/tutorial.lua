@@ -28,9 +28,9 @@ objects = {
     statics.coliseum(vec3(181.036,40.5924,-15.9153), vec4(0,-0.073578,0,-0.073578)),
 
     -- make a question mark or so ...
-    StaticObject("question_mark", {"standard", "outlines"}, vec3(-50.1786, 1, 45.2672),  0.2, vec4(0,0,0,1), { BoxShape(vec3(0,0,0), vec4(0,0,0,1), 0, vec3(0.1/2, 0.1/2, 0.1/2)) }),
+    StaticObject("question_mark", {"outlines", "standard"}, vec3(-50.1786, 1, 45.2672),  0.2, vec4(0,0,0,1), { BoxShape(vec3(0,0,0), vec4(0,0,0,1), 0, vec3(0.1/2, 0.1/2, 0.1/2)) }),
     -- make a test ball for cel shading
-    StaticObject("ball", {"standard", "outlines"}, vec3(-55.1786, 1, 45.2672),  0.2, vec4(0,0,0,1), { BoxShape(vec3(-55.1786, 2.14664, 45.2672), vec4(0,0,0,1), 0, vec3(0.576059/2, 2.14664/2, 1.96413/2)) }),
+    StaticObject("ball", {"outlines", "standard"}, vec3(-55.1786, 1, 45.2672),  0.2, vec4(0,0,0,1), { BoxShape(vec3(-55.1786, 2.14664, 45.2672), vec4(0,0,0,1), 0, vec3(0.576059/2, 2.14664/2, 1.96413/2)) } ),
 
 }
 
