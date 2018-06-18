@@ -77,8 +77,6 @@ Model3DObject::Model3DObject(const glm::vec3 &position, float bsRadius,const std
 
     this->gltfNodeIndex = nodeID;
 
-    // Generate VAO and instanced VBO for the mesh
-    glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &modelMatrixInstanceVBO);
     glGenBuffers(1, &normalMatrixInstanceVBO);
 
@@ -91,82 +89,84 @@ Model3DObject::Model3DObject(const glm::vec3 &position, float bsRadius,const std
 
     if (mesh.primitives.size() > 1)
         throw std::runtime_error("Mesh with multiple primitives is not supported!");
+    for (auto &shader : shaders) {
+        GLuint VAO;
+        // Generate VAO and instanced VBO for the mesh
+        glGenVertexArrays(1, &VAO);
+        glBindVertexArray(VAO);
 
-    glBindVertexArray(VAO);
+        // Prepare attributes
+        for (auto &attribute : primitive.attributes) {
+            const tinygltf::Accessor &accessor = gltfModel->accessors[attribute.second];
 
-    // Prepare attributes
-    for (auto &attribute : primitive.attributes) {
-        const tinygltf::Accessor &accessor = gltfModel->accessors[attribute.second];
+            size_t size;
+            switch (accessor.type) {
+                case TINYGLTF_TYPE_SCALAR:
+                    size = 1;
+                    break;
+                case TINYGLTF_TYPE_VEC2  :
+                    size = 2;
+                    break;
+                case TINYGLTF_TYPE_VEC3  :
+                    size = 3;
+                    break;
+                case TINYGLTF_TYPE_VEC4  :
+                    size = 4;
+                    break;
+                default:
+                    throw std::runtime_error("Unknown accessor type!");
+            }
 
-        size_t size;
-        switch (accessor.type) {
-            case TINYGLTF_TYPE_SCALAR:
-                size = 1;
+            // Some of these attributes are read from gltf
+            /*      JOINTS_0, NORMAL, POSITION, TEXCOORD_0, WEIGHTS_0 */
+            std::string attrName = attribute.first;
+            std::transform(attrName.begin(), attrName.end(), attrName.begin(), ::tolower);
+
+            auto byteStride = accessor.ByteStride(gltfModel->bufferViews[accessor.bufferView]);
+            glBindBuffer(GL_ARRAY_BUFFER, this->vbos[accessor.bufferView]);
+            for (const auto &shader : shaders) {
+                shader->setVertexAttributePointer(attrName,
+                                                  static_cast<GLuint>(size),
+                                                  static_cast<GLenum>(accessor.componentType),
+                                                  static_cast<GLboolean>(accessor.normalized ? GL_TRUE : GL_FALSE),
+                                                  byteStride,
+                                                  BUFFER_OFFSET(char, accessor.byteOffset));
+                if (instances > 0)
+                    shader->setVertexAttribDivisor(attrName, 0);
+            }
+        }
+
+        // Bind EBO (indices) to the VAO
+        const tinygltf::Accessor &indexAccess = gltfModel->accessors[primitive.indices];
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->vbos[indexAccess.bufferView]);
+
+        GLenum mode;
+        switch (primitive.mode) {
+            case TINYGLTF_MODE_TRIANGLES        :
+                mode = GL_TRIANGLES;
                 break;
-            case TINYGLTF_TYPE_VEC2  :
-                size = 2;
+            case TINYGLTF_MODE_TRIANGLE_STRIP   :
+                mode = GL_TRIANGLE_STRIP;
                 break;
-            case TINYGLTF_TYPE_VEC3  :
-                size = 3;
+            case TINYGLTF_MODE_TRIANGLE_FAN     :
+                mode = GL_TRIANGLE_FAN;
                 break;
-            case TINYGLTF_TYPE_VEC4  :
-                size = 4;
+            case TINYGLTF_MODE_POINTS           :
+                mode = GL_POINTS;
+                break;
+            case TINYGLTF_MODE_LINE             :
+                mode = GL_LINE;
+                break;
+            case TINYGLTF_MODE_LINE_LOOP        :
+                mode = GL_LINE_LOOP;
                 break;
             default:
-                throw std::runtime_error("Unknown accessor type!");
+                throw std::runtime_error("Unknown primitive mode!");
         }
 
-        // Some of these attributes are read from gltf
-        /*      JOINTS_0, NORMAL, POSITION, TEXCOORD_0, WEIGHTS_0 */
-        std::string attrName = attribute.first;
-        std::transform(attrName.begin(), attrName.end(), attrName.begin(), ::tolower);
-
-        auto byteStride = accessor.ByteStride(gltfModel->bufferViews[accessor.bufferView]);
-        glBindBuffer(GL_ARRAY_BUFFER, this->vbos[accessor.bufferView]);
-        for (const auto &shader : shaders) {
-            shader->setVertexAttributePointer(attrName,
-                                              static_cast<GLuint>(size),
-                                              static_cast<GLenum>(accessor.componentType),
-                                              static_cast<GLboolean>(accessor.normalized ? GL_TRUE : GL_FALSE),
-                                              byteStride,
-                                              BUFFER_OFFSET(char, accessor.byteOffset));
-            if (instances > 0)
-                shader->setVertexAttribDivisor(attrName, 0);
-        }
-    }
-
-    // Bind EBO (indices) to the VAO
-    const tinygltf::Accessor &indexAccess = gltfModel->accessors[primitive.indices];
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->vbos[indexAccess.bufferView]);
-
-    GLenum mode;
-    switch (primitive.mode) {
-        case TINYGLTF_MODE_TRIANGLES        :
-            mode = GL_TRIANGLES;
-            break;
-        case TINYGLTF_MODE_TRIANGLE_STRIP   :
-            mode = GL_TRIANGLE_STRIP;
-            break;
-        case TINYGLTF_MODE_TRIANGLE_FAN     :
-            mode = GL_TRIANGLE_FAN;
-            break;
-        case TINYGLTF_MODE_POINTS           :
-            mode = GL_POINTS;
-            break;
-        case TINYGLTF_MODE_LINE             :
-            mode = GL_LINE;
-            break;
-        case TINYGLTF_MODE_LINE_LOOP        :
-            mode = GL_LINE_LOOP;
-            break;
-        default:
-            throw std::runtime_error("Unknown primitive mode!");
-    }
-
-    meshDrawMode = mode;
-    // Only to the following part if instances are used, otherwise these values will be set per uniform
-    if (instances > 0) {
-        for (const auto &shader : shaders) {
+        meshDrawMode = mode;
+        // Only to the following part if instances are used, otherwise these values will be set per uniform
+        if (instances > 0) {
             const auto mLoc = shader->getAttribLocation("model");
             if (mLoc == -1)
                 throw std::runtime_error("Unable to set instanced VAO attributes (sure that is the right shader?)");
@@ -200,9 +200,10 @@ Model3DObject::Model3DObject(const glm::vec3 &position, float bsRadius,const std
 
             glBindBuffer(GL_ARRAY_BUFFER, 0);
         }
-    }
 
-    glBindVertexArray(0);
+        glBindVertexArray(0);
+        VAOs.insert( std::pair <std::shared_ptr<Shader>, GLuint> (shader, VAO));
+    }
 
     // Prepare Static Node matrices:
     this->nodeMatrix = getNodeMatrix();
@@ -223,7 +224,9 @@ Model3DObject::Model3DObject(const glm::vec3 &position, float bsRadius,const std
 }
 
 Model3DObject::~Model3DObject() {
-    glDeleteVertexArrays(1, &VAO);
+    for (auto &value : VAOs) {
+        glDeleteVertexArrays(1, &value.second);
+    }
     for (auto &vbo : this->vbos)
         glDeleteBuffers(1, &vbo);
 }
@@ -257,13 +260,12 @@ void Model3DObject::drawNode(const tinygltf::Node &node, std::shared_ptr<Shader>
         shader->setUniformIfNeeded("texture_count", (int)textures.size());
     }
 
-    this->drawMesh(mesh, VAO, meshDrawMode, shader);
+    this->drawMesh(mesh, VAOs.find(shader)->second, meshDrawMode, shader);
     //}
 }
 
 void Model3DObject::drawMesh(const tinygltf::Mesh &mesh, GLuint &VAO, GLenum &mode, std::shared_ptr<Shader> &shader) {
     auto &primitive = mesh.primitives[0];
-    if (shader->getName() != "outlines") {
         // Process Material (is this already parsed ?):
         auto &material = this->gltfModel->materials[primitive.material];
         if (!material.values["doubleSided"].bool_value) glEnable(GL_CULL_FACE);
@@ -289,7 +291,7 @@ void Model3DObject::drawMesh(const tinygltf::Mesh &mesh, GLuint &VAO, GLenum &mo
             texture->bind(static_cast<GLenum>(GL_TEXTURE0 + i));
             shader->setUniform(texture_name_vec[i], (GLint) i);
         }
-    } else {
+    if (shader->getName() == "outlines") {
         glEnable(GL_CULL_FACE);
         glCullFace(GL_FRONT);
     }
@@ -312,9 +314,10 @@ void Model3DObject::drawMesh(const tinygltf::Mesh &mesh, GLuint &VAO, GLenum &mo
                                 BUFFER_OFFSET(char, indexAccess.byteOffset),
                                 static_cast<GLsizei>(instancedTranslation.size())
         );
-
-    glBindVertexArray(0);
     glCullFace(GL_BACK);
+    glDisable(GL_CULL_FACE);
+    glBindVertexArray(0);
+
 }
 
 void Model3DObject::setOrigin(const glm::vec3 &vec) {

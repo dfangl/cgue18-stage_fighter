@@ -54,7 +54,7 @@ private:
 
     unsigned long gltfNodeIndex;
     std::vector<GLuint> vbos;
-    GLuint VAO;
+    std::map<std::shared_ptr<Shader>, GLuint> VAOs;
     GLenum meshDrawMode;
     GLuint modelMatrixInstanceVBO;
     GLuint normalMatrixInstanceVBO;

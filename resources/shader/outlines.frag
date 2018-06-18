@@ -1,6 +1,13 @@
 #version 430 core
 
+#define CEL_LIGHT_LEVELS 3
+#define MAX_LIGHTS 30
 
+struct Material {
+    vec3 baseColor;
+    float metallic;
+    float roughness;
+};
 
 struct Light {
     vec3 position; float _padding1;
@@ -25,6 +32,7 @@ uniform int texture_count;
 uniform sampler2D texture_0;
 uniform sampler2D texture_1; // Should be valid Lightmap
 
+uniform Material material;
 
 uniform int lights;
 layout(std430, binding = 0) readonly buffer LightBuffer {
@@ -34,5 +42,5 @@ layout(std430, binding = 0) readonly buffer LightBuffer {
 uniform float screenGamma = 1.0f;
 
 void main() {
-    FragColor = vec4(0.0, 0.0, 0.0 , 1.0);
+        FragColor = vec4(0.0, 0.0, 0.0, 1.0);
 }
