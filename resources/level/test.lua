@@ -84,3 +84,14 @@ lights = {
             100.0               -- Light power
     )
 }
+
+function show()
+    music = level:play2DSound("/home/raphael/Downloads/The-Life-Aquatic_15616_audiocabin.wav", true)
+end
+
+function hide()
+    music:destroy()
+end
+
+function victory() end
+function lost() end

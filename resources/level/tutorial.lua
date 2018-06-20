@@ -102,3 +102,18 @@ lights = {
     PointLight(vec3(10,5,5), vec3(0.0,0.0,0.0), vec3(0.4,0.4,0.4), vec3(0.1,0.1,0.1), 15),
 
 }
+
+music = {}
+
+function show()
+    music = level:play2DSound(AUDIO_FILE, true)
+    music:setVolume(0.5)
+end
+
+function hide()
+    music:stop()
+    music:destroy()
+end
+
+function victory() end
+function lost() end

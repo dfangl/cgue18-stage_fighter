@@ -38,6 +38,8 @@
 #include "LuaClassWrapper.h"
 #include "../widget/TextBoxWindow.h"
 
+#include "../manager/AudioManager.h"
+
 class Light;
 class GameMenu;
 
@@ -112,6 +114,10 @@ public:
     void luaSpawnEnitity(const LuaEntity &entity, const LuaVec3 &spawn);
     void luaShowTextbox(const std::string &text);
     void luaHideTextbox();
+
+    //Somehow hacky but no time to make it better
+    LuaSound luaPlay3DSound(const std::string &file, const LuaVec3 &position, bool looped);
+    LuaSound luaPlay2DSound(const std::string &file, bool looped);
 
 };
 

@@ -40,11 +40,11 @@ public:
         return {vec3.x, vec3.y, vec3.z};
     }
 
-    double x() { return vec3.x; }
-    double y() { return vec3.y; }
-    double z() { return vec3.z; }
+    double x() const { return vec3.x; }
+    double y() const { return vec3.y; }
+    double z() const { return vec3.z; }
 
-    double distance(LuaVec3 &other) {
+    double distance(LuaVec3 &other) const {
         return glm::distance(this->vec3, other.vec3);
     }
 };
@@ -73,10 +73,10 @@ public:
         return btVector4(vec4.x, vec4.y, vec4.z, vec4.w);
     }
 
-    double x() { return vec4.x; }
-    double y() { return vec4.y; }
-    double z() { return vec4.z; }
-    double w() { return vec4.w; }
+    double x() const { return vec4.x; }
+    double y() const { return vec4.y; }
+    double z() const { return vec4.z; }
+    double w() const { return vec4.w; }
 };
 
 // *******************************
@@ -365,6 +365,5 @@ public:
     }
 
 };
-
 
 #endif //STAGE_FIGHTER_LUACLASSWRAPPER_H

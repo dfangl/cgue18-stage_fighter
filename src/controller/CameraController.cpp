@@ -4,7 +4,9 @@
 
 #include "CameraController.h"
 #include "../manager/TextureManager.h"
+#include "../manager/AudioManager.h"
 #include "../entity/ScriptedObject.h"
+#include "../GlobalGameState.h"
 #include <GLFW/glfw3.h>
 #include <glm/gtc/quaternion.hpp>
 
@@ -91,6 +93,11 @@ void CameraEntity::think(std::chrono::duration<double, std::milli> delta) {
         }
 
     }
+
+    AudioManager::audioEngine->setListenerPosition(
+            irrklang::vec3df(o.x(), o.y(), o.z()),
+            irrklang::vec3df(camera.getFront().x, camera.getFront().y, camera.getFront().z)
+    );
 
     rigidBody->setLinearVelocity(movementVector + stickyVelocity);
 }

@@ -16,6 +16,7 @@
 
 #include "../widget/GameMenu.h"
 #include "../GlobalGameState.h"
+#include "../manager/AudioManager.h"
 
 Level::Level(const std::string &file) : Logger("Level"), world(std::make_shared<BulletUniverse>(btVector3(0,-9.81f,0))) {
     winLoseLabel = std::make_shared<Label>("", FontManager::get("Metamorphous-64"), 0, 0, 1.0f, glm::vec3(1.0f, 1.0f, 1.0f));
@@ -97,12 +98,24 @@ Level::Level(const std::string &file) : Logger("Level"), world(std::make_shared<
                     .addFunction("spawnEntity", &Level::luaSpawnEnitity)
                     .addFunction("showTextbox", &Level::luaShowTextbox)
                     .addFunction("hideTextbox", &Level::luaHideTextbox)
+                    .addFunction("play3DSound", &Level::luaPlay3DSound)
+                    .addFunction("play2DSound", &Level::luaPlay2DSound)
     );
     state["level"] = this;
 
     // Register some utility stuff like noise functions:
     state["noise"] = kaguya::NewTable();
     state["noise"]["stb_perlin_ridge_noise3"] = &stb_perlin_ridge_noise3;
+
+    state["Sound"].setClass(
+            kaguya::UserdataMetatable<LuaSound>()
+                    .addFunction("stop", &LuaSound::stop)
+                    .addFunction("destroy", &LuaSound::destroy)
+                    .addFunction("setVolume", &LuaSound::setVolume)
+                    .addFunction("setPosition", &LuaSound::setPosition)
+                    .addFunction("resume", &LuaSound::resume)
+                    .addFunction("setLoop", &LuaSound::loop)
+    );
 
 
     // Finally load file
@@ -318,6 +331,7 @@ void Level::tick(std::chrono::duration<double, std::milli> delta) {
         levelState = WON;
         this->setLabel("Victory!");
         MenuManager::showMenu(MenuManager::LEVEL_FINISHED_MENU);
+        state["victory"]();
     }
 
     if (player->getHealth() <= 0 || player->getPosition().y < state["deathHeight"].get<float>()) {
@@ -325,6 +339,7 @@ void Level::tick(std::chrono::duration<double, std::milli> delta) {
         levelState = LOST;
         this->setLabel("Game Over!");
         MenuManager::showMenu(MenuManager::LEVEL_FINISHED_MENU);
+        state["lost"]();
     }
 }
 
@@ -355,6 +370,8 @@ void Level::resetEnvironment() {
 }
 
 void Level::hide() {
+    state["hide"]();
+
     pause(false);
     for (auto &entity : this->entities ) this->window->getScene()->removeObject(entity);
     for (auto &obj    : this->statics  ) this->window->getScene()->removeObject(obj);
@@ -374,6 +391,8 @@ void Level::hide() {
 }
 
 void Level::show() {
+    state["show"]();
+
     resume();
     for (auto &entity : this->entities ) this->window->getScene()->addObject(entity);
     for (auto &obj    : this->statics  ) this->window->getScene()->addObject(obj);
@@ -474,4 +493,19 @@ void Level::luaShowTextbox(const std::string &text) {
 
 void Level::luaHideTextbox() {
     MenuManager::hideMenu(false);
+}
+
+LuaSound Level::luaPlay3DSound(const std::string &file, const LuaVec3 &position, bool looped) {
+    return LuaSound(
+            AudioManager::audioEngine->play3D(file.c_str(),
+                                             irrklang::vec3df(static_cast<irrklang::ik_f32>(position.x()),
+                                                              static_cast<irrklang::ik_f32>(position.y()),
+                                                              static_cast<irrklang::ik_f32>(position.z())),
+                                             looped, false, true
+        )
+    );
+}
+
+LuaSound Level::luaPlay2DSound(const std::string &file, bool looped) {
+    return LuaSound(AudioManager::audioEngine->play2D(file.c_str(), looped, false, true));
 }

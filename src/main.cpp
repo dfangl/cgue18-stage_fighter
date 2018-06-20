@@ -64,14 +64,11 @@ int main(int UNUSED(argc), char** UNUSED(argv)) {
     /*
     * Initialize IrrKlang for Audio
     */
-    irrklang::ISoundEngine *audioEngine = irrklang::createIrrKlangDevice();
-    if (audioEngine == nullptr) {
+    AudioManager::audioEngine = irrklang::createIrrKlangDevice();
+    if (AudioManager::audioEngine == nullptr) {
         console->error("Unable to initialize irrKlang!");
         exit(EXIT_FAILURE);
     }
-
-    //Play a 2D audio
-    //audioEngine->play2D(AUDIO_SAMPLE_FILE, true /*<--looped */);
 
     /*
      * Creating a global Lua sate for configuration settings, these settings are read from a file
@@ -308,7 +305,7 @@ int main(int UNUSED(argc), char** UNUSED(argv)) {
 	delete window;
 
 	// let the audio engine drop dead
-    audioEngine->drop();
+    AudioManager::audioEngine->drop();
 
 	// Delete all other resources ...
     ShaderManager::destroy();

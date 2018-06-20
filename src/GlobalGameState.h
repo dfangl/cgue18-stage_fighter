@@ -6,6 +6,7 @@
 #define STAGE_FIGHTER_GLOBALGAMESTATE_H
 
 #include <memory>
+#include <ik_ISoundEngine.h>
 
 #include "level/Level.h"
 
