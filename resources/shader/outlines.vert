@@ -1,6 +1,6 @@
 #version 430 core
 
-#define OUTLINES_STRENGTH 0.02
+#define OUTLINES_STRENGTH 0.01
 
 out VS_OUT {
     vec2 texcoord_0;
