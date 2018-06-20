@@ -253,6 +253,23 @@ file(MAKE_DIRECTORY ${EXTERN}/nuklear/include)
 file(COPY ${EXTERN}/nuklear/nuklear.h DESTINATION ${EXTERN}/nuklear/include)
 include_directories(${EXTERN}/nuklear/include)
 
+## irrKlang ##
+include_directories(${EXTERN}/irrKlang/include)
+if (Win32)
+	link_directories(${EXTERN}/irrKlang/lib/Winx64-visualStudio/)
+	set(IRRKLANG_LIB irrKlang)
+elseif(UNIX)
+	link_directories(${EXTERN}/irrKlang/bin/linux-gcc-64/)
+	set(IRRKLANG_LIB IrrKlang)
+
+	SET(CMAKE_INSTALL_RPATH "./")
+	SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--enable-new-dtags,-rpath,'./'")
+else()
+	message(ERROR "IRRKLANG_LIB is not defined for your platform!")
+endif()
+
+#SET(CMAKE_VERBOSE_MAKEFILE ON)
+
 #
 # Link & Include Stuff into the binary
 #
@@ -296,6 +313,7 @@ target_link_libraries(
 		glad
         Threads::Threads
         ${FREETYPE_LIBRARIES}
+		${IRRKLANG_LIB}
 	)
 
 if(NOT BULLET_FOUND)	

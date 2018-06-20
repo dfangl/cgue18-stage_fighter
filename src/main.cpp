@@ -10,6 +10,7 @@
 #include <btBulletDynamicsCommon.h>
 #include <kaguya/kaguya.hpp>
 #include <spdlog/spdlog.h>
+#include <irrKlang.h>
 
 #include "Window.h"
 #include "BulletUniverse.h"
@@ -60,6 +61,17 @@ int main(int UNUSED(argc), char** UNUSED(argv)) {
         console->error("Failed to initialize GLFW!");
         exit(EXIT_FAILURE);
     }
+    /*
+    * Initialize IrrKlang for Audio
+    */
+    irrklang::ISoundEngine *audioEngine = irrklang::createIrrKlangDevice();
+    if (audioEngine == nullptr) {
+        console->error("Unable to initialize irrKlang!");
+        exit(EXIT_FAILURE);
+    }
+
+    //Play a 2D audio
+    //audioEngine->play2D(AUDIO_SAMPLE_FILE, true /*<--looped */);
 
     /*
      * Creating a global Lua sate for configuration settings, these settings are read from a file
@@ -294,6 +306,9 @@ int main(int UNUSED(argc), char** UNUSED(argv)) {
 
     // Delete the OpenGL Context + Window
 	delete window;
+
+	// let the audio engine drop dead
+    audioEngine->drop();
 
 	// Delete all other resources ...
     ShaderManager::destroy();
