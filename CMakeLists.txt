@@ -255,9 +255,9 @@ include_directories(${EXTERN}/nuklear/include)
 
 ## irrKlang ##
 include_directories(${EXTERN}/irrKlang/include)
-if (Win32)
+if (MSVC)
 	link_directories(${EXTERN}/irrKlang/lib/Winx64-visualStudio/)
-	set(IRRKLANG_LIB irrKlang)
+	set(IRRKLANG_LIB irrKlang.lib)
 elseif(UNIX)
 	link_directories(${EXTERN}/irrKlang/bin/linux-gcc-64/)
 	set(IRRKLANG_LIB IrrKlang)
