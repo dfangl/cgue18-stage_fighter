@@ -44,7 +44,7 @@ void Camera::update() {
     //this->logger->info("{}\tviewMatrix->position = ({},{},{});", static_cast<void*>(this), position.x, position.y, position.z);
     this->viewMatrix = glm::lookAt(this->position, position + front, worldUp);
 
-    updateFrustum();
+    //updateFrustum();
 }
 
 void Camera::updateFrustum() {
@@ -67,7 +67,7 @@ void Camera::updateFrustum() {
         const auto normal = glm::vec3(frustumPlane);
         const auto length = glm::length(normal);
 
-        frustumPlane = (-frustumPlane / length);
+        frustumPlane = (frustumPlane / length);
     }
 
 }
@@ -183,17 +183,12 @@ Camera::FrustumLocation Camera::isInFrustum(const glm::vec3 &position, float rad
     float auxY = az * tang               + d2;
 
     if (az > (zFar + radius) || az < (zNear-radius)) {
-        spdlog::get("console")->info("[1]: {},{},{}; {},{},{} -> {},{},{} is outside : {} > {} + {} || {} < {} - {}", v.x, v.y, v.z, front.x, front.y, front.z, position.x, position.y, position.z, az, zFar, radius, az, zNear, radius);
         return OUTSIDE;
     }
     if (ax > auxX || ax < -auxX) {
-        spdlog::get("console")->info("[2]: {},{},{}; {},{},{} ->  {},{},{} is outside : {} > {} || {} < -{} ({}||{}) => true", v.x, v.y, v.z, front.x, front.y, front.z,  position.x, position.y, position.z, ax, auxX, ax, auxX, (ax>auxX), (ax<-auxX));
         return OUTSIDE;
     }
     if (ay > auxY || ay < -auxY) {
-        spdlog::get("console")->info("[3]: {},{},{}; {},{},{} ->  {},{},{} is outside : {} > {} || {} < -{}",
-                                     v.x, v.y, v.z, front.x, front.y, front.z,
-                                     position.x, position.y, position.z, ay, auxY, ay, auxY);
         return OUTSIDE;
     }
 

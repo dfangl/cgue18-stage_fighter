@@ -64,24 +64,19 @@ void Scene::render(std::chrono::duration<double, std::milli> &delta) {
 }
 
 Camera::FrustumLocation Scene::isSphereInFrustum(const glm::vec3 &position, float radius) {
-    //return camera.isInFrustum(position, radius);
+    return camera.isInFrustum(position, radius);
 
-    auto result = Camera::INSIDE;
-    auto pl = camera.getFrustumPlanes();
-
-    for (int i=0; i<6; i++) {
-        //(pl[i].d + glm::dot(pl[i].normal, position));
-        auto distance = glm::dot(pl[i], glm::vec4(position.x, position.y, position.z, 1));
-
-        //if (distance < -radius)
-        //    spdlog::get("console")->info("plane:{}, distance={}, ({}+{}) position={},{},{}", i, distance, pl[i].d, glm::dot(pl[i].normal, position), position.x,position.y,position.z);
-
-        if (distance < -radius) return Camera::OUTSIDE;
-        else if (distance < radius)
-            result = Camera::INTERSECT;
-    }
-
-    return result;
+    //auto result = Camera::INSIDE;
+    //auto pl = camera.getFrustumPlanes();
+    //
+    //for (int i=0; i<6; i++) {
+    //    auto distance = glm::dot(position, glm::vec3(pl[i])) + pl[i].w + radius;
+    //
+    //    if (distance <= 0)
+    //        return Camera::OUTSIDE;
+    //}
+    //
+    //return result;
 
 }
 

@@ -62,6 +62,8 @@ public:
 
     static void update(std::chrono::duration<double, std::milli> delta);
 
+    static std::shared_ptr<DebugTextHud> &getDebugTextHud() { return debugTextHud; }
+
 };
 
 

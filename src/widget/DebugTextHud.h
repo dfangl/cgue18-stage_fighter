@@ -28,8 +28,6 @@ private:
     double refreshTimer;
 
     bool wireFrameMode = false;
-    bool viewFrustumCulling = false;
-
     bool effect[4] = {true, true, true, true};
 
     std::shared_ptr<Label> fpsLabel;
@@ -48,7 +46,9 @@ public:
 
     void toggleEffect(int id);
     void toggleWireframeMode();
+
     bool showFrameTime = false;
+    bool viewFrustumCulling = false;
 
     void update(std::chrono::duration<double, std::milli> delta);
     void render(const glm::mat4 &projection, float screenGamma) override;

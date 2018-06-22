@@ -217,13 +217,18 @@ int main(int UNUSED(argc), char** UNUSED(argv)) {
     //window->processCameraKeyMovement(false);
 
     // Toggle Free flying camera:
-    //level->getPlayer()->disable();
-    //window->getScene()->getCamera().enableUpdate = true;
-    //window->getScene()->getCamera().keySensitivity = 0.05;
-    //window->processCameraKeyMovement(true);
+    //window->registerKeyPollingCallback([window](Window const *win) {
+    //    if (window->getKey(GLFW_KEY_PAUSE) == GLFW_PRESS) {
+    //        GlobalGameState::level->getPlayer()->disable();
+    //        window->getScene()->getCamera().enableUpdate = true;
+    //        window->getScene()->getCamera().keySensitivity = 0.05;
+    //        window->processCameraKeyMovement(true);
+    //    }
+    //});
 
-    // Does not work
+    // Set View Frustum culling:
     window->getScene()->frustumCulling = false;
+    MenuManager::getDebugTextHud()->viewFrustumCulling = false;
 
 
     /*
