@@ -100,16 +100,25 @@ void Player::think(std::chrono::duration<double, std::milli> delta) {
     //const glm::vec3 sPos = glm::vec3(camera.getPosition().x, camera.getPosition().y - 0.13f, camera.getPosition().z);
 
     auto leftMButton = window->getMouseButton(GLFW_MOUSE_BUTTON_LEFT);
+    static bool isPlaying = false;
     if (leftMButton == GLFW_PRESS) {
         weaponAngle = std::min(65.0f, weaponAngle + (float)delta.count() / 2.6f);
         if (!isHitting && weaponAngle < 20.0f) {
-            AudioManager::audioEngine->play2D("../resources/audio/whoosh_weapon_knife_swing.wav");
+            spdlog::get("console")->info("Playing sound!");
             isHitting = true;
+            if (!isPlaying) {
+                AudioManager::audioEngine->play2D("../resources/audio/whoosh_weapon_knife_swing.wav");
+                isPlaying = true;
+            }
         }
     } else if (leftMButton == GLFW_RELEASE || revertHitAnimation){
         weaponAngle = std::max(-25.0f, weaponAngle - (float)delta.count() / 1.2f);
-        if (isHitting && weaponAngle < 20.0f)
+        if (isHitting && weaponAngle < 20.0f) {
             isHitting = false;
+        }
+        if (isPlaying) {
+            isPlaying = false;
+        }
 
     }
 
