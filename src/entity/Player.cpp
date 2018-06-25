@@ -87,7 +87,7 @@ void Player::think(std::chrono::duration<double, std::milli> delta) {
             jumpSpeed = this->oJumpSpeed;
 
             shieldRegTime += delta.count();
-            if (shieldRegTime > 1000.0f) {
+            if (shieldRegTime > 300.0f) {
                 shieldRegTime = 0;
                 shield = std::min(100, shield+1);
             }
@@ -104,7 +104,6 @@ void Player::think(std::chrono::duration<double, std::milli> delta) {
     if (leftMButton == GLFW_PRESS) {
         weaponAngle = std::min(65.0f, weaponAngle + (float)delta.count() / 2.6f);
         if (!isHitting && weaponAngle < 20.0f) {
-            spdlog::get("console")->info("Playing sound!");
             isHitting = true;
             if (!isPlaying) {
                 AudioManager::audioEngine->play2D("../resources/audio/whoosh_weapon_knife_swing.wav");
