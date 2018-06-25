@@ -78,7 +78,14 @@ void MenuManager::toggleMenu(MenuManager::View view, bool showCursor) {
     else showMenu(view, showCursor);
 }
 
+
+static double fCount = 0.0;
 void MenuManager::update(std::chrono::duration<double, std::milli> delta) {
     debugTextHud->update(delta);
-    nkContext->newFrame();
+
+    fCount += delta.count();
+    if (fCount >= 1.0f/20.0f) {
+        nkContext->newFrame();
+        fCount = 0.0f;
+    }
 }

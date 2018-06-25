@@ -54,7 +54,6 @@ void LaunchScreen::render() {
     }
     nk_end(ctx->context());
 
-
     switch (state) {
         case 1:
             MenuManager::getMenus()[MenuManager::LEVEL_SELECT] = std::make_shared<LevelSelectMenu>(MenuManager::getNuklearContext());
@@ -95,7 +94,6 @@ void LaunchScreen::hide() {
     this->visible = false;
     ctx->window()->removeWidget(not_so_smart_pointer);
     ctx->window()->removeWidget(ctx);
-
 
     this->backgroundMusic->setIsPaused(true);
 }

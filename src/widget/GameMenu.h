@@ -15,11 +15,11 @@ class GameMenu : public NuklearWidget {
 private:
     const std::shared_ptr<NuklearContext> ctx;
     Level* level;
-    const int HEIGHT = 410;
+    const int HEIGHT = 440;
     const int WIDTH  = 250;
 
     int x,y;
-
+    float globalAudioVolume;
 public:
     explicit GameMenu(const std::shared_ptr<NuklearContext> &ctx, Level* level);
 
