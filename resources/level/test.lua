@@ -86,14 +86,23 @@ lights = {
 }
 
 music = {}
+sfx = {}
 
 function show()
     music = level:play2DSound("Miguel Johnson - Not Going Down Without A Fight.ogg", true)
+    sfx[1] = level:play3DSound("forest_fire.mp3", vec3(-48.2492,-40.5088,5), true)
 end
 
 function hide()
     music:stop()
     music:destroy()
+
+    for _,value in ipairs(sfx) do
+        value:stop()
+        value:destroy()
+    end
+
+    sfx={}
 end
 
 function victory() end
