@@ -26,6 +26,8 @@ void GameMenu::render() {
         nk_layout_row_dynamic(ctx->context(), 25, 2);
         nk_label(ctx->context(), "Ambient: ", NK_TEXT_LEFT);
         nk_slider_float(ctx->context(), 0.0f, &this->ambient, 1.0f, 0.05f);
+        nk_label(ctx->context(), "Audio Volume: ", NK_TEXT_LEFT);
+        nk_slider_float(ctx->context(), 0.0f, &globalAudioVolume, 2.0f, 0.1f);
 
         nk_layout_row_dynamic(ctx->context(), 8, 1);
         nk_style_set_font(ctx->context(), &ctx->getFonts()[1]->handle);
@@ -61,6 +63,8 @@ void GameMenu::render() {
     nk_end(ctx->context());
 
     this->ctx->window()->setScreenGamma(this->gamma);
+    AudioManager::audioEngine->setSoundVolume(globalAudioVolume);
+
     if (ambient != lastFrameAmbient) {
         lastFrameAmbient = ambient;
         ctx->window()->getScene()->getLights()[0].ambient = glm::vec3(ambient);
@@ -77,6 +81,7 @@ void GameMenu::show() {
     this->gamma = ctx->window()->getScreenGamma();
     this->ambient = ctx->window()->getScene()->getLights()[0].ambient.x;
     this->lastFrameAmbient = ambient;
+    this->globalAudioVolume = AudioManager::audioEngine->getSoundVolume();
 
     level->pause();
     this->visible = true;

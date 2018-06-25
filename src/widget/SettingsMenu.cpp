@@ -8,6 +8,7 @@
 
 SettingsMenu::SettingsMenu(const std::shared_ptr<NuklearContext> &ctx) : ctx(ctx){
     this->screenGamma = ctx->window()->getScreenGamma();
+    this->globalAudioVolume = AudioManager::audioEngine->getSoundVolume();
     this->resize(ctx->window()->getWidth(), ctx->window()->getHeight());
 }
 
@@ -26,6 +27,12 @@ void SettingsMenu::render() {
         nk_slider_float(ctx->context(), 0.0f, &screenGamma, 5.0f, 0.1f);
         nk_layout_row_dynamic(ctx->context(), 25, 1);
 
+        nk_style_set_font(ctx->context(), &ctx->getFonts()[0]->handle);
+        nk_layout_row_dynamic(ctx->context(), 28, 2);
+        nk_label(ctx->context(), "Audio Volume: ", NK_TEXT_LEFT);
+        nk_slider_float(ctx->context(), 0.0f, &globalAudioVolume, 2.0f, 0.1f);
+        nk_layout_row_dynamic(ctx->context(), 25, 1);
+
         nk_style_set_font(ctx->context(), &ctx->getFonts()[1]->handle);
         nk_layout_row_dynamic(ctx->context(), 29, 1);
         nk_label(ctx->context(), "Controls", NK_TEXT_ALIGN_CENTERED);
@@ -35,16 +42,19 @@ void SettingsMenu::render() {
 
         if (nk_button_label(ctx->context(), "Back")) {
             AudioManager::audioEngine->play2D("../resources/audio/button-50.mp3");
-           menuExitAction = true;
+            menuExitAction = true;
         }
     }
     nk_end(ctx->context());
 
-    ctx->window()->setScreenGamma(this->screenGamma);
+
     if (menuExitAction) {
         GlobalGameState::state = GlobalGameState::IN_MENU;
         MenuManager::hideMenu(false);
     }
+
+    ctx->window()->setScreenGamma(this->screenGamma);
+    AudioManager::audioEngine->setSoundVolume(globalAudioVolume);
 }
 
 void SettingsMenu::resize(float x, float y) {
