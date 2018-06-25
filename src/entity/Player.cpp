@@ -109,7 +109,6 @@ void Player::think(std::chrono::duration<double, std::milli> delta) {
     } else if (leftMButton == GLFW_RELEASE || revertHitAnimation){
         weaponAngle = std::max(-25.0f, weaponAngle - (float)delta.count() / 1.2f);
         if (isHitting && weaponAngle < 20.0f)
-            spdlog::get("console")->info("Setting hitting to false");
             isHitting = false;
 
     }
