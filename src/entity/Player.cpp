@@ -103,7 +103,6 @@ void Player::think(std::chrono::duration<double, std::milli> delta) {
     if (leftMButton == GLFW_PRESS) {
         weaponAngle = std::min(65.0f, weaponAngle + (float)delta.count() / 2.6f);
         if (!isHitting && weaponAngle < 20.0f) {
-
             AudioManager::audioEngine->play2D("../resources/audio/whoosh_weapon_knife_swing.wav");
             isHitting = true;
         }
