@@ -96,6 +96,8 @@ public:
 
     std::vector<std::shared_ptr<Texture>> &getTextures() { return this->textures; }
 
+    //void render(Scene *scene) override;
+
     void draw(std::shared_ptr<Shader> &shader) override;
 
     // Instancing not fully implemented !

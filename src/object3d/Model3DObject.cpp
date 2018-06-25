@@ -13,6 +13,7 @@
 #include "../manager/TextureManager.h"
 
 #include "../helper/CompilerMacros.h"
+#include "../Scene.h"
 
 #define BUFFER_OFFSET(t, i) ((t *)NULL + (i))
 
@@ -312,7 +313,7 @@ void Model3DObject::drawMesh(const tinygltf::Mesh &mesh, GLuint &VAO, GLenum &mo
                                 static_cast<GLsizei>(indexAccess.count),
                                 static_cast<GLenum>(indexAccess.componentType),
                                 BUFFER_OFFSET(char, indexAccess.byteOffset),
-                                static_cast<GLsizei>(instancedTranslation.size())
+                                static_cast<GLsizei>(instancedModelMatrix.size())
         );
     glCullFace(GL_BACK);
     glDisable(GL_CULL_FACE);
@@ -604,3 +605,32 @@ void Model3DObject::setModelMatrix(const glm::mat4 &worldMatrix) {
     instancedModelMatrix[0] = modelMatrix;
     instancedNormalMatrix[0] = normalMatrix;
 }
+
+/*
+void Model3DObject::render(Scene *scene) {
+    if (scene->frustumCulling && this->instances > 0) {
+        this->recomputeInstanceBuffer = true;
+        std::vector<glm::mat4> model;
+        std::vector<glm::mat4> normal;
+
+        model.reserve(instancedNormalMatrix.size());
+        normal.reserve(instancedNormalMatrix.size());
+
+        int cull = 0;
+        for (size_t i=0; i < instancedTranslation.size(); i++) {
+            if (scene->getCamera().isInFrustum(instancedTranslation[i], boundingSphereRadius)) {
+                model.push_back(instancedModelMatrix[i]);
+                normal.push_back(instancedNormalMatrix[i]);
+            } else {
+                cull++;
+            }
+        }
+
+        scene->culledObjects += cull;
+        instancedModelMatrix = model;
+        instancedNormalMatrix = normal;
+    }
+
+    Object3D::render(scene);
+}
+*/

@@ -21,8 +21,6 @@ class Scene {
 private:
     Camera &camera;
 
-    unsigned int culledObjects = 0;
-
     std::vector<Light> lights;
     std::vector<std::shared_ptr<Object3DAbstract>> objects;
     std::vector<std::shared_ptr<AbstractParticleSystem>> particles;
@@ -39,6 +37,7 @@ protected:
 
 
 public:
+    unsigned int culledObjects = 0;
     explicit Scene(Camera &camera);
 
     void initOpenGLContext();
