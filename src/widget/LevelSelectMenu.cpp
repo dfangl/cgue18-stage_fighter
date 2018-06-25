@@ -25,6 +25,7 @@ void LevelSelectMenu::render() {
         for (auto &level : state["levels"].get<std::map<std::string, kaguya::LuaTable>>()) {
             nk_layout_row_dynamic(ctx->context(), 25, 1);
             if (nk_button_label(ctx->context(), level.first.c_str())) {
+                AudioManager::audioEngine->play2D("../resources/audio/button-50.mp3");
                 selected = level.second["file"].get<std::string>();
             }
         }

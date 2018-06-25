@@ -5,8 +5,8 @@
 
 -- Set window properties, some of these proeprties are irgnored when invalid
 window = {
-    width=1280,         -- Width  of Window in px
-    height=768,         -- Height of Window in px
+    width=3840,         -- Width  of Window in px
+    height=2160,         -- Height of Window in px
     vsync=false,         -- true to enable vsync false to disable
 
     -- Set Fullscreen Mode:
@@ -14,7 +14,7 @@ window = {
     --      -1      Normal Window mode
     --       0  >=  Fullscreen mode, invalid width & height may be ignored or app might crash
     --              Opens Fullscreen on Monitor with this index
-    fullscreen=-1,
+    fullscreen=-2,
 
     -- Set Refreshrate in Hz (does only work in Fullscreen mode, invalid modes are ignored)
     --      -1      Default Monitor refresh rate

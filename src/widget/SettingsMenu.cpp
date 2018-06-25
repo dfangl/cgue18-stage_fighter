@@ -34,6 +34,7 @@ void SettingsMenu::render() {
         nk_slider_float(ctx->context(), 0.001f, &ctx->window()->getScene()->getCamera().mouseSensitivity, 2.0f, 0.005f);
 
         if (nk_button_label(ctx->context(), "Back")) {
+            AudioManager::audioEngine->play2D("../resources/audio/button-50.mp3");
            menuExitAction = true;
         }
     }

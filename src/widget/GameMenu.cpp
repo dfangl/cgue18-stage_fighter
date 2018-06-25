@@ -38,11 +38,13 @@ void GameMenu::render() {
         nk_layout_row_dynamic(ctx->context(), 25, 1);
         nk_layout_row_dynamic(ctx->context(), 25, 1);
         if (nk_button_label(ctx->context(), "Resume Game")) {
+            AudioManager::audioEngine->play2D("../resources/audio/button-50.mp3");
             this->hide();
             MenuManager::hideMenu(true);
         }
         nk_layout_row_dynamic(ctx->context(), 25, 1);
         if (nk_button_label(ctx->context(), "Back to main Menu")) {
+            AudioManager::audioEngine->play2D("../resources/audio/button-50.mp3");
             GlobalGameState::state = GlobalGameState::AFTER_LEVEL;
             MenuManager::hideMenu(false);
             this->visible = false;
@@ -51,6 +53,7 @@ void GameMenu::render() {
         nk_layout_row_dynamic(ctx->context(), 16, 1);
         nk_layout_row_dynamic(ctx->context(), 25, 1);
         if (nk_button_label(ctx->context(), "Exit Game")) {
+            AudioManager::audioEngine->play2D("../resources/audio/button-50.mp3");
             ctx->window()->close();
         }
     }

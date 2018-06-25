@@ -23,12 +23,14 @@ void BackToMenuWindow::render() {
         nk_style_set_font(ctx->context(), &ctx->getFonts()[1]->handle);
         nk_layout_row_dynamic(ctx->context(), 32, 1);
         if (nk_button_label(ctx->context(), "Play again")) {
+            AudioManager::audioEngine->play2D("../resources/audio/button-50.mp3");
             GlobalGameState::state = GlobalGameState::LEVEL_PLAY_AGAIN;
             MenuManager::hideMenu(false);
         }
         nk_layout_row_dynamic(ctx->context(), 8, 1);
         nk_layout_row_dynamic(ctx->context(), 32, 1);
         if (nk_button_label(ctx->context(), "Back to main Menu")) {
+            AudioManager::audioEngine->play2D("../resources/audio/button-50.mp3");
             GlobalGameState::state = GlobalGameState::AFTER_LEVEL;
             MenuManager::hideMenu(false);
         }

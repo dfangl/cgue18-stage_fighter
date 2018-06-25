@@ -37,15 +37,18 @@ void LaunchScreen::render() {
         nk_style_set_font(ctx->context(), &ctx->getFonts()[1]->handle);
         nk_layout_row_dynamic(ctx->context(), 41, 1);
         if (nk_button_label(ctx->context(), "Play")) {
-           state = 1;
+            AudioManager::audioEngine->play2D("../resources/audio/button-50.mp3");
+            state = 1;
         }
         nk_layout_row_dynamic(ctx->context(), 41, 1);
         if (nk_button_label(ctx->context(), "Settings")) {
+            AudioManager::audioEngine->play2D("../resources/audio/button-50.mp3");
             state = 2;
         }
         nk_layout_row_dynamic(ctx->context(), 175, 1);
         nk_layout_row_dynamic(ctx->context(), 41, 1);
         if (nk_button_label(ctx->context(), "Exit Game")) {
+            AudioManager::audioEngine->play2D("../resources/audio/button-50.mp3");
             ctx->window()->close();
         }
     }
