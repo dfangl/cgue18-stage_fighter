@@ -173,11 +173,15 @@ void Player::computeEnemyInView(std::vector<std::shared_ptr<Entity>> &entities) 
 }
 
 void Player::collideWith(BulletObject *other) {
-    if (other->getKind() == BulletObject::BULLET)
-        if (!this->isBlocking)
-            this->health = std::max(0, health - 1);
-        else
+    if (other->getKind() == BulletObject::BULLET) {
+        if (!this->isBlocking) {
+            this->health = std::max(0, health - 10);
+            AudioManager::audioEngine->play2D("../resources/audio/body_hit.wav");
+        } else {
+            this->shield = std::max(0, shield - 10);
             AudioManager::audioEngine->play2D("../resources/audio/retro_impact_hit_13.wav");
+        }
+    }
 }
 
 BulletObject::Kind Player::getEntityKind() {
