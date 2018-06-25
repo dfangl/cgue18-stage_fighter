@@ -9,7 +9,7 @@
 #include "widget/SettingsMenu.h"
 
 
-LaunchScreen::LaunchScreen(Window *window)
+LaunchScreen::LaunchScreen(Window *window, irrklang::ISound *sound)
         : ctx(std::make_shared<NuklearContext>(window)),
           header(std::string("Stage Fighter"), FontManager::get("Metamorphous-72") , 1.0f, 1.0f, 1.0f, glm::vec3(0.09f, 0.09f, 0.09f)),
           background(0,0,window->getWidth(), window->getHeight(),TextureManager::load("__gen_marble")) {
@@ -23,6 +23,8 @@ LaunchScreen::LaunchScreen(Window *window)
     ctx->context()->style.button.text_normal = nk_rgb(245, 245, 245);
     ctx->context()->style.button.text_hover = nk_rgb(245, 245, 245);
 
+    this->backgroundMusic = sound;
+    this->backgroundMusic->setVolume(0.20f);
     this->resize(window->getWidth(), window->getHeight());
 }
 
@@ -82,11 +84,17 @@ void LaunchScreen::show() {
     // Move Menu stuff back so Background image does not overdraw it
     ctx->window()->removeWidget(MenuManager::getNuklearContext());
     ctx->window()->addWidget(MenuManager::getNuklearContext());
+
+    this->backgroundMusic->setPlayPosition(0);
+    this->backgroundMusic->setIsPaused(false);
 }
 void LaunchScreen::hide() {
     this->visible = false;
     ctx->window()->removeWidget(not_so_smart_pointer);
     ctx->window()->removeWidget(ctx);
+
+
+    this->backgroundMusic->setIsPaused(true);
 }
 
 void LaunchScreen::render(const glm::mat4 &projection, float screenGamma) {

@@ -497,7 +497,7 @@ void Level::luaHideTextbox() {
 
 LuaSound Level::luaPlay3DSound(const std::string &file, const LuaVec3 &position, bool looped) {
     return LuaSound(
-            AudioManager::audioEngine->play3D(file.c_str(),
+            AudioManager::audioEngine->play3D((std::string("../resources/audio/") + file).c_str(),
                                              irrklang::vec3df(static_cast<irrklang::ik_f32>(position.x()),
                                                               static_cast<irrklang::ik_f32>(position.y()),
                                                               static_cast<irrklang::ik_f32>(position.z())),
@@ -507,5 +507,5 @@ LuaSound Level::luaPlay3DSound(const std::string &file, const LuaVec3 &position,
 }
 
 LuaSound Level::luaPlay2DSound(const std::string &file, bool looped) {
-    return LuaSound(AudioManager::audioEngine->play2D(file.c_str(), looped, false, true));
+    return LuaSound(AudioManager::audioEngine->play2D((std::string("../resources/audio/") + file).c_str(), looped, false, true));
 }

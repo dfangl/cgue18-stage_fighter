@@ -196,7 +196,11 @@ int main(int UNUSED(argc), char** UNUSED(argv)) {
      *  Create main screen and process debugging options to jump
      *  directly into a level if given
      */
-    auto main_screen = std::make_shared<LaunchScreen>(window);
+    auto backgroundMusic = AudioManager::audioEngine->play2D(
+            (std::string("../resources/audio/") + config["game_menu"]["background_music"].get<std::string>()).c_str(),
+            true, true, true
+    );
+    auto main_screen = std::make_shared<LaunchScreen>(window, backgroundMusic);
     if (config["debug"]["loadIntoLevel"].get<bool>()) {
         auto levelFile = config["debug"]["levelFile"].get<std::string>();
         console->info("Loading directly into Level: {}", levelFile);
@@ -310,6 +314,7 @@ int main(int UNUSED(argc), char** UNUSED(argv)) {
 	delete window;
 
 	// let the audio engine drop dead
+    backgroundMusic->drop();
     AudioManager::audioEngine->drop();
 
 	// Delete all other resources ...

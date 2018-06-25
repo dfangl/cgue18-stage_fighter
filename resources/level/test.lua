@@ -85,11 +85,14 @@ lights = {
     )
 }
 
+music = {}
+
 function show()
-    music = level:play2DSound("/home/raphael/Downloads/The-Life-Aquatic_15616_audiocabin.wav", true)
+    music = level:play2DSound("Miguel Johnson - Not Going Down Without A Fight.ogg", true)
 end
 
 function hide()
+    music:stop()
     music:destroy()
 end
 

@@ -5,6 +5,7 @@
 #ifndef STAGE_FIGHTER_LAUNCHSCREEN_H
 #define STAGE_FIGHTER_LAUNCHSCREEN_H
 
+#include <irrKlang.h>
 
 #include "widget/Image.h"
 #include "widget/Label.h"
@@ -24,9 +25,10 @@ private:
     int x=0,y=0;
 
     bool visible = false;
+    irrklang::ISound *backgroundMusic;
 
 public:
-    explicit LaunchScreen(Window *);
+    LaunchScreen(Window *, irrklang::ISound *);
     void resize(float x, float y) override;
 
     void show() override;

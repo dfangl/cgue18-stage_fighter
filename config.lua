@@ -36,6 +36,10 @@ camera = {
     fov=45
 }
 
+game_menu = {
+    background_music = "Miguel Johnson - Legend.ogg"
+}
+
 -- Set Debug properties, should be disabled if not debugging one of these subsystems:
 --      true to enable debugging or false to disable debuggiing
 debug = {
