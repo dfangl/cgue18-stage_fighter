@@ -14,6 +14,7 @@
 
 #include "../helper/QuatUtils.h"
 #include "ScriptedObject.h"
+#include "../manager/AudioManager.h"
 
 Player::Player(Camera &camera, Window *window, const std::shared_ptr<BulletUniverse> &world) :
         CameraEntity(camera, world, new btSphereShape(0.7f), 1.0f),
@@ -173,6 +174,8 @@ void Player::collideWith(BulletObject *other) {
     if (other->getKind() == BulletObject::BULLET)
         if (!this->isBlocking)
             this->health = std::max(0, health - 1);
+        else
+            AudioManager::audioEngine->play2D("../resources/audio/retro_impact_hit_13.wav");
 }
 
 BulletObject::Kind Player::getEntityKind() {

@@ -55,10 +55,10 @@ particlesystem = {
 }
 
 entities = {
-    dynamics.turret("Broken turret", 5,  vec3(5,1,5), vec4(0,0,0,1),
+    dynamics.turret("Hit my ass!", 5,  vec3(5,1,5), vec4(0,0,0,1),
             behavior.shootAtPlayerInRange(projectile.rocket, 1000, 20)
     ),
-    dynamics.turret("Broken turret", 5,  vec3(-9.48663,1,27.0495), vec4(0,0,0,1),
+    dynamics.turret("You can't hurt me", 5,  vec3(-9.48663,1,27.0495), vec4(0,0,0,1),
             behavior.shootAtPlayerInRange(projectile.rocket, 850, 25)
     )
 }

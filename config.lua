@@ -14,7 +14,7 @@ window = {
     --      -1      Normal Window mode
     --       0  >=  Fullscreen mode, invalid width & height may be ignored or app might crash
     --              Opens Fullscreen on Monitor with this index
-    fullscreen=-2,
+    fullscreen=0,
 
     -- Set Refreshrate in Hz (does only work in Fullscreen mode, invalid modes are ignored)
     --      -1      Default Monitor refresh rate
